@@ -1,0 +1,9 @@
+{
+	"baseDomain": "localhost:8000",
+	"shouldUseTLS": "false",
+	"sentryPublicKey": "https://9eeb0e986af40aaa38976aad16c2eb05@o4508462006468608.ingest.us.sentry.io/4508462008238080",
+	"envIdentifier": "DEVELOPMENT",
+	"macAddressHashKey": "77e&=c#8w-^%^1269o(_q7_xomktd+w1g!!9lso*v@oiiznt%(",
+	"hubAddress": "127.0.0.1",
+	"skipWifiHandoff": true
+}

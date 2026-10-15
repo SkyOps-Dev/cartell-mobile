@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Copied from frontend/android/app/src/main/res/values/styles.xml (light mode). -->
+
+    <!-- Shown by the system while the process starts, until the first React frame is drawn
+         (MainActivity holds the first draw, as Flutter's host does). -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+    </style>
+
+    <!-- Applied in MainActivity.onCreate. Literal #FF0A0E21, not ?android:colorBackground, which
+         is #303030 under AppCompat and flashed grey behind the UI in the Flutter app. -->
+    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">#FF0A0E21</item>
+        <!-- React Native's TextInput relies on this drawable for its padding; not in Flutter. -->
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+    </style>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy of local_auth_android 1.0.56's res/values (colors.xml, dimens.xml, styles.xml), for the
+     "go to settings" dialog. Names prefixed local_auth_ / LocalAuth. -->
+<resources>
+  <!-- Fingerprint colors -->
+  <color name="local_auth_black_text">#212121</color>
+  <color name="local_auth_grey_text">#757575</color>
+
+  <dimen name="local_auth_medium_text_size">16sp</dimen>
+  <dimen name="local_auth_huge_text_size">20sp</dimen>
+
+  <!-- Fingerprint dialog theme. -->
+  <!--suppress NewApi -->
+  <style name="LocalAuthAlertDialogCustom" parent="@android:style/Theme.Material.Dialog.Alert">
+    <item name="android:background">#FFFFFFFF</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:colorAccent">#FF009688</item>
+  </style>
+</resources>

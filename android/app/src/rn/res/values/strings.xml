@@ -1,0 +1,4 @@
+<resources>
+    <!-- Side-by-side development copy only (see app/build.gradle productFlavors). -->
+    <string name="app_name">Cartell RN</string>
+</resources>

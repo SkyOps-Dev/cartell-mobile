@@ -1,0 +1,25 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/DroidSansMono.ttf",
+      "sha1": "0b75601f8ef8e111babb6ed11de6573f7178ce44"
+    },
+    {
+      "path": "assets/fonts/FontAwesome7Free-Regular.otf",
+      "sha1": "06269d61fa40804503c24c61cb2030a3381cdf20"
+    },
+    {
+      "path": "assets/fonts/FontAwesome7Free-Solid.otf",
+      "sha1": "26d8d870100e9b4b4c500469970581c8c7fee2e6"
+    },
+    {
+      "path": "assets/fonts/MaterialIcons-Regular.otf",
+      "sha1": "fc25284ee3d0aaa75ec5fc8e4fd96926157ed8c4"
+    },
+    {
+      "path": "assets/fonts/SourceSansPro-Regular.ttf",
+      "sha1": "48d6928e08ba5e2ca1e15d754c146580b1c8febd"
+    }
+  ]
+}

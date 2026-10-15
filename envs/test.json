@@ -1,0 +1,7 @@
+{
+	"baseDomain": "test.cartellap.com",
+	"shouldUseTLS": "true",
+	"sentryPublicKey": "https://9eeb0e986af40aaa38976aad16c2eb05@o4508462006468608.ingest.us.sentry.io/4508462008238080",
+	"envIdentifier": "TEST",
+	"macAddressHashKey": ")urm9xx%%k=33j8k(8ha6!l$i_($tb9z-^-*$7-2c+sy=%hqeh"
+}

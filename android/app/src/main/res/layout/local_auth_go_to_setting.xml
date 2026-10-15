@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy of local_auth_android 1.0.56's res/layout/go_to_setting.xml (the "go to settings"
+     dialog's body, LocalAuthModule / AuthenticationHelper.kt). Names prefixed local_auth_. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp">
+
+    <TextView
+        android:id="@+id/local_auth_fingerprint_required"
+        style="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingTop="24dp"
+        android:paddingBottom="20dp"
+        android:textColor="@color/local_auth_black_text"
+        android:textIsSelectable="false"
+        android:textSize="@dimen/local_auth_huge_text_size" />
+
+    <TextView
+        android:id="@+id/local_auth_go_to_setting_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="28dp"
+        android:textColor="@color/local_auth_grey_text"
+        android:textIsSelectable="false"
+        android:textSize="@dimen/local_auth_medium_text_size"
+        android:textStyle="normal" />
+</LinearLayout>

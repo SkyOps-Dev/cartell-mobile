@@ -1,0 +1,8 @@
+{
+	"baseDomain": "cartellap.com",
+	"shouldUseTLS": "true",
+	"sentryPublicKey": "https://9eeb0e986af40aaa38976aad16c2eb05@o4508462006468608.ingest.us.sentry.io/4508462008238080",
+	"envIdentifier": "LIVE",
+	"macAddressHashKey": "Z9dLUnVJ3CVyZvfn6PNd2Z5vgpJKcVa6xEBAqZLBFycyTgw8yC"
+
+}

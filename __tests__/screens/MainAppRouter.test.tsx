@@ -110,3 +110,61 @@ test('the side menu shows the signed-in user, and Log Out returns to Welcome', a
   expect(await SecureStorage.getAccessToken()).toBeNull();
   expect(screen.getAllByText('Log In').length).toBeGreaterThan(0);
 });
+
+test('side menu → Account Settings: the skeleton, then the screen; its forms come and go', async () => {
+  const { requests } = installFakeServer({
+    'GET /maintenance-mode/': { status: 200 },
+    'POST /auth/jwt/verify': { status: 200 },
+    'GET /devices/': { status: 200, body: [] },
+    'GET /auth/users/me/': { status: 200, body: user },
+    'GET /profiles/me': {
+      status: 200,
+      body: {
+        user: 1,
+        should_send_notification: true,
+        locations: [],
+        alexa_enabled: false,
+      },
+    },
+    'GET /app/settings/': {
+      status: 200,
+      body: { id: 1, key: 'alexa_enabled', value: 'false' },
+    },
+  });
+  await render(
+    <SafeAreaProvider initialMetrics={metrics}>
+      <PopupHost>
+        <AuthRouter />
+      </PopupHost>
+    </SafeAreaProvider>,
+  );
+  await settle();
+
+  await fireEvent.press(screen.getByLabelText('Open navigation menu'));
+  await settle();
+  const before = requests.length;
+  await fireEvent.press(screen.getByText('Account Settings'));
+  await settle();
+  const calls = requests
+    .slice(before)
+    .map(r => `${r.method} ${r.path}`)
+    .filter(call => call !== 'GET /maintenance-mode/');
+  expect(calls).toEqual(
+    expect.arrayContaining(['GET /auth/users/me/', 'GET /profiles/me']),
+  );
+  expect(screen.getByText('Umair SkyOps')).toBeTruthy();
+  expect(screen.getByText('Enter Phone Number')).toBeTruthy();
+
+  await fireEvent.press(screen.getByText('Umair SkyOps'));
+  await settle();
+  expect(screen.getByText('Enter Your Name.')).toBeTruthy();
+
+  await fireEvent.press(
+    screen.getByText(String.fromCodePoint(0xf00d), {
+      includeHiddenElements: true,
+    }),
+  );
+  await settle();
+  expect(screen.queryByText('Enter Your Name.')).toBeNull();
+  expect(screen.getByText('Receive Notifications: ')).toBeTruthy();
+});

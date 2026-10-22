@@ -24,6 +24,8 @@ export const MaterialColors = {
   black54: 'rgba(0, 0, 0, 0.54)',
   grey: '#9E9E9E',
   red: '#F44336',
+  /** Colors.orange (shade 500). */
+  orange: '#FF9800',
 } as const;
 
 /**
@@ -40,6 +42,7 @@ export const ColorScheme = {
   surface: '#141218',
   surfaceContainerLow: '#1D1B20',
   surfaceContainer: '#211F26',
+  surfaceContainerHighest: '#36343B',
   onSurface: '#E6E0E9',
   onSurfaceVariant: '#CAC4D0',
   outline: '#938F99',

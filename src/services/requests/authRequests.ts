@@ -7,7 +7,7 @@
 // token: not signed in → refresh and store BOTH new tokens → refused: dead session (66c58).
 // The 15 s background timer that calls `auth` is in ../startServices.ts.
 
-import { baseUrlHttp } from '../../config/environment';
+import { nodeBaseUrlHttp } from '../../config/environment';
 import { Mode, ModeWatcherHelper } from '../../utilities/modeWatcher';
 import {
   AccountCreationFailedException,
@@ -154,7 +154,8 @@ export class AuthRequestManager {
   }): Promise<HttpResponse | null> {
     try {
       return await new NetworkHelper(
-        `${baseUrlHttp()}/auth/users/`,
+        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        `${nodeBaseUrlHttp()}/auth/users/`,
       ).postSecureData({
         body: {
           email,
@@ -181,7 +182,8 @@ export class AuthRequestManager {
   }): Promise<HttpResponse | null> {
     try {
       return await new NetworkHelper(
-        `${baseUrlHttp()}/auth/jwt/create`,
+        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        `${nodeBaseUrlHttp()}/auth/jwt/create`,
       ).postSecureData({
         body: { email, password },
         shouldAuthenticate: false,
@@ -199,7 +201,8 @@ export class AuthRequestManager {
   ): Promise<HttpResponse> {
     try {
       return await new NetworkHelper(
-        `${baseUrlHttp()}/auth/jwt/refresh`,
+        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        `${nodeBaseUrlHttp()}/auth/jwt/refresh`,
       ).postSecureData({ body: { [type]: token }, shouldAuthenticate: false });
     } catch (error) {
       reportError(new StoredCredentialsException('Error Code 045c9:'));
@@ -214,7 +217,8 @@ export class AuthRequestManager {
   ): Promise<HttpResponse> {
     try {
       return await new NetworkHelper(
-        `${baseUrlHttp()}/auth/jwt/verify`,
+        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        `${nodeBaseUrlHttp()}/auth/jwt/verify`,
       ).postSecureData({ body: { [type]: token }, shouldAuthenticate: false });
     } catch (error) {
       reportError(new StoredCredentialsException('Error Code 675e0:'));

@@ -2,17 +2,19 @@
 // signed-in shell. Made on a successful log in or auto sign-in, before the hub list is fetched,
 // so by the time the shell appears it is already on the Hubs state.
 //
-// Built so far: the loading and Hubs states, GoToHubsScreenEvent and the error recovery.
+// Built so far: the loading and Hubs states, GoToHubsScreenEvent and the error recovery; Account
+// Settings and its three edit forms (name, password, phone number).
 // LATER(part 6): GoBackNStatesEvent and showMessage (forwarding to the AuthBloc's message stream),
 // with the first screen that uses them.
-// LATER(part 21): IsOnAccountSettingsScreenState(user?, profile?) + GoToAccountSettingsScreen, and
-// the three edit states and events (name, password, phone number; part 22).
 // LATER(part 35): IsOnEventHistoryScreenState(event, refresh) + GoToEventHistoryScreen.
 // LATER(part 20): IsOnContactUsScreenState + GoToContactUsScreen.
 // LATER(part 18): IsOnAlexaHelpScreenState(isConnected) + GoToAlexaHelpScreenState.
 // LATER(part 17): IsOnHubLightsHelpScreenState + GoToHubLightsHelpScreenEvent.
 
+import type { Profile } from '../../models/profile';
+import type { User } from '../../models/user';
 import { AuthRequestManager } from '../../services/requests/authRequests';
+import { setProfile, setUser } from '../../services/requests/userRequests';
 import type { AuthBloc } from '../auth/authBloc';
 import { AutoLoginEvent } from '../auth/authBloc';
 import { DevicesBloc, GoToDevicesHomeScreen } from '../devices/devicesBloc';
@@ -44,6 +46,42 @@ export class IsLoadingMainAppState extends MainAppState {
 
 /** The hubs area (its own DevicesBloc decides the screen). */
 export class IsOnHubsScreenState extends MainAppState {}
+
+/**
+ * Account Settings. User and profile are null until both requests land: neither has a meaningful
+ * empty value, so the screen is a skeleton until then.
+ */
+export class IsOnAccountSettingsScreenState extends MainAppState {
+  constructor(
+    readonly user: User | null = null,
+    readonly profile: Profile | null = null,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.user, this.profile];
+  }
+}
+
+/** The three edit forms. Not poppable. */
+export class IsOnAccountSettingsEditNameScreenState extends MainAppState {
+  constructor(readonly user: User) {
+    super(false);
+  }
+}
+
+export class IsOnAccountSettingsEditPasswordScreenState extends MainAppState {
+  constructor(readonly user: User) {
+    super(false);
+  }
+}
+
+export class IsOnAccountSettingsEditPhoneNumberScreenState extends MainAppState {
+  constructor(readonly user: User) {
+    super(false);
+  }
+}
 
 // --- bloc --------------------------------------------------------------------------------
 
@@ -94,5 +132,63 @@ export class GoToHubsScreenEvent implements MainAppEvent {
     }
     // Hands off to the DevicesBloc, which fetches for itself.
     emit(new IsOnHubsScreenState());
+  }
+}
+
+/**
+ * From the side menu (or back from an edit form): the skeleton at once, then the user and the
+ * profile, fetched side by side. Like Dart's record `.wait`, both requests finish before a failure
+ * is raised (to the error recovery: Hubs, or sign-in again). Leaving meanwhile (the skeleton has
+ * the side menu) is respected: nothing jumps back.
+ */
+export class GoToAccountSettingsScreen implements MainAppEvent {
+  async handleEvent(bloc: MainAppBloc, emit: Emitter<MainAppState>) {
+    const pending = new IsOnAccountSettingsScreenState();
+    emit(pending);
+
+    const [user, profile] = await Promise.allSettled([setUser(), setProfile()]);
+    if (user.status === 'rejected') {
+      throw user.reason;
+    }
+    if (profile.status === 'rejected') {
+      throw profile.reason;
+    }
+
+    if (emit.isDone || bloc.state !== pending) {
+      return;
+    }
+    emit(new IsOnAccountSettingsScreenState(user.value, profile.value));
+  }
+}
+
+/**
+ * The edit forms render from the user already in hand and do not fetch it again: a refresh
+ * landing mid-edit would overwrite what was typed.
+ */
+export class GoToAccountSettingsEditNameScreenEvent implements MainAppEvent {
+  constructor(readonly user: User) {}
+
+  async handleEvent(_bloc: MainAppBloc, emit: Emitter<MainAppState>) {
+    emit(new IsOnAccountSettingsEditNameScreenState(this.user));
+  }
+}
+
+export class GoToAccountSettingsEditPasswordScreenEvent
+  implements MainAppEvent
+{
+  constructor(readonly user: User) {}
+
+  async handleEvent(_bloc: MainAppBloc, emit: Emitter<MainAppState>) {
+    emit(new IsOnAccountSettingsEditPasswordScreenState(this.user));
+  }
+}
+
+export class GoToAccountSettingsEditPhoneNumberScreenEvent
+  implements MainAppEvent
+{
+  constructor(readonly user: User) {}
+
+  async handleEvent(_bloc: MainAppBloc, emit: Emitter<MainAppState>) {
+    emit(new IsOnAccountSettingsEditPhoneNumberScreenState(this.user));
   }
 }

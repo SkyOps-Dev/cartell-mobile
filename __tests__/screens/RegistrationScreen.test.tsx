@@ -5,10 +5,8 @@ import { StyleSheet } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import {
-  RegistrationScreen,
-  validatePassword,
-} from '../../src/screens/welcome/RegistrationScreen';
+import { RegistrationScreen } from '../../src/screens/welcome/RegistrationScreen';
+import { validatePassword } from '../../src/utilities/passwordRules';
 import * as autofill from '../../src/services/autofill';
 import { AuthBloc } from '../../src/state/auth/authBloc';
 import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';

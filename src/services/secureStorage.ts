@@ -68,6 +68,9 @@ export const SecureStorage = {
     await remove(keys.credsSaved());
   },
 
+  /** One of the legacy keys; a successful password change deletes it on its own. */
+  deletePassword: () => remove(keys.password()),
+
   /** Stored as "true" / "false", as Dart's bool.toString writes it. */
   setShowFeedback: (showFeedback: boolean) =>
     write(keys.userFeedback(), String(showFeedback)),
@@ -75,9 +78,9 @@ export const SecureStorage = {
   /**
    * Whether the user has opted into unlocking with a biometric. Three-valued on purpose: null
    * means they have never been asked, which is what stops the opt-in prompt reappearing after
-   * they decline it. Only the Account Settings switch moves it back off false.
-   * LATER(part 21): that switch (shown when the device can do it, the preference is on, or it
-   * could not be read). LATER(part 23): account deletion deletes the preference too.
+   * they decline it. Only the Account Settings switch moves it back off false (shown when the
+   * device can do it, the preference is on, or it could not be read). Deleting the account
+   * deletes the preference too.
    */
   getBiometricsEnabled: async (): Promise<boolean | null> => {
     const raw = await read(keys.biometricsEnabled());

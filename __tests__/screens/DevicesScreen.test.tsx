@@ -17,6 +17,8 @@ import {
 } from '../../src/services/data/userPersistor';
 import { AuthBloc } from '../../src/state/auth/authBloc';
 import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';
+import type { MainAppBloc } from '../../src/state/mainApp/mainAppBloc';
+import { MainAppBlocProvider } from '../../src/state/mainApp/MainAppBlocContext';
 
 const backHandlers: (() => boolean | null | undefined)[] = [];
 jest
@@ -77,10 +79,14 @@ beforeEach(async () => {
     <SafeAreaProvider initialMetrics={metrics}>
       <PageBackHandler />
       <AuthBlocProvider bloc={{ add: jest.fn() } as unknown as AuthBloc}>
-        <PopupHost>
-          <DevicesScreen devices={[]} />
-          <PopupMenuHost />
-        </PopupHost>
+        <MainAppBlocProvider
+          bloc={{ add: jest.fn() } as unknown as MainAppBloc}
+        >
+          <PopupHost>
+            <DevicesScreen devices={[]} />
+            <PopupMenuHost />
+          </PopupHost>
+        </MainAppBlocProvider>
       </AuthBlocProvider>
     </SafeAreaProvider>,
   );

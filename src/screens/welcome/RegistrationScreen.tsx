@@ -40,29 +40,9 @@ import {
 } from '../../theme/colors';
 import { ambientTextStyle, merge, toRN } from '../../theme/typography';
 import { SafeArea } from '../../components/layout/SafeArea';
+import { validatePassword } from '../../utilities/passwordRules';
 
 const logo = require('../../../assets/images/cartelldigitalreverse.png');
-
-export function validatePassword(password: string): string {
-  let error = '';
-  if (password.length === 0) {
-    error += 'Password field cannot be empty\n';
-    return error;
-  }
-  if (!/[A-Z]/.test(password)) {
-    error += 'Password must contain at least one uppercase letter\n';
-  }
-  if (!/[0-9]/.test(password)) {
-    error += 'Password must contain at least one number\n';
-  }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    error += 'Password must contain at least one special character\n';
-  }
-  if (password.length < 8) {
-    error += 'Password must be at least 8 characters long\n';
-  }
-  return error;
-}
 
 /** Quick check only; the server does the real validation. */
 export function validateEmail(email: string): string {

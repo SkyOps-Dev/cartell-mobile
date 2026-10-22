@@ -1,5 +1,6 @@
 {
 	"baseDomain": "192.168.78.142:8000",
+	"nodeBaseDomain": "192.168.78.142:8001",
 	"shouldUseTLS": "false",
 	"sentryPublicKey": "https://9eeb0e986af40aaa38976aad16c2eb05@o4508462006468608.ingest.us.sentry.io/4508462008238080",
 	"envIdentifier": "DEVELOPMENT", 

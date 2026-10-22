@@ -38,6 +38,18 @@ export const UnableToGetWifiInfoException = coded(
 export const FailedToAutologinException = coded('FailedToAutologinException');
 /** Thrown by the NavBar when no user has been fetched (AccountExceptions.dart). */
 export const NoUserObjectFound = coded('NoUserObjectFound');
+export const UnableToUpdateUserInformationException = coded(
+  'UnableToUpdateUserInformationException',
+);
+export const UnableToDeleteUserAccountException = coded(
+  'UnableToDeleteUserAccountException',
+);
+export const AccountInformationSetFailedException = coded(
+  'AccountInformationSetFailedException',
+);
+export const AccountFetchFailedException = coded('AccountFetchFailedException');
+/** SettingsExceptions.dart. */
+export const FetchSettingsException = coded('FetchSettingsException');
 
 export class AuthExpiredException extends CodedException {
   constructor(cause: string) {

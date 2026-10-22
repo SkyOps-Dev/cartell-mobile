@@ -114,6 +114,14 @@ export function showPopupMessage(options: PopupOptions): Promise<void> {
   });
 }
 
+/** showGenericErrorPopup: the catch-all "An error occurred." popup with one Okay. */
+export function showGenericErrorPopup(): Promise<void> {
+  return showPopupMessage({
+    title: 'An error occurred.',
+    message: 'Please try again. Contact support if errors persist.',
+  });
+}
+
 /** Closes the top-most popup (Navigator.pop from inside a dialog). */
 export function popPopup(): void {
   const entry = [...entries].reverse().find(e => !e.closing);
@@ -359,7 +367,10 @@ const styles = StyleSheet.create({
   iconSlot: { paddingBottom: 16 },
   titleSlot: { paddingBottom: 12, alignSelf: 'stretch' },
   messageSlot: { paddingBottom: 24, alignSelf: 'stretch' },
-  bodySlot: { paddingBottom: 16 },
+  // Flutter's Column gives the body loose constraints the dialog's width: a body that sizes to
+  // its content is centred, one that takes all it is given (a TextField, `alignSelf: 'stretch'`
+  // here) spans the dialog.
+  bodySlot: { paddingBottom: 16, alignSelf: 'stretch', alignItems: 'center' },
   centre: { textAlign: 'center' },
   row: { flexDirection: 'row', alignSelf: 'stretch' },
   cancelCell: { flex: 1, paddingRight: 8 },

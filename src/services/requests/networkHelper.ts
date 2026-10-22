@@ -8,7 +8,7 @@
 // - 15 s timeout. A timeout is reported with the method's code and becomes TimeOutException;
 //   any other network error propagates unchanged.
 
-import { baseUrlHttp } from '../../config/environment';
+import { nodeBaseUrlHttp } from '../../config/environment';
 import { Mode, ModeWatcherHelper } from '../../utilities/modeWatcher';
 import {
   AuthExpiredException,
@@ -207,7 +207,8 @@ export class NetworkHelper {
     try {
       const response = await send(
         'GET',
-        `${baseUrlHttp()}/maintenance-mode/`,
+        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        `${nodeBaseUrlHttp()}/maintenance-mode/`,
         {},
       );
       return response.statusCode === 200 ? Mode.NORMAL : Mode.MAINTENANCE_MODE;

@@ -17,6 +17,11 @@ import {
 } from '../../src/services/data/userPersistor';
 import { AttemptLogOutEvent, AuthBloc } from '../../src/state/auth/authBloc';
 import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';
+import {
+  GoToAccountSettingsScreen,
+  MainAppBloc,
+} from '../../src/state/mainApp/mainAppBloc';
+import { MainAppBlocProvider } from '../../src/state/mainApp/MainAppBlocContext';
 
 let mockWindow = { width: 400, height: 1200, scale: 1, fontScale: 1 };
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions', () => ({
@@ -39,6 +44,10 @@ const user = {
 };
 
 let authAdds: unknown[];
+let mainAppAdds: unknown[];
+const mainAppBloc = {
+  add: (event: unknown) => mainAppAdds.push(event),
+} as unknown as MainAppBloc;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -46,6 +55,7 @@ beforeEach(() => {
   resetUserPersistorForTests();
   persistUser({ ...user });
   authAdds = [];
+  mainAppAdds = [];
 });
 
 afterEach(() => {
@@ -59,10 +69,12 @@ async function pumpAppScaffold({ showNavigation = true } = {}) {
   await render(
     <SafeAreaProvider initialMetrics={metrics}>
       <AuthBlocProvider bloc={authBloc}>
-        <AppScaffold
-          showNavigation={showNavigation}
-          body={<Text>hubs screen</Text>}
-        />
+        <MainAppBlocProvider bloc={mainAppBloc}>
+          <AppScaffold
+            showNavigation={showNavigation}
+            body={<Text>hubs screen</Text>}
+          />
+        </MainAppBlocProvider>
       </AuthBlocProvider>
     </SafeAreaProvider>,
   );
@@ -97,7 +109,18 @@ describe('the NavBar as a drawer, at or below LARGE_SCREEN_SIZE', () => {
     expect(screen.getByText('hubs screen')).toBeTruthy();
   });
 
-  test.each(['Account Settings', 'Event History', 'Help'])(
+  test('Account Settings closes the drawer and goes to Account Settings', async () => {
+    await pumpAppScaffold();
+    await openDrawer();
+    await fireEvent.press(screen.getByText('Account Settings'));
+    expect(mainAppAdds).toHaveLength(1);
+    expect(mainAppAdds[0]).toBeInstanceOf(GoToAccountSettingsScreen);
+    await settle();
+    expect(screen.queryByText('Account Settings')).toBeNull();
+    expect(authAdds).toHaveLength(0);
+  });
+
+  test.each(['Event History', 'Help'])(
     '%s closes the drawer (its screen comes in a later part)',
     async title => {
       await pumpAppScaffold();
@@ -106,6 +129,7 @@ describe('the NavBar as a drawer, at or below LARGE_SCREEN_SIZE', () => {
       await settle();
       expect(screen.queryByText(title)).toBeNull();
       expect(authAdds).toHaveLength(0);
+      expect(mainAppAdds).toHaveLength(0);
     },
   );
 
@@ -183,7 +207,9 @@ test('with no user held, building the menu throws NoUserObjectFound', async () =
     render(
       <SafeAreaProvider initialMetrics={metrics}>
         <AuthBlocProvider bloc={{} as AuthBloc}>
-          <NavBar />
+          <MainAppBlocProvider bloc={mainAppBloc}>
+            <NavBar />
+          </MainAppBlocProvider>
         </AuthBlocProvider>
       </SafeAreaProvider>,
     ),
@@ -196,7 +222,9 @@ test('a user with an empty email gets the fallback message instead of the menu',
   await render(
     <SafeAreaProvider initialMetrics={metrics}>
       <AuthBlocProvider bloc={{} as AuthBloc}>
-        <NavBar />
+        <MainAppBlocProvider bloc={mainAppBloc}>
+          <NavBar />
+        </MainAppBlocProvider>
       </AuthBlocProvider>
     </SafeAreaProvider>,
   );

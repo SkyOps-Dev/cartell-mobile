@@ -89,6 +89,21 @@ export function baseUrlHttp(): string {
     : `http://${config.baseDomain}`;
 }
 
+// Not part of the Flutter port: the Node backend is ported one endpoint at a time, and a call
+// site moved to Node uses this instead of baseUrlHttp() (node_backend/CLAUDE.md §1). Node runs
+// only on the developer's machine, so this is Django's address whenever the env has no
+// nodeBaseDomain (test, beta and live) or the Debug Info panel has switched to another server.
+const nodeBaseDomain = stringValue('nodeBaseDomain', '');
+
+export function nodeBaseUrlHttp(): string {
+  if (nodeBaseDomain === '' || config.baseDomain !== defaultBaseDomain) {
+    return baseUrlHttp();
+  }
+  return config.shouldUseTLS
+    ? `https://${nodeBaseDomain}`
+    : `http://${nodeBaseDomain}`;
+}
+
 export function baseUrlWs(): string {
   return config.shouldUseTLS
     ? `wss://${config.baseDomain}`

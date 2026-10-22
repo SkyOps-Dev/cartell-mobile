@@ -491,7 +491,7 @@ Spec: `docs/spec/08-auth-and-session.md`.
 - [~] **7.7 Biometric service parity**: (part 9, 2026-10-14: local_auth's native code ported for
   both platforms as CartellLocalAuth, BiometricService, the gate in auto sign-in, the Lock screen,
   the one-time offer after login and the clean-up on log out, built and tested; Android checked by hand
-  on the phone with no difference found, iOS to build on a Mac; the Account Settings switch is LATER(part 21).) Availability
+  on the phone with no difference found, iOS to build on a Mac; the Account Settings switch built 2026-10-21 with part 21.) Availability
   rule (supported and enrolled), outcomes, the prompt reason "Unlock Cartell", platform prompt
   texts.
 - [ ] **7.8 Port the tests**: login (17), registration (10), lock (3), maintenance (7), auth bloc
@@ -549,18 +549,23 @@ Spec: `docs/spec/10-hubs.md`.
 
 Spec: `docs/spec/11-account-and-help.md`.
 
-- [ ] **10.1 Account settings**: skeleton first, then user and profile; Connected Services
+- [~] **10.1 Account settings** (parts 21, 23; built 2026-10-21 against Django, tested in Jest;
+  to check on the phone against Flutter, PARITY_ISSUES P31–P34): skeleton first, then user and profile; Connected Services
   (Alexa, gated by `app/settings?code=alexa_enabled`); listing rows with amber dividers; the
   biometrics row visibility rule; notification and email switches; the Delete Account flow
   (menu → password dialog → always-success popup → Welcome); Back → Hubs.
-- [ ] **10.2 Edit name, phone and password** (fire-and-forget PATCH for name and phone; the
+- [~] **10.2 Edit name, phone and password** (part 22; built 2026-10-21, same status as 10.1)
+  (fire-and-forget PATCH for name and phone; the
   password flow with validation, confirm field, HUD, and success, mismatch and generic error
   popups).
 - [ ] **10.3 Help** (version block, four buttons with alternating colours, in-app browser links,
   Send Feedback sheet, debug Hub Light Guide, conditional Alexa button), **Alexa cheat sheet**,
   **Hub light guide**, **User feedback** (prompt gate via stored flag, faces, Sentry
   `captureFeedback` message format, toasts).
-- [ ] **10.4 Port the tests** (edit password, friendly-error usage).
+- [~] **10.4 Port the tests** (edit password, friendly-error usage). Ported 2026-10-21: edit
+  password, auto switch, conditional view, friendly error view. Not ported: the friendly-error
+  usage test, which greps Flutter source files for a regression; RN's Edit Phone test checks the
+  rendered error view instead. Help's tests come with 10.3.
 
 ### Phase 11 — Event history
 

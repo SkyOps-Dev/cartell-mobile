@@ -13,8 +13,8 @@
 //   panel colour. Center fills the space it is given, so in the drawer slot it spans the screen.
 // - Every entry first closes the drawer when there is one (Scaffold.maybeOf(context)
 //   ?.closeDrawer(); never a Navigator pop, which would take the page in the rail), then
-//   dispatches. Only Log Out dispatches so far (the developer, 2026-10-15); the others are
-//   marked where their event goes.
+//   dispatches. Account Settings and Log Out dispatch so far; the others are marked where their
+//   event goes.
 
 import React from 'react';
 import {
@@ -30,6 +30,8 @@ import { firstPersistedUser } from '../services/data/userPersistor';
 import { NoUserObjectFound } from '../services/exceptions';
 import { AttemptLogOutEvent } from '../state/auth/authBloc';
 import { useAuthBloc } from '../state/auth/AuthBlocContext';
+import { GoToAccountSettingsScreen } from '../state/mainApp/mainAppBloc';
+import { useMainAppBloc } from '../state/mainApp/MainAppBlocContext';
 import { kCartellDarkGray } from '../theme/colors';
 import { ambientTextStyle, toRN } from '../theme/typography';
 import { useBigFont } from '../utilities/scaling';
@@ -57,6 +59,7 @@ export function NavBar() {
   });
   const scaffold = useScaffold();
   const authBloc = useAuthBloc();
+  const mainAppBloc = useMainAppBloc();
   const bigFont = useBigFont(18);
   const windowWidth = useWindowDimensions().width;
 
@@ -102,7 +105,7 @@ export function NavBar() {
         />
         {entry(FontAwesomeIcons.user, 'Account Settings', () => {
           dismissDrawerIfOpen();
-          // LATER(part 21): context.read<MainAppBloc>().add(GoToAccountSettingsScreen()).
+          mainAppBloc.add(new GoToAccountSettingsScreen());
         })}
         {divider}
         {entry(FontAwesomeIcons.clockRotateLeft, 'Event History', () => {

@@ -21,6 +21,8 @@ const KNOWN_KEYS = [
   'hubPort',
   'hubReplyPort',
   'skipWifiHandoff',
+  // Not from Flutter: the Node backend's address, for call sites moved to nodeBaseUrlHttp().
+  'nodeBaseDomain',
 ];
 
 const [name, ...overrides] = process.argv.slice(2);
@@ -67,5 +69,6 @@ console.log(
   `Environment '${name}': ${env.envIdentifier ?? 'UNSET'} → ` +
     `${env.shouldUseTLS === 'false' ? 'http' : 'https'}://${
       env.baseDomain ?? 'cartellap.com'
-    }`,
+    }` +
+    (env.nodeBaseDomain ? ` (Node: ${env.nodeBaseDomain})` : ''),
 );

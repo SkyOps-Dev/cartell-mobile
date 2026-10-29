@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { baseUrlHttp } from '../../config/environment';
+import { nodeBaseUrlHttp } from '../../config/environment';
 import { Icon } from '../../components/icons/Icon';
 import { FontAwesomeIcons } from '../../components/icons/iconData';
 import { CircularProgressIndicator } from '../../components/progress/CircularProgressIndicator';
@@ -72,12 +72,14 @@ type ConnectionTest = { title: string; didPass: Promise<boolean> };
 function startTests(): ConnectionTest[] {
   return [
     { title: 'Internet Access', didPass: tryUrl('https://google.com') },
-    { title: 'Server Access', didPass: tryUrl(`${baseUrlHttp()}/test/`) },
-    // "Spash" as in the Flutter app (Q36).
-    { title: 'Can Reach Spash Page', didPass: tryUrl(baseUrlHttp()) },
+    // On the Node backend since 2026-10-26.
+    { title: 'Server Access', didPass: tryUrl(`${nodeBaseUrlHttp()}/test/`) },
+    // "Spash" as in the Flutter app (Q36). On the Node backend since 2026-10-27.
+    { title: 'Can Reach Spash Page', didPass: tryUrl(nodeBaseUrlHttp()) },
     {
       title: 'Can Post to Server',
-      didPass: testEcho(`${baseUrlHttp()}/echo/`),
+      // On the Node backend since 2026-10-26.
+      didPass: testEcho(`${nodeBaseUrlHttp()}/echo/`),
     },
   ];
 }

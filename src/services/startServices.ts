@@ -6,9 +6,8 @@ import { AuthRequestManager } from './requests/authRequests';
 let backgroundAuth: ReturnType<typeof setInterval> | null = null;
 
 export function registerServices(): void {
-  // LATER(part 6): registerPersistors() and registerParsers(), the shared in-memory cache. Read by
-  // the side menu (navbar.dart, through a stand-in for now) and the Hubs list (part 24); put off by
-  // the developer's boss (2026-10-14).
+  // PORT-GAP: registerPersistors() and registerParsers(), the shared in-memory cache. Read by
+  // the side menu (navbar.dart, through a stand-in for now) and the Hubs list.
   setupBackgroundAuth();
 }
 
@@ -17,7 +16,7 @@ export function registerServices(): void {
  * is what notices maintenance or a lost connection, and the server coming back.
  */
 export function setupBackgroundAuth(): void {
-  // LATER(part 2): log "Starting Timer", and each tick's run number and result.
+  // PORT-GAP: log "Starting Timer", and each tick's run number and result.
   const manager = new AuthRequestManager();
   backgroundAuth = setInterval(() => {
     manager.auth({ shouldForceAuth: false });

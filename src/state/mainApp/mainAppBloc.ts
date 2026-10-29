@@ -4,12 +4,12 @@
 //
 // Built so far: the loading and Hubs states, GoToHubsScreenEvent and the error recovery; Account
 // Settings and its three edit forms (name, password, phone number).
-// LATER(part 6): GoBackNStatesEvent and showMessage (forwarding to the AuthBloc's message stream),
+// PORT-GAP: GoBackNStatesEvent and showMessage (forwarding to the AuthBloc's message stream),
 // with the first screen that uses them.
-// LATER(part 35): IsOnEventHistoryScreenState(event, refresh) + GoToEventHistoryScreen.
-// LATER(part 20): IsOnContactUsScreenState + GoToContactUsScreen.
-// LATER(part 18): IsOnAlexaHelpScreenState(isConnected) + GoToAlexaHelpScreenState.
-// LATER(part 17): IsOnHubLightsHelpScreenState + GoToHubLightsHelpScreenEvent.
+// PORT-GAP: IsOnEventHistoryScreenState(event, refresh) + GoToEventHistoryScreen.
+// PORT-GAP: IsOnContactUsScreenState + GoToContactUsScreen.
+// PORT-GAP: IsOnAlexaHelpScreenState(isConnected) + GoToAlexaHelpScreenState.
+// PORT-GAP: IsOnHubLightsHelpScreenState + GoToHubLightsHelpScreenEvent.
 
 import type { Profile } from '../../models/profile';
 import type { User } from '../../models/user';

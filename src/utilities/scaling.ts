@@ -1,6 +1,6 @@
 // Port of frontend/lib/utilities/scaling.dart (spec 18 §1): how much the OS font size enlarges text
 // of a given size, for the screens that reflow at a threshold.
-// LATER(part 36): Flutter's textScaler.scale(size) / size follows Android 14+'s non-linear font
+// PORT-GAP: Flutter's textScaler.scale(size) / size follows Android 14+'s non-linear font
 // scaling (large sizes grow less than small ones); this uses React Native's linear fontScale.
 
 import { useWindowDimensions } from 'react-native';

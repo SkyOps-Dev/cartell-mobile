@@ -1,4 +1,4 @@
-// Port of frontend/lib/screens/account/edit_password.dart (spec 11 §5; part 22).
+// Port of frontend/lib/screens/account/edit_password.dart (spec 11 §5).
 //
 // AppScaffold, actions: X → Account Settings, disabled while the request runs; Back and ← the
 // same (Back is ignored while it runs).
@@ -23,7 +23,7 @@
 //     key, closes the popup and goes to Account Settings. The user stays signed in.
 //   - Any other answer → 38bcd and "An error occurred." / "Please try again. Contact support if
 //     errors persist."; a thrown error → reported as it is, and the same popup.
-// LATER(part 36): Flutter gives these fields empty autofill hints; check whether the phone's
+// PORT-GAP: Flutter gives these fields empty autofill hints; check whether the phone's
 // password manager offers to fill or save them, as it does for the Flutter app.
 
 import React, { useEffect, useRef, useState } from 'react';

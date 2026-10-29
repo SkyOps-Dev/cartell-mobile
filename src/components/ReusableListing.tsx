@@ -6,7 +6,7 @@
 //   and ignored, as in Flutter (every caller passes white; the text is #E6E0E9).
 // - GestureDetector with the default deferToChild: only the icon, the label and the value take
 //   a tap, not the gaps between them. No ink and no click sound.
-// LATER(part 36): above 1.5 the value sits in a Flexible inside a Column with unbounded height,
+// PORT-GAP: above 1.5 the value sits in a Flexible inside a Column with unbounded height,
 // which a release build lays out at its natural height; check against Flutter at large text.
 
 import React from 'react';

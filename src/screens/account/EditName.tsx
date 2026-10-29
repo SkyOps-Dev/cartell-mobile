@@ -1,4 +1,4 @@
-// Port of frontend/lib/screens/account/edit_name.dart (spec 11 §3; part 22).
+// Port of frontend/lib/screens/account/edit_name.dart (spec 11 §3).
 //
 // AppScaffold, actions: X → Account Settings. Back does the same (PopScope canPop false), and so
 // does ←. Nothing is saved on the way out.

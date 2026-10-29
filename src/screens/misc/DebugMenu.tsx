@@ -171,7 +171,7 @@ function saveModifications(
   config.baseDomain = newBaseDomain;
   setEnvironmentName(newEnvironmentName);
   config.shouldUseTLS = newShouldUseTLS;
-  // LATER(part 14): SecureStorage.deleteFCMToken(). It runs after the switch, so it deletes the
+  // PORT-GAP: SecureStorage.deleteFCMToken(). It runs after the switch, so it deletes the
   // push token stored for the environment just switched to.
 }
 

@@ -1,5 +1,5 @@
 // Port of formatPhoneNumber from frontend/lib/utilities/text_formatters.dart (spec 11 §2).
-// LATER(part 35): formatDateAndTime, with the event history.
+// PORT-GAP: formatDateAndTime, with the event history.
 
 /**
  * Ten characters that Dart's int.tryParse reads as a number become "(555) 123-4567"; anything

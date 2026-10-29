@@ -1,4 +1,4 @@
-// Auto-login (part 10). Ported from the AutoLoginEvent rules in
+// Auto-login. Ported from the AutoLoginEvent rules in
 // frontend/test/services/legacy_credential_purge_wiring_test.dart (which reads the Dart source) and
 // from the behaviour in spec 08 §3 / feature page 01, checked by running the event against a fake
 // server and the in-memory keychain.

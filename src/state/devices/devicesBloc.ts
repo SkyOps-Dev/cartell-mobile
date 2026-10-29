@@ -3,7 +3,7 @@
 // state (MainAppRouter.tsx).
 //
 // Built so far: the loading and Hubs-list states, GoToDevicesHomeScreen and the error recovery.
-// LATER(part 24): RefreshDevices (pull-to-refresh: fetch, keep the list, emit the Hubs list with no
+// PORT-GAP: RefreshDevices (pull-to-refresh: fetch, keep the list, emit the Hubs list with no
 // loading screen) and GoBackNDevicesStatesEvent; the other states and events arrive with the
 // screens they show (hub detail, sensors, firmware, add hub, pairing, history).
 
@@ -38,7 +38,7 @@ export class IsLoadingDevicesScreenState extends DevicesState {
   }
 }
 
-/** The Hubs list. LATER(part 24): RawDevice becomes the Device model. */
+/** The Hubs list. PORT-GAP: RawDevice becomes the Device model. */
 export class IsOnDevicesHomeScreenState extends DevicesState {
   readonly timestamp = stateTimestamp();
   constructor(readonly devices: RawDevice[]) {
@@ -97,7 +97,7 @@ export class DevicesBloc extends GenericBloc<DevicesState> {
     // back here, so the attempts are counted and spaced 1, 2, 3 s apart.
     this.recoveryAttempts++;
     if (this.recoveryAttempts > MAX_RECOVERY_ATTEMPTS) {
-      // LATER(part 2): mainLogger.e("Giving up after 3 recovery attempts; leaving the screen as-is.").
+      // PORT-GAP: mainLogger.e("Giving up after 3 recovery attempts; leaving the screen as-is.").
       return;
     }
     await new Promise<void>(resolve =>

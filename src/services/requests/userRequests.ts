@@ -1,10 +1,10 @@
 // Port of the account calls in frontend/lib/services/requests/user_requests.dart (spec 04 §5).
-// LATER(part 14): the push-token calls (postMessagingData, validateMessagingData,
+// PORT-GAP: the push-token calls (postMessagingData, validateMessagingData,
 // deleteMessagingData).
 //
-// Each call checks the session first (auth()) and reports its own code when that fails. The
-// Account Settings calls are still on Django (node_backend/docs/ENDPOINTS.md); they move to Node
-// one at a time, by switching their base URL.
+// Each call checks the session first (auth()) and reports its own code when that fails. Each
+// call site picks its server: nodeBaseUrlHttp() once that endpoint is on Node, baseUrlHttp() (Django)
+// until then.
 
 import { baseUrlHttp, nodeBaseUrlHttp } from '../../config/environment';
 import { parseProfile, Profile } from '../../models/profile';
@@ -45,7 +45,7 @@ export async function setProfile(): Promise<Profile> {
     'Failed to set profile',
   );
   const response = await new NetworkHelper(
-    // On the Node backend since 2026-10-22 (node_backend/docs/ENDPOINTS.md); Node redirects the
+    // On the Node backend since 2026-10-22; Node redirects the
     // missing slash as Django does.
     `${nodeBaseUrlHttp()}/profiles/me`,
   ).getSecureData();
@@ -64,12 +64,12 @@ export async function setUser(): Promise<User> {
     'Failed to set user',
   );
   const response = await new NetworkHelper(
-    // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+    // On the Node backend since 2026-10-21.
     `${nodeBaseUrlHttp()}/auth/users/me/`,
   ).getSecureData();
   if (response.statusCode === 200) {
     // userParser.fromJson parses and adds the user to DataPersistor<User>.
-    // LATER(part 6): through the shared cache's parser, not the side menu's stand-in.
+    // PORT-GAP: through the shared cache's parser, not the side menu's stand-in.
     return persistUser(parseUser(JSON.parse(response.body)));
   }
   reportError(new NoAccountInformationFoundException('Error Code 15955:'));
@@ -88,7 +88,7 @@ export async function updateUserData({
     'Failed to set user',
   );
   const response = await new NetworkHelper(
-    // On the Node backend since 2026-10-22 (node_backend/docs/ENDPOINTS.md).
+    // On the Node backend since 2026-10-22.
     `${nodeBaseUrlHttp()}/auth/users/me/`,
   ).patchSecureData({ body });
   if (response.statusCode === 200) {
@@ -111,13 +111,13 @@ export async function setProfileNotificationPolicy(
     'Failed to set user',
   );
   const response = await new NetworkHelper(
-    // On the Node backend since 2026-10-22 (node_backend/docs/ENDPOINTS.md).
+    // On the Node backend since 2026-10-22.
     `${nodeBaseUrlHttp()}/profiles/me/`,
   ).patchSecureData({
     body: { should_send_notification: dartBool(shouldEnable) },
   });
   if (response.statusCode === 200) {
-    // LATER(part 2): log.i(response.body), log.i('successfully updated').
+    // PORT-GAP: log.i(response.body), log.i('successfully updated').
     return;
   }
   reportError(new UnableToUpdateUserInformationException('Error Code aa1dc:'));
@@ -134,13 +134,13 @@ export async function setUserEmailNotificationPolicy(
     'Failed to set user',
   );
   const response = await new NetworkHelper(
-    // On the Node backend since 2026-10-22 (node_backend/docs/ENDPOINTS.md).
+    // On the Node backend since 2026-10-22.
     `${nodeBaseUrlHttp()}/auth/users/me/`,
   ).patchSecureData({
     body: { should_send_emails: dartBool(shouldEnable) },
   });
   if (response.statusCode === 200) {
-    // LATER(part 2): log.i(response.body), log.i('successfully updated').
+    // PORT-GAP: log.i(response.body), log.i('successfully updated').
     return;
   }
   reportError(new UnableToUpdateUserInformationException('Error Code f5e37:'));
@@ -159,7 +159,7 @@ export async function updateUserPassword({
     'Failed to set user',
   );
   return new NetworkHelper(
-    // On the Node backend since 2026-10-22 (node_backend/docs/ENDPOINTS.md).
+    // On the Node backend since 2026-10-22.
     `${nodeBaseUrlHttp()}/auth/users/set_password/`,
   ).postSecureData({ body });
 }
@@ -188,6 +188,6 @@ export async function deleteAccount({
   await SecureStorage.deleteRefreshToken();
   await SecureStorage.deleteAccessToken();
 
-  // LATER(part 2): log.i(res.statusCode), log.i(res.body).
+  // PORT-GAP: log.i(res.statusCode), log.i(res.body).
   return response;
 }

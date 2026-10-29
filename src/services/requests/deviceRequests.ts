@@ -1,10 +1,10 @@
 // Port of fetchDevices and queryHubHealth from frontend/lib/services/requests/device_requests.dart
 // (spec 04 §5).
 //
-// Part 4 foundation: the hub list is returned as the server's JSON objects.
-// LATER(part 24): the Device model, its parsing rules and the shared cache (spec 05).
+// The hub list is returned as the server's JSON objects.
+// PORT-GAP: the Device model, its parsing rules and the shared cache (spec 05).
 
-import { baseUrlHttp } from '../../config/environment';
+import { baseUrlHttp, nodeBaseUrlHttp } from '../../config/environment';
 import { NoHubInformationAvailableException } from '../exceptions';
 import { reportError } from '../reportError';
 import { AuthRequestManager } from './authRequests';
@@ -19,7 +19,8 @@ export async function fetchDevices(): Promise<RawDevice[]> {
     throw new Error('Failed to fetch devices');
   }
   const response = await new NetworkHelper(
-    `${baseUrlHttp()}/devices/`,
+    // On the Node backend since 2026-10-27.
+    `${nodeBaseUrlHttp()}/devices/`,
   ).getSecureData();
   if (response.statusCode === 200) {
     return JSON.parse(response.body) as RawDevice[];

@@ -46,9 +46,9 @@ import {
 import { useScalingFactor } from '../../utilities/scaling';
 
 export function DevicesScreen(_props: { devices: RawDevice[] }) {
-  // LATER(part 14): initState runs fullLogin() on every mount: NotificationApi.init(), then
+  // PORT-GAP: initState runs fullLogin() on every mount: NotificationApi.init(), then
   // sendFCMToken().
-  // LATER(part 24): the hub cards when `devices` is not empty (a one-column grid of square
+  // PORT-GAP: the hub cards when `devices` is not empty (a one-column grid of square
   // ReusableCards: name, HUB.png or the blacklisted warning, the status row, the
   // blacklisted-sensor badge; GoToSpecificDeviceEvent on tap; max width 300 while the scaling
   // factor at 15 is under 1.5). Until then the screen always shows the empty card (the developer,
@@ -83,7 +83,7 @@ export function DevicesScreen(_props: { devices: RawDevice[] }) {
           <FloatingActionButton
             backgroundColor={kCartellYellow}
             onPressed={() => {
-              // LATER(part 29): context.read<DevicesBloc>().add(GoToAddAHubScreen()).
+              // PORT-GAP: context.read<DevicesBloc>().add(GoToAddAHubScreen()).
             }}
           >
             <Icon icon={FontAwesomeIcons.plus} color={MaterialColors.black} />
@@ -92,7 +92,7 @@ export function DevicesScreen(_props: { devices: RawDevice[] }) {
         actions={<Ellipsis />}
         body={
           <SafeArea style={styles.expanded}>
-            {/* LATER(part 24): TimedPullToRefresh around the scroll view (liquid_pull_to_refresh
+            {/* PORT-GAP: TimedPullToRefresh around the scroll view (liquid_pull_to_refresh
                 3.0.1: amber on #25282A, height 40, animSpeedFactor 5; waits 2 s, then adds
                 RefreshDevices). */}
             <ScrollView>

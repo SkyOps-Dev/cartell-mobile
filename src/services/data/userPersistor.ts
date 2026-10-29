@@ -2,9 +2,9 @@
 // holding only what the side menu reads. setUser() puts each user it fetches here, as Flutter's
 // userParser (a PersistedJsonParser) adds every parsed User to the persistor, and the NavBar reads
 // the first one, as navbar.dart does.
-// LATER(part 6): replace this with the shared in-memory cache, DataPersistor<User> (registered in
-// registerPersistors), which every User read and write goes through; the shared cache was put off
-// by the developer's boss (2026-10-14). Until then nothing else may read users from here.
+// PORT-GAP: replace this with the shared in-memory cache, DataPersistor<User> (registered in
+// registerPersistors), which every User read and write goes through. Until then nothing else may
+// read users from here.
 //
 // Same rules as the persistor, so the side menu behaves the same:
 // - keyed by id, in insertion order (Dart's default LinkedHashMap);

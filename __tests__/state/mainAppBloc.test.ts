@@ -86,7 +86,7 @@ test('from inside the hubs flow, sends the live DevicesBloc home', async () => {
   devices.close();
 });
 
-// LATER(part 20): "from another screen, still switches to the hubs screen" (GoToContactUsScreen,
+// PORT-GAP: "from another screen, still switches to the hubs screen" (GoToContactUsScreen,
 // then GoToHubsScreenEvent emits Hubs and sends the still-open DevicesBloc nothing) needs a second
 // MainApp screen to exist.
 

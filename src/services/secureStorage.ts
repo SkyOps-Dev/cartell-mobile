@@ -2,10 +2,10 @@
 // (iOS Keychain, Android Keystore-encrypted storage). Every key is prefixed with the *current*
 // environment name, so each server keeps its own sign-in.
 //
-// Part 3 foundation: only what Register and Log In use is here so far.
-// LATER(part 14): the FCM token (getFCMToken / setFCMToken).
-// LATER(part 19): reading and deleting the feedback flag (getShowFeedback / deleteShowFeedback).
-// LATER(part 16): the one-off migration that reads what the Flutter app stored (decision D4).
+// Only what the screens built so far use is here.
+// PORT-GAP: the FCM token (getFCMToken / setFCMToken).
+// PORT-GAP: reading and deleting the feedback flag (getShowFeedback / deleteShowFeedback).
+// PORT-GAP: the one-off migration that reads what the Flutter app stored (decision D4).
 
 import * as Keychain from 'react-native-keychain';
 

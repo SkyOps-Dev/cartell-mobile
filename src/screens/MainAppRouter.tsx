@@ -10,10 +10,10 @@
 // Account Settings shows its skeleton until both the user and the profile have landed; a build
 // error there (quirk Q30) becomes Flutter's grey release ErrorWidget in place of the screen.
 // The bloc is provided to every screen and the side menu (BlocProvider / context.read).
-// LATER(part 35): Event History.
-// LATER(part 20): Help (ContactUs).
-// LATER(part 18): the Alexa cheat sheet.
-// LATER(part 17): the hub light guide.
+// PORT-GAP: Event History.
+// PORT-GAP: Help (ContactUs).
+// PORT-GAP: the Alexa cheat sheet.
+// PORT-GAP: the hub light guide.
 
 import React, { useEffect, useMemo, useSyncExternalStore } from 'react';
 

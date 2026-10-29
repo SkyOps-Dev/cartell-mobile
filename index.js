@@ -3,8 +3,8 @@
  */
 
 // Startup, in the order of frontend/lib/main.dart (spec 02 §3).
-// LATER(part 2): SentryFlutter.init, before registerServices.
-// LATER(part 14): initFirebase(), after registerServices.
+// PORT-GAP: SentryFlutter.init, before registerServices.
+// PORT-GAP: initFirebase(), after registerServices.
 
 import { AppRegistry } from 'react-native';
 import App from './App';
@@ -12,15 +12,18 @@ import { name as appName } from './app.json';
 import {
   config,
   getEnvironmentName,
-  sentryPublicId,
+  nodeBaseUrlHttp,
 } from './src/config/environment';
 import { assertHubAddressIsSendable } from './src/config/hubAddress';
 import { registerServices } from './src/services/startServices';
 
 console.log(`Environment Name: ${getEnvironmentName()}`);
-console.log(`Domain: ${config.baseDomain}`);
+// Not Flutter's line ("Domain: <baseDomain>"): the developer chose to log the server the ported
+// calls use (2026-10-27).
+console.log(`Node domain: ${nodeBaseUrlHttp().replace(/^https?:\/\//, '')}`);
 console.log(`Should use TLS? : ${config.shouldUseTLS}`);
-console.log(`Is Sentry set up? : ${sentryPublicId !== ''}`);
+// PORT-GAP: log `sentryPublicId !== ''` again, as Flutter does, once Sentry starts here.
+console.log('Is Sentry set up? : false');
 console.log(
   `Hub: ${config.hubAddress}:${config.hubPort}, replies on ${config.hubReplyPort}`,
 );

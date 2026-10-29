@@ -1,8 +1,8 @@
 // Stand-in for Sentry.captureException. Every call site already passes the same exception and
 // "Error Code xxxxx:" marker as the Flutter app.
-// LATER(part 2): connect this function to Sentry.captureException.
-// LATER(part 2): the developer log (utilities/logging.dart). The ported files leave out Flutter's
-// log lines so far; part 2 adds them back, file by file.
+// PORT-GAP: connect this function to Sentry.captureException.
+// PORT-GAP: the developer log (utilities/logging.dart). The ported files leave out Flutter's
+// log lines so far; they go back in, file by file, when logging is ported.
 
 // Logged, not warned: Sentry reports silently, and a console.warn would put React Native's debug
 // warning box on screen, which the Flutter app never shows.

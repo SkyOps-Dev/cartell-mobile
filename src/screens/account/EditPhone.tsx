@@ -1,4 +1,4 @@
-// Port of frontend/lib/screens/account/edit_phone.dart (spec 11 §4; part 22).
+// Port of frontend/lib/screens/account/edit_phone.dart (spec 11 §4).
 //
 // AppScaffold, actions: X → Account Settings; Back and ← do the same, saving nothing.
 // On open the user is fetched twice, side by side, as Flutter's initState does: once for the

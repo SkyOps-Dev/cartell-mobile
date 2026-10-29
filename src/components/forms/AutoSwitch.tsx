@@ -4,7 +4,7 @@
 // success text. There is no guard against a second tap while the first is running.
 // Not ported (unused by the screens built so far): SynchronizedAutoSwitch and
 // SynchronizingController, and the `value:` form (Account Settings always passes a controller).
-// LATER(part 26): SynchronizedAutoSwitch, with the hub settings that use it.
+// PORT-GAP: SynchronizedAutoSwitch, with the hub settings that use it.
 
 import React, { useEffect, useRef } from 'react';
 

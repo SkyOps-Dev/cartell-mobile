@@ -47,7 +47,7 @@ const entryTitleStyle = { fontSize: 14 };
 
 export function NavBar() {
   // initState: the first user in DataPersistor<User>.
-  // LATER(part 6): read from the shared cache (DataPersistor<User>), not the side menu's stand-in.
+  // PORT-GAP: read from the shared cache (DataPersistor<User>), not the side menu's stand-in.
   const [currentUser] = React.useState(() => {
     const user = firstPersistedUser();
     if (user === undefined) {
@@ -110,12 +110,12 @@ export function NavBar() {
         {divider}
         {entry(FontAwesomeIcons.clockRotateLeft, 'Event History', () => {
           dismissDrawerIfOpen();
-          // LATER(part 35): context.read<MainAppBloc>().add(GoToEventHistoryScreen()).
+          // PORT-GAP: context.read<MainAppBloc>().add(GoToEventHistoryScreen()).
         })}
         {divider}
         {entry(FontAwesomeIcons.satelliteDish, 'HUBs', () => {
           dismissDrawerIfOpen();
-          // LATER(part 6): context.read<MainAppBloc>().add(GoToHubsScreenEvent()). On the Hubs
+          // PORT-GAP: context.read<MainAppBloc>().add(GoToHubsScreenEvent()). On the Hubs
           // screen it sends the live DevicesBloc home: with no hubs, the loading screen and a fresh
           // GET /devices/, then the Hubs screen again (the developer chose to leave this off for
           // now, 2026-10-15).
@@ -123,7 +123,7 @@ export function NavBar() {
         {divider}
         {entry(FontAwesomeIcons.headset, 'Help', () => {
           dismissDrawerIfOpen();
-          // LATER(part 20): context.read<MainAppBloc>().add(GoToContactUsScreen()).
+          // PORT-GAP: context.read<MainAppBloc>().add(GoToContactUsScreen()).
         })}
         {divider}
         {entry(FontAwesomeIcons.arrowRightFromBracket, 'Log Out', () => {

@@ -1,4 +1,4 @@
-// Loading screen (part 10): load_screen.dart, SpinKitRing (flutter_spinkit 5.2.2) and the app bar.
+// Loading screen: load_screen.dart, SpinKitRing (flutter_spinkit 5.2.2) and the app bar.
 
 import React from 'react';
 import { StatusBar, StyleSheet } from 'react-native';

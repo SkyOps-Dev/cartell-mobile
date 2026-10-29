@@ -207,7 +207,7 @@ export class NetworkHelper {
     try {
       const response = await send(
         'GET',
-        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        // On the Node backend since 2026-10-21.
         `${nodeBaseUrlHttp()}/maintenance-mode/`,
         {},
       );

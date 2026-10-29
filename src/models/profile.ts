@@ -1,5 +1,5 @@
 // Port of frontend/lib/models/profile.dart (spec 05). Parsing only.
-// LATER(part 24): the locations as Location models (location.dart: id, name, and each location's
+// PORT-GAP: the locations as Location models (location.dart: id, name, and each location's
 // devices parsed with the Device model; its groups are not read). Flutter's parse throws on a
 // location or hub it cannot read, which fails the screen that asked for the profile. Until the
 // Device model exists the locations are kept as the server's JSON.

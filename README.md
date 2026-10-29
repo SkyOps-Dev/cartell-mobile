@@ -1,8 +1,8 @@
 # Cartell — React Native
 
 React Native copy of the Flutter app in `../frontend/`. The goal is an app users cannot tell
-apart from the Flutter one. `PORTING_PLAN.md`, `PORTING_PARTS.md`, `PORTING_TIMELINE.md` and
-`docs/` describe the work.
+apart from the Flutter one. `CLAUDE.md` (local, gitignored) describes how the work is done, and
+`docs/` describes the Flutter app.
 
 React Native 0.87.1 (bare, TypeScript, New Architecture, Hermes). Node 22.13+ or 24.3+, JDK 17.
 

@@ -4,7 +4,7 @@
 // Built so far: Loading + auto-login with the biometric gate, the Lock screen, Welcome, Log in
 // (with the biometric offer), Registration, Maintenance, Log out, and the hand-over to the
 // signed-in shell (MainAppBloc).
-// What is still missing is marked LATER(part N) where it goes; `npm run later` lists it.
+// What is still missing carries a PORT-GAP marker where it goes.
 
 import type { IconData } from '../../components/icons/iconData';
 import { Icons } from '../../components/icons/iconData';
@@ -222,7 +222,7 @@ export type AuthEvent = GenericEvent<AuthState, AuthBloc>;
 export class AutoLoginEvent implements AuthEvent {
   async handleEvent(bloc: AuthBloc, emit: Emitter<AuthState>) {
     emit(new IsLoadingAppState());
-    // LATER(part 2): the auth logger's lines, timed by a stopwatch from here ("Got access token
+    // PORT-GAP: the auth logger's lines, timed by a stopwatch from here ("Got access token
     // after …", "Found null authtoken after …", "Starting auto login...", "Auto login
     // succeeded/failed after …ms", "Exception during load screen auth: …").
     try {
@@ -232,7 +232,7 @@ export class AutoLoginEvent implements AuthEvent {
       try {
         await SecureStorage.purgeLegacyCredentials();
       } catch {
-        // LATER(part 2): authLogger.w("Could not purge legacy credentials: $e").
+        // PORT-GAP: authLogger.w("Could not purge legacy credentials: $e").
       }
 
       const authToken = await SecureStorage.getAccessToken();
@@ -255,7 +255,7 @@ export class AutoLoginEvent implements AuthEvent {
             // They opted in and then removed the enrolment at the OS level. Holding them at a
             // prompt the device can no longer show would be a lockout of our own making, so forget
             // the preference and carry on as a normal auto-login.
-            // LATER(part 2): authLogger.w("Biometrics no longer available; clearing the preference").
+            // PORT-GAP: authLogger.w("Biometrics no longer available; clearing the preference").
             await SecureStorage.setBiometricsEnabled(false);
             break;
           case BiometricOutcome.lockedOut:
@@ -347,7 +347,7 @@ async function offerBiometricUnlock(bloc: AuthBloc): Promise<void> {
     // By this point the tokens are stored and the user is authenticated. Anything escaping here
     // would surface as the login error popup and bounce them back to a login that worked. An
     // offer is not worth that.
-    // LATER(part 2): authLogger.w("Could not offer biometric unlock: $e").
+    // PORT-GAP: authLogger.w("Could not offer biometric unlock: $e").
   }
 }
 
@@ -414,7 +414,7 @@ export class AttemptLoggingInEvent implements AuthEvent {
       // leaves it open, and the screen's AutofillGroup cancels it (PARITY_ISSUES P5).
       finishAutofillContext({ shouldSave: true });
       await successfulLoginStartup(data);
-      // LATER(part 14): NotificationApi.init() (not awaited), then await getFCMToken().
+      // PORT-GAP: NotificationApi.init() (not awaited), then await getFCMToken().
       await setUser();
       await offerBiometricUnlock(bloc);
       bloc.subBloc = new MainAppBloc(bloc);
@@ -558,7 +558,7 @@ export function buildErrorMessage(res: unknown): string {
 }
 
 /**
- * Log Out (attempt_log_out_event.dart): the side menu's entry (part 6), and until then the
+ * Log Out (attempt_log_out_event.dart): the side menu's entry, and until then the
  * placeholder signed-in screen's button. It asks first. On Okay the dialog closes at once and the
  * log-out runs behind it (drawMessage does not wait for onOkay), then adds this event again with
  * shouldLogOut: true, which goes to Welcome.
@@ -567,7 +567,7 @@ export class AttemptLogOutEvent implements AuthEvent {
   constructor(readonly shouldLogOut = false) {}
 
   async handleEvent(bloc: AuthBloc, emit: Emitter<AuthState>) {
-    // LATER(part 2): authLogger.i("AttemptLogOutEvent shouldLogOut=$shouldLogOut").
+    // PORT-GAP: authLogger.i("AttemptLogOutEvent shouldLogOut=$shouldLogOut").
     if (this.shouldLogOut) {
       emit(new IsOnWelcomeScreenState());
       return;
@@ -584,8 +584,8 @@ export class AttemptLogOutEvent implements AuthEvent {
 }
 
 async function logOut(bloc: AuthBloc): Promise<void> {
-  // LATER(part 2): authLogger.i("Starting log out method").
-  // LATER(part 14): the push token. Read it (getFCMToken; a failed read counts as none); if
+  // PORT-GAP: authLogger.i("Starting log out method").
+  // PORT-GAP: the push token. Read it (getFCMToken; a failed read counts as none); if
   // there is one, deleteMessagingData(token, 'token'); then, as shouldUnsubFromNotifications is
   // true, FirebaseMessaging.deleteToken(). A failure in any of it is only logged.
 
@@ -597,7 +597,7 @@ async function logOut(bloc: AuthBloc): Promise<void> {
     await SecureStorage.deleteRefreshToken();
     await SecureStorage.deleteAccessToken();
   } catch {
-    // LATER(part 2): authLogger.e("Log out could not clear the session: $e").
+    // PORT-GAP: authLogger.e("Log out could not clear the session: $e").
     bloc.showMessage({
       kind: 'PopupError',
       title: 'Could Not Sign Out',
@@ -608,14 +608,14 @@ async function logOut(bloc: AuthBloc): Promise<void> {
 
   // Best effort from here: nothing below can leave a usable session behind.
   try {
-    // LATER(part 14): SecureStorage.deleteFCMToken().
+    // PORT-GAP: SecureStorage.deleteFCMToken().
     await SecureStorage.purgeLegacyCredentials();
     // Otherwise the next account on this device inherits a gate it never opted into, and is never
     // offered the opt-in because the preference is no longer null.
     await SecureStorage.deleteBiometricsEnabled();
   } catch {
-    // LATER(part 2): authLogger.w("Log out could not fully clear local state: $e").
+    // PORT-GAP: authLogger.w("Log out could not fully clear local state: $e").
   }
   bloc.add(new AttemptLogOutEvent(true));
-  // LATER(part 2): authLogger.i("Finished log out method").
+  // PORT-GAP: authLogger.i("Finished log out method").
 }

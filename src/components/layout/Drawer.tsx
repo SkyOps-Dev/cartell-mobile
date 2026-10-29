@@ -31,7 +31,7 @@
 // buttons under the edge strip keep their taps until a horizontal drag is recognised. Touch slop is
 // what Flutter's drag recognisers use: Android's scaled touch slop (8 dp) through
 // DeviceGestureSettings, kTouchSlop (18) on iOS.
-// LATER(part 36): with "Remove animations" (MediaQuery disableAnimations), fling scales its velocity
+// PORT-GAP: with "Remove animations" (MediaQuery disableAnimations), fling scales its velocity
 // by 200, so the drawer snaps open and shut.
 
 import React, {
@@ -361,7 +361,7 @@ export const DrawerController = forwardRef<DrawerControllerHandle, Props>(
       >
         {children}
         {!dismissed && (
-          // LATER(part 36): BlockSemantics: on Android, hide the screen behind the open drawer
+          // PORT-GAP: BlockSemantics: on Android, hide the screen behind the open drawer
           // from screen readers too (iOS has accessibilityViewIsModal).
           <View style={StyleSheet.absoluteFill} accessibilityViewIsModal>
             <Animated.View

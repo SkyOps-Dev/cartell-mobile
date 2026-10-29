@@ -116,7 +116,7 @@ describe('iOS: Face ID needs a usage description', () => {
   });
 });
 
-describe('the biometric prompt module is in both builds (part 9)', () => {
+describe('the biometric prompt module is in both builds', () => {
   test('Android: androidx.biometric at local_auth_android 1.0.56’s version', () => {
     expect(read('android/app/build.gradle')).toContain(
       'implementation("androidx.biometric:biometric:1.1.0")',

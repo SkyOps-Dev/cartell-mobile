@@ -28,7 +28,7 @@ export async function getSetting({
     );
   }
   // The key goes into the URL as it is, unencoded, as Flutter builds it. On the Node backend
-  // since 2026-10-22 (node_backend/docs/ENDPOINTS.md).
+  // since 2026-10-22.
   const response = await new NetworkHelper(
     `${nodeBaseUrlHttp()}/app/settings/?code=${settingKey}`,
   ).getSecureData();

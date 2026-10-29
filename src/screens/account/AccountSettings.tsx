@@ -1,5 +1,5 @@
-// Port of frontend/lib/screens/account/account_settings.dart (spec 11 §2, §2.1; part 21, and the
-// Delete Account flow of part 23).
+// Port of frontend/lib/screens/account/account_settings.dart (spec 11 §2, §2.1, and the
+// Delete Account flow).
 //
 // AppScaffold, actions: ⋮ → "Delete Account" (FA userXmark). Body: Expanded → SafeArea → scroll →
 // Column(centre):
@@ -116,7 +116,7 @@ export function AccountSettings({ user, profile }: Props) {
         enabled = (await SecureStorage.getBiometricsEnabled()) ?? false;
       } catch {
         // When the state is unknown, show the control rather than hide the way out.
-        // LATER(part 2): _log.w("Could not read the biometric preference: $e").
+        // PORT-GAP: _log.w("Could not read the biometric preference: $e").
         couldNotRead = true;
       }
       if (!mounted.current) {
@@ -321,7 +321,7 @@ export function AccountSettings({ user, profile }: Props) {
                           try {
                             await SecureStorage.setBiometricsEnabled(value);
                           } catch {
-                            // LATER(part 2): _log.w("Could not write the biometric preference: $e").
+                            // PORT-GAP: _log.w("Could not write the biometric preference: $e").
                             return ResultOf.failure({
                               message:
                                 'Could not save that setting. Please try again.',

@@ -24,7 +24,7 @@
 // PopupMenuItem: at least 48 tall, padding 12 left and right, child aligned centre-start, its own
 // InkWell that closes the menu (Navigator.pop) and then runs its onTap. A ListTile inside it
 // (contentPadding 0, title labelLarge onSurface) has an InkWell of its own, which wins the tap.
-// LATER(part 36): press-and-hold on such a ListTile also shows the item's own highlight after
+// PORT-GAP: press-and-hold on such a ListTile also shows the item's own highlight after
 // 100 ms in Flutter (both tap recognisers pass their deadline before the arena decides).
 
 import React, {

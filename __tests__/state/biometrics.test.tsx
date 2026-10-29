@@ -1,4 +1,4 @@
-// Part 9: the biometric gate in auto sign-in (auto_login_event.dart), the one-time offer after a
+// The biometric gate in auto sign-in (auto_login_event.dart), the one-time offer after a
 // password login (attempt_logging_in_event.dart _offerBiometricUnlock), the clean-up on log out,
 // and the Lock screen (lock_screen.dart).
 

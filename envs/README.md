@@ -25,9 +25,8 @@ address and port. The backend must listen on `0.0.0.0:8000`, and that address mu
 backend's `DJANGO_ALLOWED_HOSTS`.
 
 `nodeBaseDomain` (in `dev.json` only, not from Flutter) is the Node backend on your computer,
-e.g. `192.168.x.x:8001`. Only call sites moved to `nodeBaseUrlHttp()` use it
-(`../node_backend/docs/ENDPOINTS.md`); every other request still goes to `baseDomain`. Leave it
-out and everything goes to `baseDomain`.
+e.g. `192.168.x.x:8001`. Only call sites moved to `nodeBaseUrlHttp()` use it; every other
+request still goes to `baseDomain`. Leave it out and everything goes to `baseDomain`.
 
 Keys a file leaves out take the Flutter defaults: `hubAddress` `192.168.4.1`, `hubPort` `5002`,
 `hubReplyPort` `6452`, `skipWifiHandoff` `false`. The app refuses to start if `hubAddress` is not

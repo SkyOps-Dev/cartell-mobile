@@ -76,3 +76,5 @@ yarn-error.log
 
 # Selected build environment (written by scripts/use-env.js; holds secrets)
 src/config/env.generated.json
+CLAUDE.md
+docs/

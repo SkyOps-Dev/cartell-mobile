@@ -1,7 +1,7 @@
-// Port of frontend/lib/models/user.dart (spec 05 §3). Part 3 foundation: parsing only.
-// LATER(part 6): the shared in-memory cache (DataPersistor) that keeps one User object per id. Put
-// off by the developer's boss (2026-10-14); until it is built, the side menu reads users from a
-// stand-in (services/data/userPersistor.ts) that setUser fills.
+// Port of frontend/lib/models/user.dart (spec 05 §3): parsing only.
+// PORT-GAP: the shared in-memory cache (DataPersistor) that keeps one User object per id.
+// Until it is built, the side menu reads users from a stand-in (services/data/userPersistor.ts)
+// that setUser fills.
 
 export type User = {
   id: number;

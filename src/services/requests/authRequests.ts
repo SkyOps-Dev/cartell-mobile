@@ -154,7 +154,7 @@ export class AuthRequestManager {
   }): Promise<HttpResponse | null> {
     try {
       return await new NetworkHelper(
-        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        // On the Node backend since 2026-10-21.
         `${nodeBaseUrlHttp()}/auth/users/`,
       ).postSecureData({
         body: {
@@ -182,7 +182,7 @@ export class AuthRequestManager {
   }): Promise<HttpResponse | null> {
     try {
       return await new NetworkHelper(
-        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        // On the Node backend since 2026-10-21.
         `${nodeBaseUrlHttp()}/auth/jwt/create`,
       ).postSecureData({
         body: { email, password },
@@ -201,7 +201,7 @@ export class AuthRequestManager {
   ): Promise<HttpResponse> {
     try {
       return await new NetworkHelper(
-        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        // On the Node backend since 2026-10-21.
         `${nodeBaseUrlHttp()}/auth/jwt/refresh`,
       ).postSecureData({ body: { [type]: token }, shouldAuthenticate: false });
     } catch (error) {
@@ -217,7 +217,7 @@ export class AuthRequestManager {
   ): Promise<HttpResponse> {
     try {
       return await new NetworkHelper(
-        // On the Node backend since 2026-10-21 (node_backend/docs/ENDPOINTS.md).
+        // On the Node backend since 2026-10-21.
         `${nodeBaseUrlHttp()}/auth/jwt/verify`,
       ).postSecureData({ body: { [type]: token }, shouldAuthenticate: false });
     } catch (error) {

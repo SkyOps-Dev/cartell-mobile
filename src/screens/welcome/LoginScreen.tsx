@@ -37,7 +37,7 @@ import { RevealingScrollView } from '../../components/layout/RevealingScrollView
 import { Scaffold, WhenKeyboardHidden } from '../../components/layout/Scaffold';
 import { FontAwesomeIcons } from '../../components/icons/iconData';
 import { ModalProgressHUD } from '../../components/progress/ModalProgressHUD';
-import { baseUrlHttp } from '../../config/environment';
+import { nodeBaseUrlHttp } from '../../config/environment';
 import { launchUrl } from '../../services/launchUrl';
 import {
   AttemptLoggingInEvent,
@@ -199,7 +199,8 @@ export function LoginScreen({
                     label="Forgot Password"
                     color={kCartellYellow}
                     onPressed={() => {
-                      launchUrl(`${baseUrlHttp()}/password_reset`);
+                      // On the Node backend since 2026-11-02.
+                      launchUrl(`${nodeBaseUrlHttp()}/password_reset`);
                     }}
                   />
                 </View>

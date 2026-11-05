@@ -1,6 +1,9 @@
 // The small pure pieces behind Account Settings: Flutter's formatPhoneNumber (with Dart's
 // int.tryParse), SettingParser's case-sensitive bool, and the type names the switch toasts show.
 
+import { Location } from '../../src/models/location';
+import { devicePersistor } from '../../src/services/data/persistors';
+import { hubJson } from '../helpers/hubJson';
 import { parseProfile } from '../../src/models/profile';
 import { parseSetting } from '../../src/models/setting';
 import {
@@ -83,23 +86,26 @@ describe('parseSetting', () => {
   });
 });
 
-test('parseProfile keeps the fields the app reads and the locations as sent', () => {
-  const locations = [
-    { id: 9, name: '(Default Location)', devices: [], groups: [] },
-  ];
-  expect(
-    parseProfile({
-      user: 3,
-      should_send_notification: true,
-      locations,
-      alexa_enabled: false,
-    }),
-  ).toEqual({
+test('parseProfile keeps the fields the app reads, with the locations as Location models', () => {
+  const hub = hubJson({ id: 70, location: 9 });
+  const profile = parseProfile({
+    user: 3,
+    should_send_notification: true,
+    locations: [
+      { id: 9, name: '(Default Location)', devices: [hub], groups: [] },
+    ],
+    alexa_enabled: false,
+  });
+  expect(profile).toMatchObject({
     user: 3,
     shouldSendNotification: true,
-    locations,
     alexaEnabled: false,
   });
+  const [location] = profile.locations;
+  expect(location).toBeInstanceOf(Location);
+  expect(location).toMatchObject({ id: 9, name: '(Default Location)' });
+  // Its hubs go through the Device parser, and so into the shared cache.
+  expect(location.devices[0]).toBe(devicePersistor.getById(70).data);
 });
 
 describe('dartTypeName', () => {

@@ -4,6 +4,7 @@
 import * as Keychain from 'react-native-keychain';
 
 import { baseUrlHttp } from '../../src/config/environment';
+import { Location } from '../../src/models/location';
 import {
   FetchSettingsException,
   NoAccountInformationFoundException,
@@ -64,11 +65,17 @@ describe('setProfile', () => {
       'GET /profiles/me': { status: 200, body: profileJson },
     });
     const profile = await setProfile();
-    expect(profile).toEqual({
+    expect(profile).toMatchObject({
       user: 3,
       shouldSendNotification: true,
-      locations: profileJson.locations,
       alexaEnabled: false,
+    });
+    expect(profile.locations).toHaveLength(1);
+    expect(profile.locations[0]).toBeInstanceOf(Location);
+    expect(profile.locations[0]).toMatchObject({
+      id: 1,
+      name: '(Default Location)',
+      devices: [],
     });
     expect(sent(requests)).toEqual([
       expect.objectContaining({ method: 'GET', path: '/profiles/me' }),

@@ -44,6 +44,12 @@ export const M3 = {
     letterSpacing: 0.1,
     height: 1.43,
   },
+  titleLarge: {
+    fontSize: 22,
+    fontWeight: '400',
+    letterSpacing: 0,
+    height: 1.27,
+  },
   titleMedium: {
     fontSize: 16,
     fontWeight: '500',

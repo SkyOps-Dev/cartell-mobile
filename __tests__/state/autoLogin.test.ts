@@ -16,6 +16,7 @@ import {
   IsOnWelcomeScreenState,
 } from '../../src/state/auth/authBloc';
 import { flush, installFakeServer } from '../helpers/fakeServer';
+import { hubJson } from '../helpers/hubJson';
 
 const keychain = Keychain as unknown as {
   __store: Map<string, unknown>;
@@ -53,8 +54,8 @@ async function launch() {
 
 const ok = { status: 200 };
 const hubs = [
-  { id: 7, name: 'Gate', device: { is_connected: true } },
-  { id: 8, name: 'Barn', device: { is_connected: false } },
+  hubJson({ id: 7, name: 'Gate', device: { is_connected: true } }),
+  hubJson({ id: 8, name: 'Barn', device: { id: 32, is_connected: false } }),
 ];
 const user = {
   id: 1,
@@ -68,7 +69,6 @@ const signedInServer = {
   'GET /maintenance-mode/': ok,
   'POST /auth/jwt/verify': ok,
   'GET /devices/': { status: 200, body: hubs },
-  'POST /devices/7/message/get_health/': ok,
   'GET /auth/users/me/': { status: 200, body: user },
 };
 const calls = (requests: { method: string; path: string }[]) =>
@@ -151,12 +151,15 @@ describe('AutoLoginEvent: signing in', () => {
     expect(last).toBeInstanceOf(IsOnDevicesScreenState);
     expect(last.email).toBeNull();
     expect(last.password).toBeNull();
-    expect(last.devices).toEqual(hubs);
-    // The hub list twice, get_health for the connected hub only.
+    expect(last.devices.map(d => [d.id, d.name])).toEqual([
+      [7, 'Gate'],
+      [8, 'Barn'],
+    ]);
+    // The hub list twice. Flutter asks get_health for each connected hub in between; RN sends
+    // nothing, as Node does not serve it and Django is closed (decided 2026-11-05).
     expect(calls(requests)).toEqual([
       'POST /auth/jwt/verify',
       'GET /devices/',
-      'POST /devices/7/message/get_health/',
       'GET /auth/users/me/',
       'GET /devices/',
     ]);
@@ -170,26 +173,11 @@ describe('AutoLoginEvent: signing in', () => {
       '/devices/',
       '/maintenance-mode/',
       '/maintenance-mode/',
-      '/devices/7/message/get_health/',
-      '/maintenance-mode/',
-      '/maintenance-mode/',
       '/auth/users/me/',
       '/maintenance-mode/',
       '/maintenance-mode/',
       '/devices/',
     ]);
-    const health = requests.find(r => r.path.endsWith('/get_health/'))!;
-    expect(health.headers.authorization).toBe('JWT A');
-  });
-
-  test('a failed get_health is only reported; sign-in carries on', async () => {
-    installFakeServer({
-      ...signedInServer,
-      'POST /devices/7/message/get_health/': { status: 500 },
-    });
-    await signIn();
-    const { states } = await launch();
-    expect(states[states.length - 1]).toBeInstanceOf(IsOnDevicesScreenState);
   });
 
   test('three failed session checks: Welcome, and the tokens are kept', async () => {

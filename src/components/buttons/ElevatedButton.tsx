@@ -14,9 +14,11 @@ import { InkWell } from '../ink/InkWell';
 type Props = {
   label: string;
   onPressed?: (() => void) | null;
+  /** The label Text's own colour (it wins over the button's foreground while enabled). */
+  labelColor?: string;
 };
 
-export function ElevatedButton({ label, onPressed }: Props) {
+export function ElevatedButton({ label, onPressed, labelColor }: Props) {
   const enabled = onPressed !== null && onPressed !== undefined;
   const overlay = withOpacity(ColorScheme.primary, 0.1);
   return (
@@ -35,9 +37,11 @@ export function ElevatedButton({ label, onPressed }: Props) {
         >
           <Text
             style={textStyle(M3.labelLarge, {
-              color: enabled
-                ? ColorScheme.primary
-                : withOpacity(ColorScheme.onSurface, 0.38),
+              color:
+                labelColor ??
+                (enabled
+                  ? ColorScheme.primary
+                  : withOpacity(ColorScheme.onSurface, 0.38)),
             })}
           >
             {label}

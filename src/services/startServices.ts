@@ -6,8 +6,8 @@ import { AuthRequestManager } from './requests/authRequests';
 let backgroundAuth: ReturnType<typeof setInterval> | null = null;
 
 export function registerServices(): void {
-  // PORT-GAP: registerPersistors() and registerParsers(), the shared in-memory cache. Read by
-  // the side menu (navbar.dart, through a stand-in for now) and the Hubs list.
+  // registerPersistors() and registerParsers(): the caches are module singletons
+  // (services/data/persistors.ts), made on first import; the parsers are plain functions.
   setupBackgroundAuth();
 }
 

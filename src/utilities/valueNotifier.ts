@@ -21,6 +21,11 @@ export class ValueNotifier<T> {
       return;
     }
     this.current = next;
+    this.notifyListeners();
+  }
+
+  /** Tells every listener. A subclass may do more first, as Flutter's overrides do. */
+  protected notifyListeners(): void {
     this.listeners.forEach(listener => listener());
   }
 

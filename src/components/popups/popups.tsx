@@ -122,6 +122,12 @@ export function showGenericErrorPopup(): Promise<void> {
   });
 }
 
+/** Tests only: drops every popup at once, so none outlives its test. */
+export function resetPopupsForTests(): void {
+  entries = [];
+  emit();
+}
+
 /** Closes the top-most popup (Navigator.pop from inside a dialog). */
 export function popPopup(): void {
   const entry = [...entries].reverse().find(e => !e.closing);

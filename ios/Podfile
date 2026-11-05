@@ -5,7 +5,10 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+# The QR scanner's GoogleMLKit/BarcodeScanning 9.0.0 needs iOS 15.5 (Flutter's floor is 15.0, React
+# Native 0.87's 15.1). Runner's deployment target in the pbxproj carries the same value.
+ios_floor = '15.5'
+platform :ios, ios_floor
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']

@@ -19,6 +19,7 @@ export const kScaffoldBackground = '#0A0E21';
 /** Flutter `Colors` values used directly by screens. */
 export const MaterialColors = {
   white: '#FFFFFF',
+  white60: 'rgba(255, 255, 255, 0.6)',
   white70: 'rgba(255, 255, 255, 0.7)',
   black: '#000000',
   black54: 'rgba(0, 0, 0, 0.54)',
@@ -26,6 +27,8 @@ export const MaterialColors = {
   red: '#F44336',
   /** Colors.orange (shade 500). */
   orange: '#FF9800',
+  /** Colors.deepOrange (shade 500). */
+  deepOrange: '#FF5722',
 } as const;
 
 /**

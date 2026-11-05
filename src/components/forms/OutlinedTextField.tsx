@@ -21,6 +21,11 @@
 //   transparent, for screen readers.
 // - Error text: bodySmall (12, 0.4, ×1.33), #F2B8B5 unless `errorColor` is given, 4 below the box,
 //   indented 24.
+// - Disabled (`enabled` false, TextField.enabled): the field cannot be focused or edited and
+//   takes no touches (a tap goes to whatever is behind it, as Flutter's disabled TextField lets
+//   an enclosing GestureDetector have it). Border onSurface at 0.12, width 1 (kTextFieldDecoration
+//   sets no disabledBorder, so M3's outlineBorder applies); text white at 0.38 (_m3StateInputStyle);
+//   the label stays white70.
 //
 // The border notch is drawn by painting the floated label's background in `notchColor` (the
 // screen colour behind the field), which looks the same as Flutter's gap on a plain background.
@@ -84,6 +89,7 @@ function attachRef(target: unknown, node: unknown) {
   }
 }
 const errorTextStyle = textStyle(M3.bodySmall);
+const disabledInputColor = { color: withOpacity(MaterialColors.white, 0.38) };
 const LABEL_FONT = 16;
 
 export type OutlinedTextFieldProps = Omit<
@@ -103,6 +109,8 @@ export type OutlinedTextFieldProps = Omit<
   suffix?: React.ReactNode;
   /** Background behind the field, used to cut the notch for the floated label. */
   notchColor?: string;
+  /** TextField.enabled. */
+  enabled?: boolean;
 };
 
 export const OutlinedTextField = forwardRef<
@@ -118,6 +126,7 @@ export const OutlinedTextField = forwardRef<
     prefixIcon,
     suffix,
     notchColor = kScaffoldBackground,
+    enabled = true,
     value,
     defaultValue,
     onChangeText,
@@ -182,12 +191,14 @@ export const OutlinedTextField = forwardRef<
   const [boxWidth, setBoxWidth] = useState(0);
   const [suffixWidth, setSuffixWidth] = useState(ICON_BOX);
 
-  const borderColor = hasError
+  const borderColor = !enabled
+    ? withOpacity(ColorScheme.onSurface, 0.12)
+    : hasError
     ? focused
       ? ColorScheme.error
       : errorBorderColor ?? ColorScheme.error
     : kCartellYellow;
-  const borderWidth = focused ? 2 : 1;
+  const borderWidth = focused && enabled ? 2 : 1;
 
   const inputStart = prefixIcon
     ? ICON_BOX + INPUT_GAP
@@ -214,7 +225,7 @@ export const OutlinedTextField = forwardRef<
     (labelText === undefined || floated);
 
   return (
-    <View>
+    <View pointerEvents={enabled ? 'auto' : 'none'}>
       <View
         style={styles.box}
         onLayout={event => setBoxWidth(event.nativeEvent.layout.width)}
@@ -237,6 +248,7 @@ export const OutlinedTextField = forwardRef<
           {...inputProps}
           value={value}
           defaultValue={defaultValue}
+          editable={enabled && inputProps.editable !== false}
           onChangeText={next => {
             setText(next);
             onChangeText?.(next);
@@ -259,6 +271,7 @@ export const OutlinedTextField = forwardRef<
           style={[
             styles.input,
             inputStyle,
+            enabled ? null : disabledInputColor,
             {
               marginLeft: prefixIcon ? INPUT_GAP : CONTENT_START + INPUT_GAP,
               marginRight: suffix ? INPUT_GAP : CONTENT_START + INPUT_GAP,

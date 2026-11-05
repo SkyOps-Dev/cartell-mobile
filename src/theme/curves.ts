@@ -64,4 +64,101 @@ export const Curves = {
   easeOut: [0.0, 0.0, 0.58, 1.0],
   easeOutBack: [0.175, 0.885, 0.32, 1.275],
   fastOutSlowIn: [0.4, 0.0, 0.2, 1.0],
+  easeInToLinear: [0.67, 0.03, 0.65, 0.09],
+  linearToEaseOut: [0.35, 0.91, 0.33, 0.97],
 } as const satisfies Record<string, CubicCurve>;
+
+type Point = readonly [number, number];
+/** ThreePointCubic(a1, b1, midpoint, a2, b2): two cubics joined at `midpoint`. */
+export type ThreePointCubicCurve = readonly [Point, Point, Point, Point, Point];
+
+export const ThreePointCubics = {
+  easeInOutCubicEmphasized: [
+    [0.05, 0],
+    [0.133333, 0.06],
+    [0.166666, 0.4],
+    [0.208333, 0.82],
+    [0.25, 1],
+  ],
+  fastEaseInToSlowEaseOut: [
+    [0.056, 0.024],
+    [0.108, 0.3085],
+    [0.198, 0.541],
+    [0.3655, 1.0],
+    [0.5465, 0.989],
+  ],
+} as const satisfies Record<string, ThreePointCubicCurve>;
+
+/** ThreePointCubic.transformInternal: the first cubic before the midpoint, the second after. */
+export function transformThreePointCubic(
+  curve: ThreePointCubicCurve,
+  t: number,
+): number {
+  'worklet';
+  if (!(t > 0)) {
+    return 0;
+  }
+  if (!(t < 1)) {
+    return 1;
+  }
+  const [a1, b1, mid, a2, b2] = curve;
+  const firstCurve = t < mid[0];
+  const scaleX = firstCurve ? mid[0] : 1 - mid[0];
+  const scaleY = firstCurve ? mid[1] : 1 - mid[1];
+  const scaledT = (t - (firstCurve ? 0 : mid[0])) / scaleX;
+  if (firstCurve) {
+    return (
+      transformCubic(
+        [a1[0] / scaleX, a1[1] / scaleY, b1[0] / scaleX, b1[1] / scaleY],
+        scaledT,
+      ) * scaleY
+    );
+  }
+  return (
+    transformCubic(
+      [
+        (a2[0] - mid[0]) / scaleX,
+        (a2[1] - mid[1]) / scaleY,
+        (b2[0] - mid[0]) / scaleX,
+        (b2[1] - mid[1]) / scaleY,
+      ],
+      scaledT,
+    ) *
+      scaleY +
+    mid[1]
+  );
+}
+
+/**
+ * Interval(begin, end, curve: curve): 0 until `begin`, 1 from `end`, and `curve` across the range
+ * in between (linear when none is given). A cubic curve is evaluated as Cubic.transform does.
+ */
+export function transformInterval(
+  begin: number,
+  end: number,
+  t: number,
+  curve?: CubicCurve,
+): number {
+  'worklet';
+  const local = Math.min(1, Math.max(0, (t - begin) / (end - begin)));
+  if (local === 0 || local === 1) {
+    return local;
+  }
+  return curve === undefined ? local : transformCubic(curve, local);
+}
+
+/** Curves.elasticOut (ElasticOutCurve, period 0.4): overshoots and settles at 1. */
+export function transformElasticOut(t: number): number {
+  'worklet';
+  if (!(t > 0)) {
+    return 0;
+  }
+  if (!(t < 1)) {
+    return 1;
+  }
+  const period = 0.4;
+  const s = period / 4;
+  return (
+    Math.pow(2, -10 * t) * Math.sin(((t - s) * (Math.PI * 2)) / period) + 1
+  );
+}

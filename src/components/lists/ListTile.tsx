@@ -59,6 +59,8 @@ export function ListTileTheme({
 type Props = {
   leadingIcon: IconData;
   leadingIconSize?: number;
+  /** The leading Icon's own `color:`; the tile's icon colour otherwise. */
+  leadingIconColor?: string;
   title: string;
   /** Merged over the tile's title style, as the title Text's own `style:`. */
   titleStyle?: Partial<M3Style>;
@@ -68,6 +70,7 @@ type Props = {
 export function ListTile({
   leadingIcon,
   leadingIconSize = 24,
+  leadingIconColor = kListTileIconColor,
   title,
   titleStyle = {},
   onTap,
@@ -106,7 +109,7 @@ export function ListTile({
         <Icon
           icon={leadingIcon}
           size={leadingIconSize}
-          color={kListTileIconColor}
+          color={leadingIconColor}
         />
       </View>
       <Text style={[styles.title, toRN(resolved)]}>{title}</Text>

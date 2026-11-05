@@ -1,5 +1,5 @@
-// Port of GenericBloc (frontend/lib/bloc/shared/*) on top of flutter_bloc 8 semantics
-// (spec 06 §1). The app navigates by state: the screen shown is a function of the current state.
+// Port of GenericBloc, emitThenRefresh and RefreshState (frontend/lib/bloc/shared/*) on top of
+// flutter_bloc 8 semantics (spec 06 §1). The app navigates by state: the screen shown is a function of the current state.
 //
 // - Every event runs its handler at once (flutter_bloc's default concurrent transformer).
 // - emit() skips a state equal to the current one (Equatable: same class and equal props),
@@ -7,6 +7,8 @@
 // - A handler error goes to onErrorDuringEventHandle (logged by default).
 // - Back-stack: non-poppable states stay off it; a state of the same class replaces the top.
 //   popState(n) pops n + 1 and returns the last popped (or the fallback when only one is left).
+
+import { AuthExpiredException } from '../services/exceptions';
 
 let lastTimestamp = 0;
 
@@ -18,6 +20,19 @@ let lastTimestamp = 0;
 export function stateTimestamp(): number {
   lastTimestamp = Math.max(lastTimestamp + 1, Date.now());
   return lastTimestamp;
+}
+
+/**
+ * Whether the data behind a screen has been re-checked against the server (bloc/shared/states.dart).
+ * A screen opens at once from the model in hand; anything reporting hardware state shows
+ * `checking` until the request returns, and `failed` instead of presenting a stale value as
+ * current. Changing it is also what makes the re-emitted state differ from the first, since the
+ * re-fetched model is the same object.
+ */
+export enum RefreshState {
+  checking = 'checking',
+  ready = 'ready',
+  failed = 'failed',
 }
 
 export abstract class GenericState {
@@ -67,6 +82,39 @@ export type Emitter<S> = ((state: S) => void) & { readonly isDone: boolean };
 
 export interface GenericEvent<S extends GenericState, B> {
   handleEvent(bloc: B, emit: Emitter<S>): Promise<void>;
+}
+
+/**
+ * emitThenRefresh (bloc/shared/bloc.dart): shows the destination at once from the data in hand
+ * (`checking`), then re-checks it and shows it again as `ready`, or as `failed` if the re-check
+ * failed, leaving the user where they are. Neither is shown if another screen has been shown
+ * meanwhile. An expired session is not a failed re-check: it goes on to the bloc's error handling.
+ */
+export async function emitThenRefresh<S extends GenericState>(
+  emit: Emitter<S>,
+  currentState: () => S,
+  build: (refresh: RefreshState) => S,
+  revalidate: () => Promise<unknown>,
+): Promise<void> {
+  const pending = build(RefreshState.checking);
+  emit(pending);
+  const supersededByAnotherScreen = () => !statesEqual(currentState(), pending);
+  try {
+    await revalidate();
+    if (emit.isDone || supersededByAnotherScreen()) {
+      return;
+    }
+    emit(build(RefreshState.ready));
+  } catch (error) {
+    if (error instanceof AuthExpiredException) {
+      throw error;
+    }
+    // PORT-GAP: _log.w("Revalidation failed, leaving last-known data on screen: $e").
+    if (emit.isDone || supersededByAnotherScreen()) {
+      return;
+    }
+    emit(build(RefreshState.failed));
+  }
 }
 
 export class GenericBloc<S extends GenericState> {

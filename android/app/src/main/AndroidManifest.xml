@@ -8,6 +8,11 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- What Flutter's QR scanner (mobile_scanner 7.4.0) merges into its manifest: the camera, asked
+         for when Add Hub opens the scanner, and a camera that is not required to install. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
     <!-- Flutter sets neither allowBackup nor supportsRtl, so both stay at the platform defaults.
          usesCleartextTraffic is true in debug builds only (spec 01 §3.4). -->
     <application

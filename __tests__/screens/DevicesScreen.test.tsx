@@ -5,6 +5,7 @@
 import React from 'react';
 import { BackHandler, View } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PageBackHandler } from '../../src/components/layout/PopScope';
@@ -17,6 +18,11 @@ import {
 } from '../../src/services/data/userPersistor';
 import { AuthBloc } from '../../src/state/auth/authBloc';
 import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';
+import {
+  DevicesBloc,
+  GoToAddAHubScreen,
+} from '../../src/state/devices/devicesBloc';
+import { DevicesBlocProvider } from '../../src/state/devices/DevicesBlocContext';
 import type { MainAppBloc } from '../../src/state/mainApp/mainAppBloc';
 import { MainAppBlocProvider } from '../../src/state/mainApp/MainAppBlocContext';
 
@@ -57,6 +63,8 @@ const metrics = {
   insets: { top: 36, left: 0, right: 0, bottom: 44 },
 };
 
+const devicesBloc = { add: jest.fn() };
+
 async function settle() {
   await act(async () => {
     await jest.advanceTimersByTimeAsync(1000);
@@ -75,20 +83,25 @@ beforeEach(async () => {
     shouldSendEmails: false,
   });
   exitApp.mockClear();
+  devicesBloc.add.mockClear();
   await render(
-    <SafeAreaProvider initialMetrics={metrics}>
-      <PageBackHandler />
-      <AuthBlocProvider bloc={{ add: jest.fn() } as unknown as AuthBloc}>
-        <MainAppBlocProvider
-          bloc={{ add: jest.fn() } as unknown as MainAppBloc}
-        >
-          <PopupHost>
-            <DevicesScreen devices={[]} />
-            <PopupMenuHost />
-          </PopupHost>
-        </MainAppBlocProvider>
-      </AuthBlocProvider>
-    </SafeAreaProvider>,
+    <GestureHandlerRootView>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <PageBackHandler />
+        <AuthBlocProvider bloc={{ add: jest.fn() } as unknown as AuthBloc}>
+          <MainAppBlocProvider
+            bloc={{ add: jest.fn() } as unknown as MainAppBloc}
+          >
+            <DevicesBlocProvider bloc={devicesBloc as unknown as DevicesBloc}>
+              <PopupHost>
+                <DevicesScreen devices={[]} />
+                <PopupMenuHost />
+              </PopupHost>
+            </DevicesBlocProvider>
+          </MainAppBlocProvider>
+        </AuthBlocProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>,
   );
 });
 
@@ -183,13 +196,14 @@ describe('the ⋮ menu', () => {
     await settle();
   };
 
-  test('opens with "Add Hub"; tapping it closes the menu and nothing else', async () => {
+  test('opens with "Add Hub"; tapping it closes the menu and opens Add Hub', async () => {
     await openMenu();
     expect(screen.getByText('Add Hub')).toBeTruthy();
     await fireEvent.press(screen.getByText('Add Hub'));
     await settle();
     expect(screen.queryByText('Add Hub')).toBeNull();
-    expect(screen.getByText('No Hubs have been added.')).toBeTruthy();
+    expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+    expect(devicesBloc.add.mock.calls[0][0]).toBeInstanceOf(GoToAddAHubScreen);
   });
 
   test('Back closes the menu, not the page', async () => {
@@ -199,4 +213,14 @@ describe('the ⋮ menu', () => {
     expect(screen.queryByText('Add Hub')).toBeNull();
     expect(screen.queryByText('Leave App')).toBeNull();
   });
+});
+
+test('the + button opens Add Hub', async () => {
+  await fireEvent.press(
+    screen.getByText(String.fromCodePoint(0x2b), {
+      includeHiddenElements: true,
+    }),
+  );
+  expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+  expect(devicesBloc.add.mock.calls[0][0]).toBeInstanceOf(GoToAddAHubScreen);
 });

@@ -24,6 +24,14 @@ jest.mock('react-native-inappbrowser-reborn', () => ({
   },
 }));
 
+// react-native-gesture-handler (its published jestSetup.js mocks its native module) asks Worklets
+// for the UI runtime as it loads; Worklets' test build has none and throws. Any object will do,
+// since the mocked module ignores it.
+jest.mock('react-native-worklets', () => ({
+  ...jest.requireActual('react-native-worklets'),
+  getUIRuntimeHolder: () => ({}),
+}));
+
 // Keyboard animation: keyboard-controller's published mock. Reanimated runs its own JS
 // implementation under Jest (set up in jest.setupAfterEnv.js).
 jest.mock('react-native-keyboard-controller', () =>
@@ -45,3 +53,17 @@ require('react-native').NativeModules.CartellLocalAuth = {
   getEnrolledBiometrics: jest.fn(async () => []),
   authenticate: jest.fn(async () => 'failure'),
 };
+
+// react-native-vision-camera and its barcode scanner are Nitro native modules; tests drive the
+// stand-ins in __tests__/helpers/visionCameraMock.tsx.
+jest.mock('react-native-vision-camera', () => {
+  const mock = require('./__tests__/helpers/visionCameraMock');
+  return {
+    Camera: mock.Camera,
+    useCameraPermission: mock.useCameraPermission,
+  };
+});
+jest.mock('react-native-vision-camera-barcode-scanner', () => ({
+  useBarcodeScannerOutput: require('./__tests__/helpers/visionCameraMock')
+    .useBarcodeScannerOutput,
+}));

@@ -8,9 +8,10 @@
 // - actions: a row at the end, vertically centred, no padding (M3 actionsPadding is zero).
 // - title: between them with 16 dp on each side, so it spans leading + 16 to end − actions − 16.
 //   Start-aligned on Android and centred on iOS (centerTitle's platform default), and centred
-//   vertically. Every title in the app is the logo inside Center, which fills that span, so the
-//   two alignments give the same place; a title narrower than its span would need iOS's
-//   centre-on-screen rule, which no screen uses.
+//   vertically. Most titles are the logo inside Center, which fills that span, so the two
+//   alignments give the same place. A title that only takes its own width (`shrinkWrapTitle`,
+//   a plain Text: the QR scanner page) is centred on the whole toolbar on iOS when it fits
+//   (NavigationToolbar's centerMiddle), so its span is made symmetric there.
 //
 // Icon colours: kAppBarIconColor for the leading button, kAppBarActionsIconColor for actions
 // (theme/colors.ts). Call sites pass them to their IconButtons.
@@ -21,7 +22,7 @@
 // on the frame the bar appears and nothing resets it when the bar goes (no other screen sets one),
 // so it is set here on mount and never restored.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -38,6 +39,8 @@ type Props = {
   backgroundColor: string;
   leading?: React.ReactNode;
   actions?: React.ReactNode;
+  /** The title takes only its own width (a Text), rather than filling the span (Center). */
+  shrinkWrapTitle?: boolean;
 };
 
 export function AppBar({
@@ -45,11 +48,23 @@ export function AppBar({
   backgroundColor,
   leading: leadingProp,
   actions,
+  shrinkWrapTitle = false,
 }: Props) {
   const { top } = useSafeAreaInsets();
   const scaffold = useScaffold();
   const leading =
     leadingProp ?? (scaffold?.hasDrawer ? <DrawerButton /> : undefined);
+  const [actionsWidth, setActionsWidth] = useState(0);
+  const leadingWidth = leading !== undefined ? LEADING_WIDTH : 0;
+  // iOS, own-width title: the same room on both sides, so it is centred on the toolbar.
+  const side = Math.max(leadingWidth, actionsWidth);
+  const symmetric =
+    Platform.OS === 'ios' && shrinkWrapTitle
+      ? {
+          marginLeft: side - leadingWidth + MIDDLE_SPACING,
+          marginRight: side - actionsWidth + MIDDLE_SPACING,
+        }
+      : null;
   useEffect(() => {
     StatusBar.setBarStyle(
       estimateBrightnessForColor(backgroundColor) === 'dark'
@@ -61,8 +76,15 @@ export function AppBar({
     <View style={{ backgroundColor, paddingTop: top }}>
       <View style={styles.toolbar}>
         {leading !== undefined && <View style={styles.leading}>{leading}</View>}
-        <View style={styles.middle}>{title}</View>
-        {actions !== undefined && <View style={styles.actions}>{actions}</View>}
+        <View style={[styles.middle, symmetric]}>{title}</View>
+        {actions !== undefined && (
+          <View
+            style={styles.actions}
+            onLayout={event => setActionsWidth(event.nativeEvent.layout.width)}
+          >
+            {actions}
+          </View>
+        )}
       </View>
     </View>
   );

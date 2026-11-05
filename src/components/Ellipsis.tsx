@@ -3,12 +3,15 @@
 
 import React from 'react';
 
+import { GoToAddAHubScreen } from '../state/devices/devicesBloc';
+import { useReadDevicesBloc } from '../state/devices/DevicesBlocContext';
 import { kAppBarActionsIconColor } from '../theme/colors';
 import { FontAwesomeIcons } from './icons/iconData';
 import { ListTile } from './lists/ListTile';
 import { popMenu, PopupMenuButton, PopupMenuItem } from './popups/PopupMenu';
 
 export function Ellipsis() {
+  const readDevicesBloc = useReadDevicesBloc();
   return (
     <PopupMenuButton
       icon={FontAwesomeIcons.ellipsisVertical}
@@ -20,7 +23,7 @@ export function Ellipsis() {
             title="Add Hub"
             onTap={() => {
               popMenu();
-              // PORT-GAP: context.read<DevicesBloc>().add(GoToAddAHubScreen()).
+              readDevicesBloc().add(new GoToAddAHubScreen());
             }}
           />
         </PopupMenuItem>,

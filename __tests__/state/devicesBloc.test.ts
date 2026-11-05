@@ -11,13 +11,29 @@ import { AuthBloc } from '../../src/state/auth/authBloc';
 import {
   DevicesBloc,
   DevicesState,
+  GoToAboutDeviceScreen,
+  GoToAddAHubScreen,
+  GoToAddHubSuccessScreen,
+  GoToDeviceSettingsEvent,
+  GoToDevicesHomeScreen,
+  GoToEditDeviceScreen,
+  GoToSpecificDeviceEvent,
+  IsAddingAHubState,
   IsLoadingDevicesScreenState,
+  IsOnAboutDeviceScreenState,
+  IsOnAddHubSuccessScreen,
+  IsOnDeviceSettingsScreen,
   IsOnDevicesHomeScreenState,
+  IsOnEditDeviceScreen,
+  IsShowingADeviceState,
 } from '../../src/state/devices/devicesBloc';
+import { RefreshState } from '../../src/state/genericBloc';
 import { MainAppBloc } from '../../src/state/mainApp/mainAppBloc';
+import { parseDevice } from '../../src/models/device';
 import { flush, installFakeServer } from '../helpers/fakeServer';
+import { hubJson } from '../helpers/hubJson';
 
-const hub = { id: 7, name: 'Gate', device: { is_connected: true } };
+const hub = hubJson();
 
 let authBloc: AuthBloc;
 let mainAppBloc: MainAppBloc;
@@ -88,7 +104,8 @@ describe('GoToDevicesHomeScreen, dispatched by the constructor', () => {
       'POST /auth/jwt/verify': { status: 200 },
       'GET /devices/': { status: 200, body: [hub] },
     });
-    const bloc = new DevicesBloc(mainAppBloc, [hub]);
+    const held = parseDevice(hub);
+    const bloc = new DevicesBloc(mainAppBloc, [held]);
     const states = record(bloc);
     await settle();
 
@@ -97,7 +114,9 @@ describe('GoToDevicesHomeScreen, dispatched by the constructor', () => {
       'IsOnDevicesHomeScreenState',
       'IsOnDevicesHomeScreenState',
     ]);
-    expect((states[2] as IsOnDevicesHomeScreenState).devices).toEqual([hub]);
+    // The refetch hands back the same object, merged (one per id, as DataPersistor keeps them).
+    expect((states[2] as IsOnDevicesHomeScreenState).devices).toEqual([held]);
+    expect((states[2] as IsOnDevicesHomeScreenState).devices[0]).toBe(held);
   });
 
   test('a failed fetch leaves the loading screen up and starts recovery', async () => {
@@ -173,4 +192,170 @@ describe('recovery that outlives its bloc', () => {
     expect(add).toHaveBeenCalledTimes(3);
     expect(bloc.recoveryAttempts).toBe(4);
   });
+});
+
+describe('GoToSpecificDeviceEvent (emitThenRefresh)', () => {
+  const routes = (hubReply: { status: number; body?: unknown }) => ({
+    'GET /maintenance-mode/': { status: 200 },
+    'POST /auth/jwt/verify': { status: 200 },
+    'GET /devices/': { status: 200, body: [hub] },
+    [`GET /devices/${hub.id}/`]: hubReply,
+  });
+
+  /** A bloc already showing the Hubs list. */
+  async function onHubsList() {
+    const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+    await settle();
+    return bloc;
+  }
+
+  const shown = (states: DevicesState[]) =>
+    states.map(s =>
+      s instanceof IsShowingADeviceState
+        ? `hub ${s.refresh}`
+        : s.constructor.name,
+    );
+
+  test('shows the hub at once as checking, then as ready once Node has sent it again', async () => {
+    const { requests } = installFakeServer(
+      routes({ status: 200, body: { ...hub, name: 'Front Gate' } }),
+    );
+    const bloc = await onHubsList();
+    const device = parseDevice(hub);
+    const states = record(bloc);
+    bloc.add(new GoToSpecificDeviceEvent(device));
+    await settle();
+
+    expect(shown(states)).toEqual([
+      'IsOnDevicesHomeScreenState',
+      'hub checking',
+      'hub ready',
+    ]);
+    // The same hub throughout, merged with what came back.
+    expect((states[2] as IsShowingADeviceState).device).toBe(device);
+    expect(device.name).toBe('Front Gate');
+    // No health request: Django stays closed.
+    expect(requests.map(r => `${r.method} ${r.path}`)).toContain(
+      `GET /devices/${hub.id}/`,
+    );
+    expect(requests.some(r => r.path.includes('get_health'))).toBe(false);
+  });
+
+  test('a failed fetch leaves the hub up as last known, with no recovery', async () => {
+    installFakeServer(routes({ status: 500, body: '' }));
+    const bloc = await onHubsList();
+    const recover = jest.spyOn(bloc, 'recover');
+    const states = record(bloc);
+    bloc.add(new GoToSpecificDeviceEvent(parseDevice(hub)));
+    await settle();
+
+    expect(shown(states)).toEqual([
+      'IsOnDevicesHomeScreenState',
+      'hub checking',
+      'hub failed',
+    ]);
+    expect(recover).not.toHaveBeenCalled();
+    expect(bloc.state).toBeInstanceOf(IsShowingADeviceState);
+    expect((bloc.state as IsShowingADeviceState).refresh).toBe(
+      RefreshState.failed,
+    );
+  });
+
+  test('leaving before the fetch lands keeps the user where they went', async () => {
+    installFakeServer(routes({ status: 200, body: hub }));
+    const bloc = await onHubsList();
+    const states = record(bloc);
+    bloc.add(new GoToSpecificDeviceEvent(parseDevice(hub)));
+    bloc.add(new GoToDevicesHomeScreen());
+    await settle();
+
+    expect(shown(states)).not.toContain('hub ready');
+    expect(bloc.state).toBeInstanceOf(IsOnDevicesHomeScreenState);
+  });
+
+  test('the hub page stays off the back stack (not poppable)', () => {
+    expect(new IsShowingADeviceState(parseDevice(hub)).isPoppable).toBe(false);
+  });
+});
+
+describe('Rename and About', () => {
+  test('GoToEditDeviceScreen shows the rename page from the hub in hand, with no request', async () => {
+    const { requests } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      'POST /auth/jwt/verify': { status: 200 },
+      'GET /devices/': { status: 200, body: [hub] },
+    });
+    const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+    await settle();
+    const before = requests.length;
+    const device = parseDevice(hub);
+    bloc.add(new GoToEditDeviceScreen(device));
+    await settle();
+    expect(bloc.state).toBeInstanceOf(IsOnEditDeviceScreen);
+    expect((bloc.state as IsOnEditDeviceScreen).device).toBe(device);
+    expect(bloc.state.isPoppable).toBe(false);
+    expect(requests.length).toBe(before);
+  });
+
+  test('GoToAboutDeviceScreen shows About as checking, then as ready once Node has sent the hub', async () => {
+    installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      'POST /auth/jwt/verify': { status: 200 },
+      'GET /devices/': { status: 200, body: [hub] },
+      [`GET /devices/${hub.id}/`]: { status: 200, body: hub },
+    });
+    const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+    await settle();
+    const states = record(bloc);
+    bloc.add(new GoToAboutDeviceScreen(parseDevice(hub)));
+    await settle();
+    expect(
+      states
+        .filter(s => s instanceof IsOnAboutDeviceScreenState)
+        .map(s => (s as IsOnAboutDeviceScreenState).refresh),
+    ).toEqual([RefreshState.checking, RefreshState.ready]);
+    expect(bloc.state.isPoppable).toBe(true);
+  });
+});
+
+test('GoToDeviceSettingsEvent shows Hub settings as checking, then as ready (not poppable)', async () => {
+  installFakeServer({
+    'GET /maintenance-mode/': { status: 200 },
+    'POST /auth/jwt/verify': { status: 200 },
+    'GET /devices/': { status: 200, body: [hub] },
+    [`GET /devices/${hub.id}/`]: { status: 200, body: hub },
+  });
+  const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+  await settle();
+  const states = record(bloc);
+  bloc.add(new GoToDeviceSettingsEvent(parseDevice(hub)));
+  await settle();
+  expect(
+    states
+      .filter(s => s instanceof IsOnDeviceSettingsScreen)
+      .map(s => (s as IsOnDeviceSettingsScreen).refresh),
+  ).toEqual([RefreshState.checking, RefreshState.ready]);
+  expect(bloc.state.isPoppable).toBe(false);
+});
+
+test('Add Hub (poppable, and a second one is the same state), then the hub-added page (not poppable)', async () => {
+  installFakeServer({
+    'GET /maintenance-mode/': { status: 200 },
+    'POST /auth/jwt/verify': { status: 200 },
+    'GET /devices/': { status: 200, body: [hub] },
+  });
+  const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+  await settle();
+  const states = record(bloc);
+  bloc.add(new GoToAddAHubScreen());
+  bloc.add(new GoToAddAHubScreen());
+  await settle();
+  expect(states.filter(s => s instanceof IsAddingAHubState)).toHaveLength(1);
+  expect(bloc.state.isPoppable).toBe(true);
+  const device = parseDevice(hub);
+  bloc.add(new GoToAddHubSuccessScreen(device));
+  await settle();
+  expect(bloc.state).toBeInstanceOf(IsOnAddHubSuccessScreen);
+  expect((bloc.state as IsOnAddHubSuccessScreen).device).toBe(device);
+  expect(bloc.state.isPoppable).toBe(false);
 });

@@ -1,5 +1,5 @@
-// Port of formatPhoneNumber from frontend/lib/utilities/text_formatters.dart (spec 11 §2).
-// PORT-GAP: formatDateAndTime, with the event history.
+// Port of formatPhoneNumber and formatDateAndTime from frontend/lib/utilities/text_formatters.dart
+// (spec 11 §2).
 
 /**
  * Ten characters that Dart's int.tryParse reads as a number become "(555) 123-4567"; anything
@@ -20,7 +20,7 @@ export function formatPhoneNumber(phoneNumber: string): string | null {
 }
 
 /** Dart's String.trim whitespace (the VM's _isWhitespace). */
-function isDartWhitespace(code: number): boolean {
+export function isDartWhitespace(code: number): boolean {
   return (
     (code >= 0x09 && code <= 0x0d) ||
     code === 0x20 ||
@@ -56,4 +56,21 @@ export function isDartInt(source: string): boolean {
     body = body.slice(1);
   }
   return /^[0-9]+$/.test(body) || /^0[xX][0-9a-fA-F]+$/.test(body);
+}
+
+const pad2 = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * DateFormat('MM-dd-yyyy hh:mm a') in the default (en_US) locale, in local time:
+ * "11-05-2026 03:42 PM". hh is the 12-hour clock, 12 at noon and midnight.
+ */
+export function formatDateAndTime(date: Date): string {
+  const hours = date.getHours();
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+  return (
+    `${pad2(date.getMonth() + 1)}-${pad2(
+      date.getDate(),
+    )}-${date.getFullYear()} ` +
+    `${pad2(hour12)}:${pad2(date.getMinutes())} ${hours < 12 ? 'AM' : 'PM'}`
+  );
 }

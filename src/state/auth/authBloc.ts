@@ -9,6 +9,7 @@
 import type { IconData } from '../../components/icons/iconData';
 import { Icons } from '../../components/icons/iconData';
 import type { RenderedMessage } from '../../components/popups/messages';
+import type { Device } from '../../models/device';
 import {
   autoLoginMethodOnTheLoadScreen,
   successfulLoginStartup,
@@ -20,10 +21,7 @@ import {
 } from '../../services/biometricService';
 import { FailedToAutologinException } from '../../services/exceptions';
 import { AuthRequestManager } from '../../services/requests/authRequests';
-import {
-  fetchDevices,
-  RawDevice,
-} from '../../services/requests/deviceRequests';
+import { fetchDevices } from '../../services/requests/deviceRequests';
 import { setUser } from '../../services/requests/userRequests';
 import type { Result } from '../../services/result';
 import { SecureStorage } from '../../services/secureStorage';
@@ -172,7 +170,7 @@ export class IsOnDevicesScreenState extends AuthState {
     readonly email: string | null,
     readonly password: string | null,
     readonly bloc: MainAppBloc,
-    readonly devices: RawDevice[],
+    readonly devices: Device[],
   ) {
     super();
   }

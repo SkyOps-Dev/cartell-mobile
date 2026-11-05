@@ -5,6 +5,7 @@
 import React from 'react';
 import * as Keychain from 'react-native-keychain';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PopupHost } from '../../src/components/popups/popups';
@@ -60,11 +61,13 @@ test('auto sign-in with no hubs lands on the Hubs screen, fetching the hubs thre
     'GET /auth/users/me/': { status: 200, body: user },
   });
   await render(
-    <SafeAreaProvider initialMetrics={metrics}>
-      <PopupHost>
-        <AuthRouter />
-      </PopupHost>
-    </SafeAreaProvider>,
+    <GestureHandlerRootView>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <PopupHost>
+          <AuthRouter />
+        </PopupHost>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>,
   );
   await settle();
 
@@ -89,11 +92,13 @@ test('the side menu shows the signed-in user, and Log Out returns to Welcome', a
     'GET /auth/users/me/': { status: 200, body: user },
   });
   await render(
-    <SafeAreaProvider initialMetrics={metrics}>
-      <PopupHost>
-        <AuthRouter />
-      </PopupHost>
-    </SafeAreaProvider>,
+    <GestureHandlerRootView>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <PopupHost>
+          <AuthRouter />
+        </PopupHost>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>,
   );
   await settle();
 
@@ -132,11 +137,13 @@ test('side menu → Account Settings: the skeleton, then the screen; its forms c
     },
   });
   await render(
-    <SafeAreaProvider initialMetrics={metrics}>
-      <PopupHost>
-        <AuthRouter />
-      </PopupHost>
-    </SafeAreaProvider>,
+    <GestureHandlerRootView>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <PopupHost>
+          <AuthRouter />
+        </PopupHost>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>,
   );
   await settle();
 

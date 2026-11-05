@@ -20,7 +20,7 @@ import React, { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { CrossFadeSwitcher } from '../components/CrossFadeSwitcher';
 import { ErrorWidgetBoundary } from '../components/ErrorWidget';
 import { PopScope } from '../components/layout/PopScope';
-import type { RawDevice } from '../services/requests/deviceRequests';
+import type { Device } from '../models/device';
 import { DevicesBloc } from '../state/devices/devicesBloc';
 import {
   IsLoadingMainAppState,
@@ -46,7 +46,7 @@ export function MainAppRouter({
   devices,
 }: {
   mainAppBloc: MainAppBloc;
-  devices: RawDevice[];
+  devices: Device[];
 }) {
   const state = useSyncExternalStore(
     mainAppBloc.subscribe,

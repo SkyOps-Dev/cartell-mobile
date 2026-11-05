@@ -85,3 +85,20 @@ export class OnHUBNetworkException extends Error {
     return this.message;
   }
 }
+
+/** Dart's FormatException (dart:core), as DateTime.parse throws it. */
+export const FormatException = coded('FormatException');
+/** json_parsing_exceptions.dart: what JsonParserErrorTracker turns a parse failure into. */
+export const JsonStructureProblemException = coded(
+  'JsonStructureProblemException',
+);
+export const TriedToConvertFromWrongJsonTypeException = coded(
+  'TriedToConvertFromWrongJsonTypeException',
+);
+/** model_exceptions.dart: AbstractModel.updateModel given another type or id. */
+export const IdDoesNotMatchForSomeReasonException = coded(
+  'IdDoesNotMatchForSomeReasonException',
+);
+export const TypeDoesNotMatchForSomeReasonException = coded(
+  'TypeDoesNotMatchForSomeReasonException',
+);

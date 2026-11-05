@@ -14,10 +14,23 @@ import { PopScope } from '../components/layout/PopScope';
 import {
   DevicesBloc,
   DevicesState,
+  IsAddingAHubState,
   IsLoadingDevicesScreenState,
+  IsOnAddHubSuccessScreen,
+  IsOnAboutDeviceScreenState,
+  IsOnDeviceSettingsScreen,
   IsOnDevicesHomeScreenState,
+  IsOnEditDeviceScreen,
+  IsShowingADeviceState,
 } from '../state/devices/devicesBloc';
+import { DevicesBlocProvider } from '../state/devices/DevicesBlocContext';
+import { AddDevice } from './devices/addDevice/AddDevice';
+import { SuccessfullyAddedDeviceScreen } from './devices/addDevice/SuccessfullyAddedDeviceScreen';
 import { DevicesScreen } from './devices/DevicesScreen';
+import { DeviceMeta } from './devices/DeviceMeta';
+import { DeviceSettingsScreen } from './devices/DeviceSettingsScreen';
+import { DeviceView } from './devices/DeviceView';
+import { EditDevice } from './devices/EditDevice';
 import { LoadScreen } from './welcome/LoadScreen';
 
 function screenFor(state: DevicesState): {
@@ -33,6 +46,42 @@ function screenFor(state: DevicesState): {
       element: <DevicesScreen devices={state.devices} />,
     };
   }
+  if (state instanceof IsAddingAHubState) {
+    return { key: 'AddDevice', element: <AddDevice /> };
+  }
+  if (state instanceof IsOnAddHubSuccessScreen) {
+    return {
+      key: 'SuccessfullyAddedDeviceScreen',
+      element: <SuccessfullyAddedDeviceScreen device={state.device} />,
+    };
+  }
+  if (state instanceof IsShowingADeviceState) {
+    // One key for both of its states (checking, then ready), so the page stays mounted between
+    // them, as Flutter updates the same DeviceView.
+    return {
+      key: 'DeviceView',
+      element: <DeviceView device={state.device} refresh={state.refresh} />,
+    };
+  }
+  if (state instanceof IsOnEditDeviceScreen) {
+    return { key: 'EditDevice', element: <EditDevice device={state.device} /> };
+  }
+  if (state instanceof IsOnAboutDeviceScreenState) {
+    // Both of its states (checking, then ready) update the same page.
+    return {
+      key: 'DeviceMeta',
+      element: <DeviceMeta device={state.device} refresh={state.refresh} />,
+    };
+  }
+  if (state instanceof IsOnDeviceSettingsScreen) {
+    // Both of its states (checking, then ready) update the same page.
+    return {
+      key: 'DeviceSettingsScreen',
+      element: (
+        <DeviceSettingsScreen device={state.device} refresh={state.refresh} />
+      ),
+    };
+  }
   throw new Error(`Encountered Unknown State: ${state.constructor.name}`);
 }
 
@@ -42,8 +91,10 @@ export function DevicesRouter({ bloc: firstBloc }: { bloc: DevicesBloc }) {
   useEffect(() => () => bloc.close(), [bloc]);
   const { key, element } = screenFor(state);
   return (
-    <PopScope canPop={false}>
-      <CrossFadeSwitcher screenKey={key}>{element}</CrossFadeSwitcher>
-    </PopScope>
+    <DevicesBlocProvider bloc={bloc}>
+      <PopScope canPop={false}>
+        <CrossFadeSwitcher screenKey={key}>{element}</CrossFadeSwitcher>
+      </PopScope>
+    </DevicesBlocProvider>
   );
 }

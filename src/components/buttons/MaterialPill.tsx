@@ -73,7 +73,7 @@ export function MaterialPill({
 
 // Material elevation shadow. Android uses the same native shadow as Flutter's PhysicalModel;
 // iOS is an approximation to tune against a reference.
-function shadow(elevation: number): ViewStyle {
+export function shadow(elevation: number): ViewStyle {
   if (Platform.OS === 'android') {
     return { elevation };
   }

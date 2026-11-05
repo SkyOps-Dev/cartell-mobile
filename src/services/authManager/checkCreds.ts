@@ -20,15 +20,15 @@ export async function successfulLoginStartup(
   await SecureStorage.purgeLegacyCredentials();
 }
 
-/** GET /devices/, then get_health for every connected hub, one after another. */
+/**
+ * GET /devices/, then get_health for every connected hub, one after another (queryHubHealth does
+ * nothing yet: no request, see there).
+ */
 export async function queryAllHubsHealth(): Promise<void> {
   const devices = await fetchDevices();
   for (const element of devices) {
-    // PORT-GAP: read these through the Device model (device.isConnected, id), whose
-    // parser throws on a malformed hub.
-    const meta = element.device as { is_connected?: unknown } | undefined;
-    if (meta?.is_connected === true) {
-      await queryHubHealth(element.id as number);
+    if (element.device.isConnected) {
+      await queryHubHealth(element.id);
     }
   }
 }

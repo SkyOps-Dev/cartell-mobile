@@ -1,7 +1,7 @@
 // Port of fetchDevices, setDevice, addDevice, deleteDevice, updateDeviceData, the hub-settings
-// switches and queryHubHealth from
+// switches, queryHubHealth, pairToIntegrator and triggerIntegrator from
 // frontend/lib/services/requests/device_requests.dart (spec 04 §5). Flutter sends them to Django;
-// here they go to Node, which serves them since F05.
+// here they go to Node, which serves them since F05 (the hub messages since F07).
 
 import { nodeBaseUrlHttp } from '../../config/environment';
 import { Device, parseDevice } from '../../models/device';
@@ -30,13 +30,56 @@ export async function fetchDevices(): Promise<Device[]> {
 }
 
 /**
- * Does nothing yet. Node does not serve the hub messages, and the app runs with Django closed
- * (decided 2026-11-05), so no request is made and nothing can fail.
- * PORT-GAP: auth() (an AuthRequestManager failure throws "An error occurred, please try again."),
- * then POST /devices/{id}/message/get_health/ with an empty body: the server asks the hub, over its
- * live connection, to report in. A status of 300 or more is reported (70a42) and otherwise ignored.
+ * auth() (a failure throws "An error occurred, please try again.") → POST
+ * /devices/{id}/message/get_health/ with an empty body (Node, which serves it since F07): the
+ * server asks the hub, over its live connection, to report in. A status of 300 or more (a hub that
+ * is not connected answers 400) is reported (70a42) and otherwise ignored.
  */
-export async function queryHubHealth(_deviceId: number): Promise<void> {}
+export async function queryHubHealth(deviceId: number): Promise<void> {
+  const status = await new AuthRequestManager().auth();
+  if (status.failed) {
+    throw new Error('An error occurred, please try again.');
+  }
+  const response = await new NetworkHelper(
+    `${nodeBaseUrlHttp()}/devices/${deviceId}/message/get_health/`,
+  ).postSecureData({ body: {} });
+  if (response.statusCode < 300) {
+    // PORT-GAP: log.i(response.body); log.i('successful query').
+    return;
+  }
+  reportError(new NoHubInformationAvailableException('Error Code 70a42:'));
+  // PORT-GAP: log.i(response.statusCode); log.i('Failed to query device $d').
+}
+
+/**
+ * pairToIntegrator and triggerIntegrator, which differ only in the command: POST
+ * /devices/{id}/message/<command>/ with an empty body (Node, since F07), with no auth() first.
+ * Below 300 is success; otherwise 7466e is reported (for both, as in Flutter) and it throws.
+ */
+async function sendIntegratorMessage(
+  deviceId: number,
+  command: 'pair_to_integrator' | 'trigger_integrator',
+): Promise<void> {
+  const response = await new NetworkHelper(
+    `${nodeBaseUrlHttp()}/devices/${deviceId}/message/${command}/`,
+  ).postSecureData({ body: {} });
+  if (response.statusCode < 300) {
+    // PORT-GAP: log.i(response.body); log.i('successfully sent pair to integrator') (the same
+    // words for both).
+    return;
+  }
+  // PORT-GAP: log.i(response.statusCode).
+  reportError(new NoHubInformationAvailableException('Error Code 7466e:'));
+  throw new NoHubInformationAvailableException('Failed to load data');
+}
+
+/** Pair Integrator (Hub settings): the hub pairs with its emulated sensor. */
+export const pairToIntegrator = (deviceId: number) =>
+  sendIntegratorMessage(deviceId, 'pair_to_integrator');
+
+/** Open Gate (a hub's page): the hub triggers its emulated sensor. */
+export const triggerIntegrator = (deviceId: number) =>
+  sendIntegratorMessage(deviceId, 'trigger_integrator');
 
 /**
  * One hub, fresh: auth() → the health request → GET /devices/{id}/ (Node, which serves it since
@@ -184,8 +227,7 @@ export const setDeviceIntegratorSupport = (deviceId: number, on: boolean) =>
 /**
  * Enable Onboard Sensor: PATCH /devices/{id}/ with should_use_onboard_sensor "true" / "false". Unlike
  * the others there is no auth() first. Only 200 is success; otherwise 41ef1 is reported and it
- * throws. Django also tells a connected hub at once; Node cannot until F06/F07, so a hub takes the
- * new value when it next connects (the server sends every hub its stored setting on connection).
+ * throws. The server also tells a connected hub at once (Node since F07).
  */
 export async function setOnboardSensor(
   deviceId: number,

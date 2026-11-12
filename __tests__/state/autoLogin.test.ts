@@ -70,6 +70,10 @@ const signedInServer = {
   'POST /auth/jwt/verify': ok,
   'GET /devices/': { status: 200, body: hubs },
   'GET /auth/users/me/': { status: 200, body: user },
+  'POST /devices/7/message/get_health/': {
+    status: 202,
+    body: { msg: 'Message sent.' },
+  },
 };
 const calls = (requests: { method: string; path: string }[]) =>
   requests
@@ -155,11 +159,11 @@ describe('AutoLoginEvent: signing in', () => {
       [7, 'Gate'],
       [8, 'Barn'],
     ]);
-    // The hub list twice. Flutter asks get_health for each connected hub in between; RN sends
-    // nothing, as Node does not serve it and Django is closed (decided 2026-11-05).
+    // The hub list twice, with get_health for each connected hub (only Gate) in between.
     expect(calls(requests)).toEqual([
       'POST /auth/jwt/verify',
       'GET /devices/',
+      'POST /devices/7/message/get_health/',
       'GET /auth/users/me/',
       'GET /devices/',
     ]);
@@ -171,6 +175,9 @@ describe('AutoLoginEvent: signing in', () => {
       '/maintenance-mode/',
       '/maintenance-mode/',
       '/devices/',
+      '/maintenance-mode/',
+      '/maintenance-mode/',
+      '/devices/7/message/get_health/',
       '/maintenance-mode/',
       '/maintenance-mode/',
       '/auth/users/me/',

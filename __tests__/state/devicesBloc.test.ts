@@ -200,6 +200,10 @@ describe('GoToSpecificDeviceEvent (emitThenRefresh)', () => {
     'POST /auth/jwt/verify': { status: 200 },
     'GET /devices/': { status: 200, body: [hub] },
     [`GET /devices/${hub.id}/`]: hubReply,
+    [`POST /devices/${hub.id}/message/get_health/`]: {
+      status: 202,
+      body: { msg: 'Message sent.' },
+    },
   });
 
   /** A bloc already showing the Hubs list. */
@@ -234,11 +238,14 @@ describe('GoToSpecificDeviceEvent (emitThenRefresh)', () => {
     // The same hub throughout, merged with what came back.
     expect((states[2] as IsShowingADeviceState).device).toBe(device);
     expect(device.name).toBe('Front Gate');
-    // No health request: Django stays closed.
-    expect(requests.map(r => `${r.method} ${r.path}`)).toContain(
+    // The health request, then the hub.
+    const sent = requests
+      .map(r => `${r.method} ${r.path}`)
+      .filter(call => !call.includes('maintenance') && !call.includes('jwt'));
+    expect(sent.slice(-2)).toEqual([
+      `POST /devices/${hub.id}/message/get_health/`,
       `GET /devices/${hub.id}/`,
-    );
-    expect(requests.some(r => r.path.includes('get_health'))).toBe(false);
+    ]);
   });
 
   test('a failed fetch leaves the hub up as last known, with no recovery', async () => {

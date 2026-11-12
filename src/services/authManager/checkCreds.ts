@@ -20,10 +20,7 @@ export async function successfulLoginStartup(
   await SecureStorage.purgeLegacyCredentials();
 }
 
-/**
- * GET /devices/, then get_health for every connected hub, one after another (queryHubHealth does
- * nothing yet: no request, see there).
- */
+/** GET /devices/, then get_health for every connected hub, one after another. */
 export async function queryAllHubsHealth(): Promise<void> {
   const devices = await fetchDevices();
   for (const element of devices) {

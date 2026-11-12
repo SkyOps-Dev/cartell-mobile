@@ -30,10 +30,13 @@
 // list in hand first (the deleted hub still on it) until its refetch lands. A failed delete shows
 // nothing and leaves the dialog up (an uncaught error in Flutter).
 //
-// Built on Node, with Django closed (decided 2026-11-05): opening the page, the pull, rename and
-// delete go to Node; the health request before a fetch is skipped (queryHubHealth). Hub Settings
-// opens Hub settings; the other buttons and Check for updates open screens not built yet, or
-// message the hub, and do nothing.
+// Open Gate (active while integrator support is on and the hub was connected when the page
+// opened) sends trigger_integrator without waiting, and shows "Sent message to open gate" at once,
+// whatever the answer.
+//
+// Built on Node, with Django closed (decided 2026-11-05): opening the page (with its health
+// request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings;
+// the other buttons and Check for updates open screens not built yet, and do nothing.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -53,6 +56,7 @@ import {
   PopupMenuItem,
 } from '../../components/popups/PopupMenu';
 import { popPopup, showPopupMessage } from '../../components/popups/popups';
+import { showSuccess } from '../../components/popups/toasts';
 import { IconButtonRowEntry } from '../../components/threeButtonRows/IconButtonRowEntry';
 import { TimedPullToRefresh } from '../../components/TimedPullToRefresh';
 import type { Device } from '../../models/device';
@@ -60,6 +64,7 @@ import { reportError } from '../../services/reportError';
 import {
   deleteDevice,
   setDevice,
+  triggerIntegrator,
 } from '../../services/requests/deviceRequests';
 import {
   GoToAboutDeviceScreen,
@@ -219,9 +224,10 @@ export function DeviceView({
                         openedWith.device.isConnected
                       }
                       onTap={() => {
-                        // PORT-GAP: triggerIntegrator(device.id), then the toast "Sent message to
-                        // open gate". Node cannot message hubs yet, so nothing happens and no
-                        // toast shows (decided 2026-11-05).
+                        // Not awaited: the toast shows whatever the answer. A failure is the
+                        // uncaught error Flutter's Sentry would catch.
+                        triggerIntegrator(device.id).catch(reportError);
+                        showSuccess('Sent message to open gate');
                       }}
                       label="Open Gate"
                       iconData={FontAwesomeIcons.doorOpen}

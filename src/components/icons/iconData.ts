@@ -1,6 +1,6 @@
 // Glyphs used by the app, keyed like the Flutter source so call sites read the same.
-// Codepoints and fonts are taken from font_awesome_flutter 10.10.0 (Font Awesome 7 Free) and
-// the Flutter 3.41.9 MaterialIcons font. Add icons here as screens need them.
+// Codepoints and fonts are taken from font_awesome_flutter 10.10.0 (Font Awesome 7 Free), the
+// Flutter 3.41.9 MaterialIcons font and cupertino_icons 1.0.9. Add icons here as screens need them.
 
 export type IconData = {
   codePoint: number;
@@ -15,6 +15,7 @@ const FA_SOLID = 'FontAwesome7Free-Solid';
 const FA_REGULAR = 'FontAwesome7Free-Regular';
 const FA_BRANDS = 'FontAwesome7Brands-Regular';
 const MATERIAL = 'MaterialIcons-Regular';
+const CUPERTINO = 'CupertinoIcons';
 
 /** FontAwesomeIcons.x (IconDataSolid / IconDataRegular / IconDataBrands, as each is declared). */
 export const FontAwesomeIcons = {
@@ -89,4 +90,13 @@ export const Icons = {
   radio_button_off: { codePoint: 0xe504, fontFamily: MATERIAL },
   router: { codePoint: 0xe542, fontFamily: MATERIAL },
   warning_amber_rounded: { codePoint: 0xf02a0, fontFamily: MATERIAL },
+} satisfies Record<string, IconData>;
+
+/** CupertinoIcons.x: the cupertino_icons 1.0.9 font (Flutter 3.41.9 cupertino/icons.dart). */
+export const CupertinoIcons = {
+  check_mark_circled_solid: {
+    codePoint: 0xf3ff,
+    fontFamily: CUPERTINO,
+    advance: 0.853515625,
+  },
 } satisfies Record<string, IconData>;

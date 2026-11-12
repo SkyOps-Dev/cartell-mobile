@@ -1,5 +1,6 @@
 // Port of showToastPopup, showSuccessfulToastPopup and showFailedToastPopup
-// (frontend/lib/components/popups.dart; spec 07 §5) and the parts of toastification 2.3.0 they use:
+// (frontend/lib/components/popups.dart; spec 07 §5), the screens' own identical showSuccess, and
+// the parts of toastification 2.3.0 they use:
 // `toastification.dismissAll()` then `toastification.show(...)` with type info, style flat, the
 // icon in white, the message in white as the description, alignment topCenter, margin top 50, no
 // progress bar, auto close after 5 s, a fade, drag to close.
@@ -55,7 +56,12 @@ import {
 } from '../../theme/colors';
 import { clampUnit, Curves, transformCubic } from '../../theme/curves';
 import { Icon } from '../icons/Icon';
-import { FontAwesomeIcons, IconData, Icons } from '../icons/iconData';
+import {
+  CupertinoIcons,
+  FontAwesomeIcons,
+  IconData,
+  Icons,
+} from '../icons/iconData';
 import { InkWell } from '../ink/InkWell';
 
 const ANIMATION_MS = 600;
@@ -231,6 +237,25 @@ export function showFailedToastPopup(
   { shouldDismiss = true } = {},
 ): void {
   showToastPopup(message, kCartellDarkGray, Icons.error_outline, shouldDismiss);
+}
+
+/**
+ * showSuccess, as device_view.dart, device_settings_screen.dart, device_meta.dart and
+ * account_settings.dart each define it, identically: Timer.run (the next event-loop turn), then
+ * showToastPopup in dark gray with CupertinoIcons.check_mark_circled_solid.
+ */
+export function showSuccess(
+  message: string,
+  { shouldDismiss = true } = {},
+): void {
+  setTimeout(() => {
+    showToastPopup(
+      message,
+      kCartellDarkGray,
+      CupertinoIcons.check_mark_circled_solid,
+      shouldDismiss,
+    );
+  }, 0);
 }
 
 /** Tests only: forget every toast at once. */

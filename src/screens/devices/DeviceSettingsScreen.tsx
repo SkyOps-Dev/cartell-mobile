@@ -27,9 +27,11 @@
 // "Onboard sensor turned on." or "Error encountered of type: <type>. Onboard sensor turned off.
 // Please try again soon." (a failure names the state the sensor stays in).
 //
-// Django stays closed (decided 2026-11-05): all five switches save on Node. Django also tells a
-// connected hub about an onboard change at once; Node cannot until F06/F07, so the hub takes the
-// value when it next connects (the onboard switch was changed to save, 2026-11-05). Pair Integrator does nothing, with no toast.
+// Pair Integrator sends pair_to_integrator without waiting, and shows "Sent pairing message
+// successfully" at once, whatever the answer.
+//
+// Django stays closed (decided 2026-11-05): all five switches and Pair Integrator go to Node,
+// which also tells a connected hub about an onboard change at once (since F07).
 
 import React, { useEffect, useReducer, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -44,7 +46,10 @@ import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { Divider } from '../../components/lists/Divider';
 import type { Device } from '../../models/device';
+import { showSuccess } from '../../components/popups/toasts';
+import { reportError } from '../../services/reportError';
 import {
+  pairToIntegrator,
   setDeviceConnectionNotificationPolicy,
   setDeviceEmailNotificationPolicy,
   setDeviceIntegratorSupport,
@@ -171,10 +176,11 @@ export function DeviceSettingsScreen({
                         label="Pair Integrator"
                         labelColor={kCartellYellow}
                         onPressed={() => {
-                          // PORT-GAP: pairToIntegrator(device.id) (POST
-                          // /devices/{id}/message/pair_to_integrator/, not awaited), then the
-                          // toast "Sent pairing message successfully". Node cannot message hubs
-                          // yet, so nothing happens and no toast shows (decided 2026-11-05).
+                          // Not awaited, so Flutter's try/catch never sees a failure: the toast
+                          // always shows, "Did not send pairing message" never does, and a
+                          // failure is the uncaught error Flutter's Sentry would catch.
+                          pairToIntegrator(device.id).catch(reportError);
+                          showSuccess('Sent pairing message successfully');
                         }}
                       />
                     </View>

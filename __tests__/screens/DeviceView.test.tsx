@@ -19,6 +19,10 @@ import {
 } from '../../src/components/layout/PopScope';
 import { popMenu, PopupMenuHost } from '../../src/components/popups/PopupMenu';
 import { PopupHost, popPopup } from '../../src/components/popups/popups';
+import {
+  resetToastsForTests,
+  ToastHost,
+} from '../../src/components/popups/toasts';
 import { parseDevice } from '../../src/models/device';
 import { DeviceView } from '../../src/screens/devices/DeviceView';
 import {
@@ -110,13 +114,15 @@ async function show(
             bloc={{ add: jest.fn() } as unknown as MainAppBloc}
           >
             <DevicesBlocProvider bloc={devicesBloc as unknown as DevicesBloc}>
-              <PopupHost>
-                {/* DevicesRouter's PopScope, which keeps Back on the page. */}
-                <PopScope canPop={false}>
-                  <DeviceView device={device} refresh={refresh} />
-                </PopScope>
-                <PopupMenuHost />
-              </PopupHost>
+              <ToastHost>
+                <PopupHost>
+                  {/* DevicesRouter's PopScope, which keeps Back on the page. */}
+                  <PopScope canPop={false}>
+                    <DeviceView device={device} refresh={refresh} />
+                  </PopScope>
+                  <PopupMenuHost />
+                </PopupHost>
+              </ToastHost>
             </DevicesBlocProvider>
           </MainAppBlocProvider>
         </AuthBlocProvider>
@@ -172,6 +178,7 @@ afterEach(async () => {
     });
     await advance(400);
   }
+  await act(async () => resetToastsForTests());
   jest.useRealTimers();
 });
 
@@ -239,19 +246,36 @@ test('the six buttons; Open Gate needs integrator support and a connection, Conn
   expect(glyphColour(RSS)).toBe(kCartellDarkGray);
 });
 
-test('an integrator hub that is connected enables Open Gate, which does nothing yet', async () => {
-  await show(
-    freshHub({
+test.each([202, 400])(
+  'an integrator hub that is connected enables Open Gate, which messages the hub on Node and toasts at once (answer %i)',
+  async status => {
+    keychain.clear();
+    await SecureStorage.setAccessToken('A');
+    const json = freshHub({
       should_use_emulated_sensor: true,
       device: { is_connected: true },
-    }),
-  );
-  expect(glyphColour(DOOR_OPEN)).toBe(kCartellBlue);
-  await fireEvent.press(screen.getByText('Open Gate'));
-  await advance(500);
-  expect(screen.queryByText('Sent message to open gate')).toBeNull();
-  expect(devicesBloc.add).not.toHaveBeenCalled();
-});
+    });
+    const { requests } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      [`POST /devices/${json.id}/message/trigger_integrator/`]: {
+        status,
+        body: {},
+      },
+    });
+    await show(json);
+    expect(glyphColour(DOOR_OPEN)).toBe(kCartellBlue);
+    await fireEvent.press(screen.getByText('Open Gate'));
+    await advance(500);
+    // Not awaited: the toast shows whatever the hub's answer, and nothing else happens.
+    expect(screen.getByText('Sent message to open gate')).toBeTruthy();
+    // No session check first, as in Flutter.
+    expect(requests.map(r => `${r.method} ${r.path}`)).toEqual([
+      'GET /maintenance-mode/',
+      `POST /devices/${json.id}/message/trigger_integrator/`,
+    ]);
+    expect(devicesBloc.add).not.toHaveBeenCalled();
+  },
+);
 
 test('a disconnected hub enables Connect HUB, which does nothing yet', async () => {
   await show(freshHub());
@@ -371,7 +395,11 @@ describe('the ⋮ menu', () => {
     const event = devicesBloc.add.mock.calls[0][0];
     expect(event).toBeInstanceOf(GoToEditDeviceScreen);
     expect(event.device).toBe(device);
-    expect(sent(requests)).toEqual([`GET /devices/${json.id}/`]);
+    // setDevice: the health request, then the hub.
+    expect(sent(requests)).toEqual([
+      `POST /devices/${json.id}/message/get_health/`,
+      `GET /devices/${json.id}/`,
+    ]);
   });
 
   test('About closes the menu and opens About', async () => {
@@ -466,6 +494,10 @@ test('pulling the page down fetches the hub from Node again and moves "Last Upda
       status: 200,
       body: { ...json, name: 'Front Gate' },
     },
+    [`POST /devices/${json.id}/message/get_health/`]: {
+      status: 400,
+      body: { non_field_errors: ['Device is not connected.'] },
+    },
   });
   await show(json);
   // Always pullable: a page that fits on the screen is pulled all the same.
@@ -485,10 +517,14 @@ test('pulling the page down fetches the hub from Node again and moves "Last Upda
   });
   await advance(3200);
 
-  expect(requests.map(r => `${r.method} ${r.path}`)).toContain(
+  // The health request first; its refusal (the hub is not connected) is ignored.
+  const sent = requests
+    .map(r => `${r.method} ${r.path}`)
+    .filter(call => !call.includes('maintenance') && !call.includes('jwt'));
+  expect(sent).toEqual([
+    `POST /devices/${json.id}/message/get_health/`,
     `GET /devices/${json.id}/`,
-  );
-  expect(requests.some(r => r.path.includes('get_health'))).toBe(false);
+  ]);
   expect(screen.getByText('Front Gate')).toBeTruthy();
   expect(screen.getByText(/^Last Updated: 11-05-2026 03:5\d PM$/)).toBeTruthy();
 });

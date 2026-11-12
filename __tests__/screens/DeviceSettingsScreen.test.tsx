@@ -76,10 +76,13 @@ type SwitchName = (typeof SWITCHES)[number];
 
 let requests: { method: string; path: string; body: string | undefined }[];
 
-/** Signs in, has Node answer PATCH /devices/{id}/ with `status`, and shows the page. */
+/**
+ * Signs in, has Node answer PATCH /devices/{id}/ with `status` and pair_to_integrator with
+ * `pairStatus`, and shows the page.
+ */
 async function show(
   json: ReturnType<typeof hubJson>,
-  { status = 200, refresh = RefreshState.ready } = {},
+  { status = 200, pairStatus = 202, refresh = RefreshState.ready } = {},
 ) {
   AuthRequestManager.resetSingleFlightForTesting();
   keychain.clear();
@@ -89,6 +92,10 @@ async function show(
     'GET /maintenance-mode/': { status: 200 },
     'POST /auth/jwt/verify': { status: 200 },
     [`PATCH /devices/${json.id}/`]: { status, body: json },
+    [`POST /devices/${json.id}/message/pair_to_integrator/`]: {
+      status: pairStatus,
+      body: { msg: 'Message sent.' },
+    },
   }));
   const device = parseDevice(json);
   await render(
@@ -275,16 +282,31 @@ test.each<[SwitchName, string]>([
   },
 );
 
-test('Integrator Support shows Pair Integrator while on, which does nothing yet', async () => {
-  await show(freshHub({ should_use_emulated_sensor: true }));
+test('Integrator Support shows Pair Integrator while on, which messages the hub on Node and toasts', async () => {
+  const json = freshHub({ should_use_emulated_sensor: true });
+  await show(json);
   expect(screen.getByText('Pair Integrator')).toBeTruthy();
   await fireEvent.press(screen.getByText('Pair Integrator'));
   await settle();
-  expect(screen.queryByText('Sent pairing message successfully')).toBeNull();
-  expect(requests.some(r => r.path.includes('pair_to_integrator'))).toBe(false);
+  expect(screen.getByText('Sent pairing message successfully')).toBeTruthy();
+  // No session check first, as in Flutter: the probe, then the message.
+  expect(requests.slice(-2).map(r => `${r.method} ${r.path}`)).toEqual([
+    'GET /maintenance-mode/',
+    `POST /devices/${json.id}/message/pair_to_integrator/`,
+  ]);
   // Turned off, the button goes.
   await tapSwitch('integrator');
   expect(screen.queryByText('Pair Integrator')).toBeNull();
+});
+
+test('Pair Integrator toasts success even when the hub is refused (the request is not awaited)', async () => {
+  await show(freshHub({ should_use_emulated_sensor: true }), {
+    pairStatus: 400,
+  });
+  await fireEvent.press(screen.getByText('Pair Integrator'));
+  await settle();
+  expect(screen.getByText('Sent pairing message successfully')).toBeTruthy();
+  expect(screen.queryByText('Did not send pairing message')).toBeNull();
 });
 
 test('the onboard switch on a disconnected hub bounces back: "Hub is not connected…"', async () => {

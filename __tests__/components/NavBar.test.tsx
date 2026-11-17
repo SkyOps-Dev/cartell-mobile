@@ -19,6 +19,8 @@ import { AttemptLogOutEvent, AuthBloc } from '../../src/state/auth/authBloc';
 import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';
 import {
   GoToAccountSettingsScreen,
+  GoToEventHistoryScreen,
+  GoToHubsScreenEvent,
   MainAppBloc,
 } from '../../src/state/mainApp/mainAppBloc';
 import { MainAppBlocProvider } from '../../src/state/mainApp/MainAppBlocContext';
@@ -109,6 +111,17 @@ describe('the NavBar as a drawer, at or below LARGE_SCREEN_SIZE', () => {
     expect(screen.getByText('hubs screen')).toBeTruthy();
   });
 
+  test('HUBs closes the drawer and goes to the Hubs screen', async () => {
+    await pumpAppScaffold();
+    await openDrawer();
+    await fireEvent.press(screen.getByText('HUBs'));
+    await settle();
+    expect(screen.queryByText('HUBs')).toBeNull();
+    expect(authAdds).toHaveLength(0);
+    expect(mainAppAdds).toHaveLength(1);
+    expect(mainAppAdds[0]).toBeInstanceOf(GoToHubsScreenEvent);
+  });
+
   test('Account Settings closes the drawer and goes to Account Settings', async () => {
     await pumpAppScaffold();
     await openDrawer();
@@ -120,18 +133,26 @@ describe('the NavBar as a drawer, at or below LARGE_SCREEN_SIZE', () => {
     expect(authAdds).toHaveLength(0);
   });
 
-  test.each(['Event History', 'Help'])(
-    '%s closes the drawer (its screen comes in a later part)',
-    async title => {
-      await pumpAppScaffold();
-      await openDrawer();
-      await fireEvent.press(screen.getByText(title));
-      await settle();
-      expect(screen.queryByText(title)).toBeNull();
-      expect(authAdds).toHaveLength(0);
-      expect(mainAppAdds).toHaveLength(0);
-    },
-  );
+  test('Help closes the drawer (its screen comes in a later part)', async () => {
+    await pumpAppScaffold();
+    await openDrawer();
+    await fireEvent.press(screen.getByText('Help'));
+    await settle();
+    expect(screen.queryByText('Help')).toBeNull();
+    expect(authAdds).toHaveLength(0);
+    expect(mainAppAdds).toHaveLength(0);
+  });
+
+  test('Event History closes the drawer and opens All Event History', async () => {
+    await pumpAppScaffold();
+    await openDrawer();
+    await fireEvent.press(screen.getByText('Event History'));
+    await settle();
+    expect(screen.queryByText('Event History')).toBeNull();
+    expect(authAdds).toHaveLength(0);
+    expect(mainAppAdds).toHaveLength(1);
+    expect(mainAppAdds[0]).toBeInstanceOf(GoToEventHistoryScreen);
+  });
 
   test('Log Out closes the drawer and runs the real log-out', async () => {
     await pumpAppScaffold();

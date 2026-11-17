@@ -14,6 +14,7 @@ class CartellPackage : ReactPackage {
           PackageInfoModule(reactContext),
           LocalAuthModule(reactContext),
           GeolocatorModule(reactContext),
+          OrientationModule(reactContext),
       )
 
   override fun createViewManagers(

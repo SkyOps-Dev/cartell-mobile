@@ -3,17 +3,18 @@
 // so by the time the shell appears it is already on the Hubs state.
 //
 // Built so far: the loading and Hubs states, GoToHubsScreenEvent and the error recovery; Account
-// Settings and its three edit forms (name, password, phone number).
+// Settings and its three edit forms (name, password, phone number); All Event History.
 // PORT-GAP: GoBackNStatesEvent and showMessage (forwarding to the AuthBloc's message stream),
 // with the first screen that uses them.
-// PORT-GAP: IsOnEventHistoryScreenState(event, refresh) + GoToEventHistoryScreen.
 // PORT-GAP: IsOnContactUsScreenState + GoToContactUsScreen.
 // PORT-GAP: IsOnAlexaHelpScreenState(isConnected) + GoToAlexaHelpScreenState.
 // PORT-GAP: IsOnHubLightsHelpScreenState + GoToHubLightsHelpScreenEvent.
 
+import { Event } from '../../models/event';
 import type { Profile } from '../../models/profile';
 import type { User } from '../../models/user';
 import { AuthRequestManager } from '../../services/requests/authRequests';
+import { setEventData } from '../../services/requests/eventRequests';
 import { setProfile, setUser } from '../../services/requests/userRequests';
 import type { AuthBloc } from '../auth/authBloc';
 import { AutoLoginEvent } from '../auth/authBloc';
@@ -23,6 +24,7 @@ import {
   GenericBloc,
   GenericEvent,
   GenericState,
+  RefreshState,
   stateTimestamp,
 } from '../genericBloc';
 
@@ -83,6 +85,20 @@ export class IsOnAccountSettingsEditPhoneNumberScreenState extends MainAppState 
   }
 }
 
+/** All Event History. `checking` while the first page is fetched (an empty Event till then). */
+export class IsOnEventHistoryScreenState extends MainAppState {
+  constructor(
+    readonly event: Event,
+    readonly refresh: RefreshState = RefreshState.ready,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.event, this.refresh];
+  }
+}
+
 // --- bloc --------------------------------------------------------------------------------
 
 export class MainAppBloc extends GenericBloc<MainAppState> {
@@ -115,6 +131,7 @@ export type MainAppEvent = GenericEvent<MainAppState, MainAppBloc>;
 // --- events ------------------------------------------------------------------------------
 
 /**
+ * frontend/lib/bloc/main_app/events/go_to_hubs_screen_event.dart.
  * Already in the hubs area (e.g. the side menu's HUBs entry tapped inside a hub): re-emitting
  * would make a DevicesBloc nobody shows, so the live one is sent back to its list instead. A
  * closed one means the shell has not replaced it yet; that path emits.
@@ -158,6 +175,29 @@ export class GoToAccountSettingsScreen implements MainAppEvent {
       return;
     }
     emit(new IsOnAccountSettingsScreenState(user.value, profile.value));
+  }
+}
+
+/**
+ * frontend/lib/bloc/main_app/events/go_to_event_history_screen.dart.
+ * The side menu's Event History: the screen at once with an empty Event (`checking`, only the
+ * list waits), then the first page. Leaving meanwhile is respected. A failed fetch goes to the
+ * error recovery.
+ */
+export class GoToEventHistoryScreen implements MainAppEvent {
+  async handleEvent(bloc: MainAppBloc, emit: Emitter<MainAppState>) {
+    const pending = new IsOnEventHistoryScreenState(
+      new Event(),
+      RefreshState.checking,
+    );
+    emit(pending);
+
+    const event = await setEventData();
+
+    if (emit.isDone || bloc.state !== pending) {
+      return;
+    }
+    emit(new IsOnEventHistoryScreenState(event));
   }
 }
 

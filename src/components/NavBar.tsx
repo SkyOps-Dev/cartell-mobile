@@ -30,7 +30,11 @@ import { firstPersistedUser } from '../services/data/userPersistor';
 import { NoUserObjectFound } from '../services/exceptions';
 import { AttemptLogOutEvent } from '../state/auth/authBloc';
 import { useAuthBloc } from '../state/auth/AuthBlocContext';
-import { GoToAccountSettingsScreen } from '../state/mainApp/mainAppBloc';
+import {
+  GoToAccountSettingsScreen,
+  GoToEventHistoryScreen,
+  GoToHubsScreenEvent,
+} from '../state/mainApp/mainAppBloc';
 import { useMainAppBloc } from '../state/mainApp/MainAppBlocContext';
 import { kCartellDarkGray } from '../theme/colors';
 import { ambientTextStyle, toRN } from '../theme/typography';
@@ -110,15 +114,15 @@ export function NavBar() {
         {divider}
         {entry(FontAwesomeIcons.clockRotateLeft, 'Event History', () => {
           dismissDrawerIfOpen();
-          // PORT-GAP: context.read<MainAppBloc>().add(GoToEventHistoryScreen()).
+          mainAppBloc.add(new GoToEventHistoryScreen());
         })}
         {divider}
         {entry(FontAwesomeIcons.satelliteDish, 'HUBs', () => {
           dismissDrawerIfOpen();
-          // PORT-GAP: context.read<MainAppBloc>().add(GoToHubsScreenEvent()). On the Hubs
-          // screen it sends the live DevicesBloc home: with no hubs, the loading screen and a fresh
-          // GET /devices/, then the Hubs screen again (the developer chose to leave this off for
-          // now, 2026-10-15).
+          // Inside the hubs area it sends the live DevicesBloc home (the list in hand at once and a
+          // fresh GET /devices/ behind it; the loading screen only with no hubs); elsewhere it
+          // opens Hubs.
+          mainAppBloc.add(new GoToHubsScreenEvent());
         })}
         {divider}
         {entry(FontAwesomeIcons.headset, 'Help', () => {

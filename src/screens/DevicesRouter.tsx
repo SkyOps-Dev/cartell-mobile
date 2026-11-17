@@ -28,6 +28,8 @@ import {
   IsOnSensorAboutScreenState,
   IsOnSensorConnectScreen,
   IsOnSensorsScreenState,
+  IsOnSpecificDeviceHistoryScreenState,
+  IsOnSpecificSensorHistoryScreenState,
   IsOnSpecificSensorScreenState,
   IsRemovingCaseForAddSensor,
 } from '../state/devices/devicesBloc';
@@ -39,6 +41,8 @@ import { DeviceMeta } from './devices/DeviceMeta';
 import { DeviceSettingsScreen } from './devices/DeviceSettingsScreen';
 import { DeviceView } from './devices/DeviceView';
 import { EditDevice } from './devices/EditDevice';
+import { DeviceHistory } from './events/DeviceHistory';
+import { SensorHistory } from './events/SensorHistory';
 import { AddSensor } from './sensors/addSensor/AddSensor';
 import { RemoveCaseForAddSensor } from './sensors/addSensor/RemoveCaseForAddSensor';
 import { SensorConnectScreen } from './sensors/addSensor/SensorConnectScreen';
@@ -98,6 +102,19 @@ function screenFor(state: DevicesState): {
       ),
     };
   }
+  if (state instanceof IsOnSpecificDeviceHistoryScreenState) {
+    // Both of its states (checking, then the first page) update the same screen.
+    return {
+      key: 'DeviceHistory',
+      element: (
+        <DeviceHistory
+          event={state.event}
+          device={state.device}
+          refresh={state.refresh}
+        />
+      ),
+    };
+  }
   if (state instanceof IsOnSensorsScreenState) {
     // Both of its states (then the hub's re-check) update the same list.
     return {
@@ -123,6 +140,20 @@ function screenFor(state: DevicesState): {
     return {
       key: 'EditCoordinates',
       element: <EditCoordinates device={state.device} sensor={state.sensor} />,
+    };
+  }
+  if (state instanceof IsOnSpecificSensorHistoryScreenState) {
+    // Both of its states (checking, then the first page) update the same screen.
+    return {
+      key: 'SensorHistory',
+      element: (
+        <SensorHistory
+          sensor={state.sensor}
+          event={state.event}
+          device={state.device}
+          refresh={state.refresh}
+        />
+      ),
     };
   }
   if (state instanceof IsOnSensorAboutScreenState) {

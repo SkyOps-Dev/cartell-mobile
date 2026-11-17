@@ -73,6 +73,7 @@ import {
   GoToDevicesHomeScreen,
   GoToEditDeviceScreen,
   GoToSensorsScreenEvent,
+  GoToSpecificDeviceHistoryEvent,
 } from '../../state/devices/devicesBloc';
 import { useReadDevicesBloc } from '../../state/devices/DevicesBlocContext';
 import { RefreshState } from '../../state/genericBloc';
@@ -213,7 +214,9 @@ export function DeviceView({
                   <ButtonCell>
                     <IconButtonRowEntry
                       onTap={() => {
-                        // PORT-GAP: GoToSpecificDeviceHistoryEvent(device) (the hub's history).
+                        readDevicesBloc().add(
+                          new GoToSpecificDeviceHistoryEvent(device),
+                        );
                       }}
                       label="History"
                       iconData={FontAwesomeIcons.clockRotateLeft}

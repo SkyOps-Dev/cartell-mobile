@@ -10,7 +10,6 @@
 // Account Settings shows its skeleton until both the user and the profile have landed; a build
 // error there (quirk Q30) becomes Flutter's grey release ErrorWidget in place of the screen.
 // The bloc is provided to every screen and the side menu (BlocProvider / context.read).
-// PORT-GAP: Event History.
 // PORT-GAP: Help (ContactUs).
 // PORT-GAP: the Alexa cheat sheet.
 // PORT-GAP: the hub light guide.
@@ -28,6 +27,7 @@ import {
   IsOnAccountSettingsEditPasswordScreenState,
   IsOnAccountSettingsEditPhoneNumberScreenState,
   IsOnAccountSettingsScreenState,
+  IsOnEventHistoryScreenState,
   IsOnHubsScreenState,
   MainAppBloc,
   MainAppState,
@@ -39,6 +39,7 @@ import { EditName } from './account/EditName';
 import { EditPassword } from './account/EditPassword';
 import { EditPhone } from './account/EditPhone';
 import { DevicesRouter } from './DevicesRouter';
+import { History } from './events/History';
 import { LoadScreen } from './welcome/LoadScreen';
 
 export function MainAppRouter({
@@ -104,6 +105,13 @@ function screenFor(
           <AccountSettings user={user} profile={profile} />
         </ErrorWidgetBoundary>
       ),
+    };
+  }
+  if (state instanceof IsOnEventHistoryScreenState) {
+    // Both of its states (checking, then the first page) update the same screen.
+    return {
+      key: 'History',
+      element: <History event={state.event} refresh={state.refresh} />,
     };
   }
   if (state instanceof IsOnAccountSettingsEditNameScreenState) {

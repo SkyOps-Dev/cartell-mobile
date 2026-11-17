@@ -77,6 +77,7 @@ import { ResultOf } from '../../services/result';
 import {
   GoToEditSensorLocationScreen,
   GoToEditSensorScreen,
+  GoToSensorHistoryEvent,
   GoToSensorsScreenEvent,
   GoToSpecificSensorAboutScreen,
 } from '../../state/devices/devicesBloc';
@@ -315,7 +316,9 @@ export function SensorView({
                     <IconButtonRowEntry
                       key="history"
                       onTap={() => {
-                        // PORT-GAP: GoToSensorHistoryEvent(device, sensor) (the sensor's events).
+                        readDevicesBloc().add(
+                          new GoToSensorHistoryEvent(device, sensor),
+                        );
                       }}
                       label="View History"
                       iconData={Icons.router}

@@ -39,6 +39,25 @@ export const UnableToGetWifiInfoException = coded(
 export const UnableToUpdateSensorEventsException = coded(
   'UnableToUpdateSensorEventsException',
 );
+/** HubExceptions.dart: thrown by the event-history requests (event_requests.dart). */
+export const UnableToUpdateExceptions = coded('UnableToUpdateExceptions');
+/** AccountExceptions.dart: the event-history requests' failed auth(). */
+export const UpdateTokenFailedException = coded('UpdateTokenFailedException');
+
+/**
+ * Dart's `toString()` of an exception, as a screen shows it (`e.toString()`): the app's exception
+ * classes declare none, so Object's "Instance of '<class>'"; any other error keeps its own text.
+ * PORT-GAP: Dart's own texts for network failures (ClientException, SocketException) differ.
+ */
+export function dartExceptionText(error: unknown): string {
+  if (error instanceof AuthExpiredException) {
+    return error.toString();
+  }
+  if (error instanceof CodedException) {
+    return `Instance of '${error.name}'`;
+  }
+  return String(error);
+}
 export const FailedToAutologinException = coded('FailedToAutologinException');
 /** Thrown by the NavBar when no user has been fetched (AccountExceptions.dart). */
 export const NoUserObjectFound = coded('NoUserObjectFound');

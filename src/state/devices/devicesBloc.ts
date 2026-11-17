@@ -6,11 +6,13 @@
 // states; GoToDevicesHomeScreen, RefreshDevices, GoToAddAHubScreen, GoToAddHubSuccessScreen,
 // GoToSpecificDeviceEvent, GoToEditDeviceScreen, GoToAboutDeviceScreen, GoToDeviceSettingsEvent
 // and the error recovery. The sensor screens' states and events (sensors list, sensor page, its
-// rename, coordinates and About, and the three Add Sensor steps).
+// rename, coordinates and About, and the three Add Sensor steps). The hub's and the sensor's
+// event history.
 // PORT-GAP: GoBackNDevicesStatesEvent, and the other states and events, which arrive with the
-// screens they show (firmware, pairing, history: GoToSensorHistoryEvent among them).
+// screens they show (firmware, pairing).
 
 import type { Device } from '../../models/device';
+import { Event } from '../../models/event';
 import type { Sensor } from '../../models/sensor';
 import type { AddSensorData } from '../../screens/sensors/addSensor/AddSensor';
 import { AuthRequestManager } from '../../services/requests/authRequests';
@@ -18,6 +20,10 @@ import {
   fetchDevices,
   setDevice,
 } from '../../services/requests/deviceRequests';
+import {
+  setDeviceEvents,
+  setSensorEventData,
+} from '../../services/requests/eventRequests';
 import { setSensor } from '../../services/requests/sensorRequests';
 import { AutoLoginEvent } from '../auth/authBloc';
 import {
@@ -155,6 +161,37 @@ export class IsOnSpecificSensorScreenState extends DevicesState {
 
   get props() {
     return [...super.props, this.device, this.sensor, this.refresh];
+  }
+}
+
+/** A hub's event history (DeviceHistory). `checking` while the first page is fetched. */
+export class IsOnSpecificDeviceHistoryScreenState extends DevicesState {
+  constructor(
+    readonly event: Event,
+    readonly device: Device,
+    readonly refresh: RefreshState = RefreshState.ready,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.device, this.event, this.refresh];
+  }
+}
+
+/** A sensor's event history (SensorHistory). `checking` while the first page is fetched. */
+export class IsOnSpecificSensorHistoryScreenState extends DevicesState {
+  constructor(
+    readonly device: Device,
+    readonly sensor: Sensor,
+    readonly event: Event,
+    readonly refresh: RefreshState = RefreshState.ready,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.device, this.sensor, this.event, this.refresh];
   }
 }
 
@@ -452,6 +489,74 @@ export class GoToSpecificSensorAboutScreen implements DevicesEvent {
           setDevice(this.device.id),
           setSensor({ deviceID: this.device.id, sensorID: this.sensor.id }),
         ]),
+    );
+  }
+}
+
+/**
+ * frontend/lib/bloc/devices/events/go_to_specific_device_history_event.dart.
+ * The hub page's History: the screen at once with an empty Event (`checking`, only the list
+ * waits), then the first page. Leaving meanwhile is respected; a failed fetch goes to the error
+ * recovery.
+ */
+export class GoToSpecificDeviceHistoryEvent implements DevicesEvent {
+  constructor(readonly device: Device) {}
+
+  async handleEvent(bloc: DevicesBloc, emit: Emitter<DevicesState>) {
+    const pending = new IsOnSpecificDeviceHistoryScreenState(
+      new Event(),
+      this.device,
+      RefreshState.checking,
+    );
+    emit(pending);
+
+    const event = await setDeviceEvents({ deviceID: this.device.id });
+
+    if (emit.isDone || bloc.state !== pending) {
+      return;
+    }
+    emit(new IsOnSpecificDeviceHistoryScreenState(event, this.device));
+  }
+}
+
+/**
+ * frontend/lib/bloc/devices/events/go_to_sensor_history_event.dart.
+ * The sensor page's View History: the screen at once (`checking`), then the sensor and its first
+ * page, fetched side by side. Like Dart's record `.wait`, both finish before a failure is raised
+ * (to the error recovery). Leaving meanwhile is respected.
+ */
+export class GoToSensorHistoryEvent implements DevicesEvent {
+  constructor(readonly device: Device, readonly sensor: Sensor) {}
+
+  async handleEvent(bloc: DevicesBloc, emit: Emitter<DevicesState>) {
+    const pending = new IsOnSpecificSensorHistoryScreenState(
+      this.device,
+      this.sensor,
+      new Event(),
+      RefreshState.checking,
+    );
+    emit(pending);
+
+    const [sensor, event] = await Promise.allSettled([
+      setSensor({ deviceID: this.device.id, sensorID: this.sensor.id }),
+      setSensorEventData({ sensor: this.sensor }),
+    ]);
+    if (sensor.status === 'rejected') {
+      throw sensor.reason;
+    }
+    if (event.status === 'rejected') {
+      throw event.reason;
+    }
+
+    if (emit.isDone || bloc.state !== pending) {
+      return;
+    }
+    emit(
+      new IsOnSpecificSensorHistoryScreenState(
+        this.device,
+        sensor.value,
+        event.value,
+      ),
     );
   }
 }

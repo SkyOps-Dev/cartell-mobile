@@ -1,6 +1,6 @@
 // Ported from frontend/test/bloc/main_app/go_to_hubs_screen_event_test.dart (Troy's 9/22 checklist,
 // row 7: the HUBs entry did nothing from inside a hub, because MainAppBloc re-emitted and the shell
-// kept its old DevicesBloc). Plus the shell's start and recovery (spec 06 §4).
+// kept its old DevicesBloc), all three tests. Plus the shell's start and recovery (spec 06 §4).
 
 import * as Keychain from 'react-native-keychain';
 
@@ -14,12 +14,15 @@ import {
   GoToDevicesHomeScreen,
 } from '../../src/state/devices/devicesBloc';
 import {
+  GoToEventHistoryScreen,
   GoToHubsScreenEvent,
   IsLoadingMainAppState,
+  IsOnEventHistoryScreenState,
   IsOnHubsScreenState,
   MainAppBloc,
   MainAppState,
 } from '../../src/state/mainApp/mainAppBloc';
+import { RefreshState } from '../../src/state/genericBloc';
 import { flush, installFakeServer } from '../helpers/fakeServer';
 
 /** Records what it is sent instead of handling it, so nothing here fetches. */
@@ -86,9 +89,41 @@ test('from inside the hubs flow, sends the live DevicesBloc home', async () => {
   devices.close();
 });
 
-// PORT-GAP: "from another screen, still switches to the hubs screen" (GoToContactUsScreen,
-// then GoToHubsScreenEvent emits Hubs and sends the still-open DevicesBloc nothing) needs a second
-// MainApp screen to exist.
+// Flutter leaves the hubs area with GoToContactUsScreen, which RN has not built; Event History is
+// the same kind of step (another MainApp screen, the side menu still reachable).
+test('from another screen, still switches to the hubs screen', async () => {
+  installFakeServer({
+    'GET /maintenance-mode/': { status: 200 },
+    'POST /auth/jwt/verify': { status: 200 },
+    'GET /activations': {
+      status: 200,
+      body: { count: 0, next: null, previous: null, results: [] },
+    },
+  });
+  // Still open, as it is while the outgoing DevicesBloc's screen fades out. Without the state
+  // check this bloc would be sent home instead.
+  const devices = new RecordingDevicesBloc(mainAppBloc, []);
+  mainAppBloc.bloc = devices;
+  await flush();
+  devices.sent = [];
+  mainAppBloc.add(new GoToEventHistoryScreen());
+  for (let i = 0; i < 20; i++) {
+    await flush();
+  }
+  const history = mainAppBloc.state as IsOnEventHistoryScreenState;
+  expect(history).toBeInstanceOf(IsOnEventHistoryScreenState);
+  expect(history.refresh).toBe(RefreshState.ready);
+  const emitted: MainAppState[] = [];
+  mainAppBloc.subscribe(() => emitted.push(mainAppBloc.state));
+
+  mainAppBloc.add(new GoToHubsScreenEvent());
+  await flush();
+
+  expect(emitted).toHaveLength(1);
+  expect(emitted[0]).toBeInstanceOf(IsOnHubsScreenState);
+  expect(devices.sent).toHaveLength(0);
+  devices.close();
+});
 
 test('a closed DevicesBloc falls back to emitting', async () => {
   const devices = new RecordingDevicesBloc(mainAppBloc, []);

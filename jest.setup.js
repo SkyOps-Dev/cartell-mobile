@@ -54,6 +54,11 @@ require('react-native').NativeModules.CartellLocalAuth = {
   authenticate: jest.fn(async () => 'failure'),
 };
 
+// The history screens' rotation setting (src/services/phoneRotationManager.ts).
+require('react-native').NativeModules.CartellOrientation = {
+  allowAll: jest.fn(),
+};
+
 // Detect Location (src/services/geolocator.ts): by default location on, permission granted, and a
 // fix at a fixed point. Edit Coordinates tests replace these.
 require('react-native').NativeModules.CartellGeolocator = {

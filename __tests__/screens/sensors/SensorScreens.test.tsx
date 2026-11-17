@@ -16,6 +16,7 @@ import {
   GoToAddSensorStart,
   GoToEditSensorLocationScreen,
   GoToEditSensorScreen,
+  GoToSensorHistoryEvent,
   GoToSensorsScreenEvent,
   GoToSpecificDeviceEvent,
   GoToSpecificSensorAboutScreen,
@@ -228,7 +229,9 @@ describe('a sensor’s page', () => {
     expect([about.device, about.sensor]).toEqual([device, sensor]);
     devicesBloc.add.mockClear();
     await fireEvent.press(screen.getByText('View History'));
-    expect(devicesBloc.add).not.toHaveBeenCalled();
+    const history = onlyEvent();
+    expect(history).toBeInstanceOf(GoToSensorHistoryEvent);
+    expect([history.device, history.sensor]).toEqual([device, sensor]);
   });
 
   test('the switch saves on Node, toasts, and writes into the cached sensor', async () => {

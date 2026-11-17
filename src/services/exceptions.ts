@@ -35,6 +35,10 @@ export const NoHubInformationAvailableException = coded(
 export const UnableToGetWifiInfoException = coded(
   'UnableToGetWifiInfoException',
 );
+/** HubExceptions.dart: thrown by the sensor requests (sensor_requests.dart). */
+export const UnableToUpdateSensorEventsException = coded(
+  'UnableToUpdateSensorEventsException',
+);
 export const FailedToAutologinException = coded('FailedToAutologinException');
 /** Thrown by the NavBar when no user has been fetched (AccountExceptions.dart). */
 export const NoUserObjectFound = coded('NoUserObjectFound');

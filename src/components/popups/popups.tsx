@@ -1,5 +1,6 @@
 // Port of showPopupMessage (frontend/lib/components/popups.dart; spec 07 §5, §3.1) and the
-// dialog route it opens (showDialog, barrierDismissible: false).
+// dialog route it opens (showDialog, barrierDismissible: false). Also showGeneralDialog's route, for
+// teast_popups' banners (teastPopups.tsx), in the same stack.
 //
 // - AlertDialog: background #25282A, radius 16, inset 40/24, min width 280, as wide as its
 //   content (IntrinsicWidth), content padding 24 left/right/bottom and 16 top, no shadow.
@@ -65,14 +66,43 @@ export type PopupOptions = {
 
 type FocusedInput = Parameters<typeof TextInput.State.focusTextInput>[0];
 
+/**
+ * showGeneralDialog's route (RawDialogRoute, no transitionBuilder): the page fades in linearly over
+ * `transitionMs`, over a barrier in `barrierColor` that fades on Curves.ease. Not dismissible by
+ * tapping; Android Back closes it, as it pops the route.
+ */
+export type GeneralDialogOptions = {
+  pageBuilder: () => React.ReactNode;
+  barrierColor?: string;
+  transitionMs?: number;
+};
+
 type Entry = {
   id: number;
-  options: PopupOptions;
+  options?: PopupOptions;
+  general?: Required<GeneralDialogOptions>;
   opacity: Animated.Value;
   closing: boolean;
   resolve: () => void;
   restoreFocus: FocusedInput;
 };
+
+// showGeneralDialog's defaults: Color(0x80000000), 200 ms.
+const GENERAL_BARRIER = 'rgba(0, 0, 0, 0.502)';
+const GENERAL_TRANSITION_MS = 200;
+// Curves.ease = Cubic(0.25, 0.1, 0.25, 1.0), ModalRoute's barrierCurve. React Native samples an
+// interpolation's easing for the native driver itself (AnimatedInterpolation, since 0.8x).
+const ease = Easing.bezier(0.25, 0.1, 0.25, 1.0);
+
+/** The entry's own fade: showDialog's easeOut over 150 ms, or a general dialog's linear one. */
+function fade(entry: Entry, toValue: number) {
+  return Animated.timing(entry.opacity, {
+    toValue,
+    duration: entry.general?.transitionMs ?? TRANSITION_MS,
+    easing: entry.general ? Easing.linear : easeOut,
+    useNativeDriver: true,
+  });
+}
 
 // --- store -------------------------------------------------------------------------------
 
@@ -88,8 +118,8 @@ const subscribe = (listener: () => void) => {
 };
 const snapshot = () => entries;
 
-/** Opens a popup. Resolves when it has been closed, like `await showDialog(...)`. */
-export function showPopupMessage(options: PopupOptions): Promise<void> {
+/** Pushes an entry; resolves when it has been closed. */
+function push(content: Pick<Entry, 'options' | 'general'>): Promise<void> {
   return new Promise(resolve => {
     const restoreFocus = TextInput.State.currentlyFocusedInput() ?? undefined;
     if (restoreFocus) {
@@ -97,7 +127,7 @@ export function showPopupMessage(options: PopupOptions): Promise<void> {
     }
     const entry: Entry = {
       id: nextId++,
-      options,
+      ...content,
       opacity: new Animated.Value(0),
       closing: false,
       resolve,
@@ -105,13 +135,25 @@ export function showPopupMessage(options: PopupOptions): Promise<void> {
     };
     entries = [...entries, entry];
     emit();
-    Animated.timing(entry.opacity, {
-      toValue: 1,
-      duration: TRANSITION_MS,
-      easing: easeOut,
-      useNativeDriver: true,
-    }).start();
+    fade(entry, 1).start();
   });
+}
+
+/** Opens a popup. Resolves when it has been closed, like `await showDialog(...)`. */
+export function showPopupMessage(options: PopupOptions): Promise<void> {
+  return push({ options });
+}
+
+/**
+ * showGeneralDialog(context, pageBuilder, barrierDismissible: false): the page over a barrier, in
+ * the same stack as the popups, so popPopup() (Navigator.pop) closes whichever is on top.
+ */
+export function showGeneralDialog({
+  pageBuilder,
+  barrierColor = GENERAL_BARRIER,
+  transitionMs = GENERAL_TRANSITION_MS,
+}: GeneralDialogOptions): Promise<void> {
+  return push({ general: { pageBuilder, barrierColor, transitionMs } });
 }
 
 /** showGenericErrorPopup: the catch-all "An error occurred." popup with one Okay. */
@@ -138,12 +180,7 @@ export function popPopup(): void {
   // A new array, so the host re-renders and the closing popup stops taking touches.
   entries = [...entries];
   emit();
-  Animated.timing(entry.opacity, {
-    toValue: 0,
-    duration: TRANSITION_MS,
-    easing: easeOut,
-    useNativeDriver: true,
-  }).start(() => {
+  fade(entry, 0).start(() => {
     entries = entries.filter(e => e.id !== entry.id);
     emit();
     if (entry.restoreFocus) {
@@ -187,6 +224,9 @@ export function PopupHost({ children }: { children: React.ReactNode }) {
 function PopupRoute({ entry }: { entry: Entry }) {
   // SafeArea around the dialog (useSafeArea), outside its own inset padding. No provider, no insets.
   const safe = useContext(SafeAreaInsetsContext);
+  if (entry.general) {
+    return <GeneralDialogRoute entry={entry} general={entry.general} />;
+  }
   return (
     <Animated.View
       style={[StyleSheet.absoluteFill, { opacity: entry.opacity }]}
@@ -215,11 +255,49 @@ function PopupRoute({ entry }: { entry: Entry }) {
             contentContainerStyle={styles.content}
             style={styles.scroll}
           >
-            <PopupContent options={entry.options} />
+            {entry.options && <PopupContent options={entry.options} />}
           </ScrollView>
         </View>
       </View>
     </Animated.View>
+  );
+}
+
+/** A general dialog: the barrier (Curves.ease) and the page (linear) fade on one clock. */
+function GeneralDialogRoute({
+  entry,
+  general,
+}: {
+  entry: Entry;
+  general: Required<GeneralDialogOptions>;
+}) {
+  return (
+    <View
+      style={StyleSheet.absoluteFill}
+      pointerEvents={entry.closing ? 'none' : 'auto'}
+    >
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            backgroundColor: general.barrierColor,
+            opacity: entry.opacity.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 1],
+              easing: ease,
+            }),
+          },
+        ]}
+        onStartShouldSetResponder={() => true}
+      />
+      <Animated.View
+        style={[StyleSheet.absoluteFill, { opacity: entry.opacity }]}
+        pointerEvents="box-none"
+        accessibilityViewIsModal
+      >
+        {general.pageBuilder()}
+      </Animated.View>
+    </View>
   );
 }
 

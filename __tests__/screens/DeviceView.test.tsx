@@ -38,6 +38,7 @@ import {
   GoToAboutDeviceScreen,
   GoToDeviceSettingsEvent,
   GoToDevicesHomeScreen,
+  GoToSensorsScreenEvent,
   GoToEditDeviceScreen,
 } from '../../src/state/devices/devicesBloc';
 import { DevicesBlocProvider } from '../../src/state/devices/DevicesBlocContext';
@@ -284,12 +285,21 @@ test('a disconnected hub enables Connect HUB, which does nothing yet', async () 
   expect(devicesBloc.add).not.toHaveBeenCalled();
 });
 
-test('History, Sensors and Firmware Updates do nothing yet', async () => {
+test('History and Firmware Updates do nothing yet', async () => {
   await show(freshHub({ device: { sensors: [sensor] } }));
-  for (const label of ['History', 'Sensors', 'Firmware Updates']) {
+  for (const label of ['History', 'Firmware Updates']) {
     await fireEvent.press(screen.getByText(label));
   }
   expect(devicesBloc.add).not.toHaveBeenCalled();
+});
+
+test('Sensors opens the hub’s Sensors list', async () => {
+  const device = await show(freshHub({ device: { sensors: [sensor] } }));
+  await fireEvent.press(screen.getByText('Sensors'));
+  expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+  const event = devicesBloc.add.mock.calls[0][0];
+  expect(event).toBeInstanceOf(GoToSensorsScreenEvent);
+  expect(event.device).toBe(device);
 });
 
 test('Hub Settings opens the hub settings', async () => {

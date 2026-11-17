@@ -35,8 +35,9 @@
 // whatever the answer.
 //
 // Built on Node, with Django closed (decided 2026-11-05): opening the page (with its health
-// request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings;
-// the other buttons and Check for updates open screens not built yet, and do nothing.
+// request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings and
+// Sensors the hub's Sensors list; the other buttons and Check for updates open screens not built
+// yet, and do nothing.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -71,6 +72,7 @@ import {
   GoToDeviceSettingsEvent,
   GoToDevicesHomeScreen,
   GoToEditDeviceScreen,
+  GoToSensorsScreenEvent,
 } from '../../state/devices/devicesBloc';
 import { useReadDevicesBloc } from '../../state/devices/DevicesBlocContext';
 import { RefreshState } from '../../state/genericBloc';
@@ -243,7 +245,9 @@ export function DeviceView({
                     >
                       <IconButtonRowEntry
                         onTap={() => {
-                          // PORT-GAP: GoToSensorsScreenEvent(device) (the hub's sensors).
+                          readDevicesBloc().add(
+                            new GoToSensorsScreenEvent(device),
+                          );
                         }}
                         label="Sensors"
                         iconData={Icons.router}

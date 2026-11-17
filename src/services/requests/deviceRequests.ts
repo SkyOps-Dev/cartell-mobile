@@ -1,5 +1,6 @@
 // Port of fetchDevices, setDevice, addDevice, deleteDevice, updateDeviceData, the hub-settings
-// switches, queryHubHealth, pairToIntegrator and triggerIntegrator from
+// switches, queryHubHealth, pairToIntegrator, triggerIntegrator, and for the sensor screens
+// pairToSounder, isDeviceConnectedRequest and setPairingModeRequest, from
 // frontend/lib/services/requests/device_requests.dart (spec 04 §5). Flutter sends them to Django;
 // here they go to Node, which serves them since F05 (the hub messages since F07).
 
@@ -52,20 +53,20 @@ export async function queryHubHealth(deviceId: number): Promise<void> {
 }
 
 /**
- * pairToIntegrator and triggerIntegrator, which differ only in the command: POST
+ * pairToSounder, pairToIntegrator and triggerIntegrator, which differ only in the command: POST
  * /devices/{id}/message/<command>/ with an empty body (Node, since F07), with no auth() first.
- * Below 300 is success; otherwise 7466e is reported (for both, as in Flutter) and it throws.
+ * Below 300 is success; otherwise 7466e is reported (for all three, as in Flutter) and it throws.
  */
 async function sendIntegratorMessage(
   deviceId: number,
-  command: 'pair_to_integrator' | 'trigger_integrator',
+  command: 'pair_to_sounder' | 'pair_to_integrator' | 'trigger_integrator',
 ): Promise<void> {
   const response = await new NetworkHelper(
     `${nodeBaseUrlHttp()}/devices/${deviceId}/message/${command}/`,
   ).postSecureData({ body: {} });
   if (response.statusCode < 300) {
-    // PORT-GAP: log.i(response.body); log.i('successfully sent pair to integrator') (the same
-    // words for both).
+    // PORT-GAP: log.i(response.body); then 'successfully updated' (pair_to_sounder) or
+    // 'successfully sent pair to integrator' (the other two, the same words for both).
     return;
   }
   // PORT-GAP: log.i(response.statusCode).
@@ -80,6 +81,60 @@ export const pairToIntegrator = (deviceId: number) =>
 /** Open Gate (a hub's page): the hub triggers its emulated sensor. */
 export const triggerIntegrator = (deviceId: number) =>
   sendIntegratorMessage(deviceId, 'trigger_integrator');
+
+/** Pair Sounder (the onboard sensor's page): the hub pairs with a sounder. */
+export const pairToSounder = (deviceId: number) =>
+  sendIntegratorMessage(deviceId, 'pair_to_sounder');
+
+/**
+ * isDeviceConnectedRequest (Add Sensor): auth() (false if it fails) → GET /devices/{id}/ (no
+ * health request first) → the body through the Device parser (merged into the cached hub) → its
+ * is_connected. The status is not looked at: any failure, an error body that does not parse
+ * included, reports 205f8 and gives false.
+ */
+export async function isDeviceConnectedRequest(
+  device: Device,
+): Promise<boolean> {
+  try {
+    const status = await new AuthRequestManager().auth();
+    if (status.failed) {
+      return false;
+    }
+    const response = await new NetworkHelper(
+      `${nodeBaseUrlHttp()}/devices/${device.id}/`,
+    ).getSecureData();
+    return parseDevice(JSON.parse(response.body) as Json).device.isConnected;
+  } catch {
+    reportError(new NoHubInformationAvailableException('Error Code 205f8:'));
+    return false;
+  }
+}
+
+/**
+ * setPairingModeRequest (Add Sensor): auth() (a failure throws "An error occurred, please try
+ * again.") → POST /devices/{id}/message/set_pairing_mode/ with is_enabled "True" / "False" (Node,
+ * since F07). Only a status above 450 counts as failure: the body's non_field_errors is reported
+ * and it throws. A 400 (hub not connected) passes as success, as in Flutter.
+ */
+export async function setPairingModeRequest(
+  isEnabled: boolean,
+  device: Device,
+): Promise<void> {
+  const status = await new AuthRequestManager().auth();
+  if (status.failed) {
+    throw new Error('An error occurred, please try again.');
+  }
+  const response = await new NetworkHelper(
+    `${nodeBaseUrlHttp()}/devices/${device.id}/message/set_pairing_mode/`,
+  ).postSecureData({ body: { is_enabled: isEnabled ? 'True' : 'False' } });
+  if (response.statusCode > 450) {
+    const error = new NoHubInformationAvailableException(
+      String((JSON.parse(response.body) as Json).non_field_errors),
+    );
+    reportError(error);
+    throw error;
+  }
+}
 
 /**
  * One hub, fresh: auth() → the health request → GET /devices/{id}/ (Node, which serves it since

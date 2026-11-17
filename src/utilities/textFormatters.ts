@@ -1,6 +1,8 @@
 // Port of formatPhoneNumber and formatDateAndTime from frontend/lib/utilities/text_formatters.dart
 // (spec 11 §2).
 
+import { DartDateTime } from './dartDateTime';
+
 /**
  * Ten characters that Dart's int.tryParse reads as a number become "(555) 123-4567"; anything
  * else non-empty comes back as it is, and an empty string gives null. Lengths are counted in
@@ -61,16 +63,22 @@ export function isDartInt(source: string): boolean {
 const pad2 = (value: number) => String(value).padStart(2, '0');
 
 /**
- * DateFormat('MM-dd-yyyy hh:mm a') in the default (en_US) locale, in local time:
- * "11-05-2026 03:42 PM". hh is the 12-hour clock, 12 at noon and midnight.
+ * DateFormat('MM-dd-yyyy hh:mm a') in the default (en_US) locale: "11-05-2026 03:42 PM". hh is the
+ * 12-hour clock, 12 at noon and midnight. A JS Date is shown in local time; a DartDateTime in its
+ * own zone, as DateFormat reads its fields: a UTC one (any server date with an offset) shows UTC
+ * clock time, not the phone's (quirk Q43, sensor About's "Date Paired").
  */
-export function formatDateAndTime(date: Date): string {
-  const hours = date.getHours();
+export function formatDateAndTime(date: Date | DartDateTime): string {
+  const utc = date instanceof DartDateTime && date.isUtc;
+  const d = date instanceof DartDateTime ? date.toDate() : date;
+  const hours = utc ? d.getUTCHours() : d.getHours();
   const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+  const month = utc ? d.getUTCMonth() : d.getMonth();
+  const day = utc ? d.getUTCDate() : d.getDate();
+  const year = utc ? d.getUTCFullYear() : d.getFullYear();
+  const minutes = utc ? d.getUTCMinutes() : d.getMinutes();
   return (
-    `${pad2(date.getMonth() + 1)}-${pad2(
-      date.getDate(),
-    )}-${date.getFullYear()} ` +
-    `${pad2(hour12)}:${pad2(date.getMinutes())} ${hours < 12 ? 'AM' : 'PM'}`
+    `${pad2(month + 1)}-${pad2(day)}-${year} ` +
+    `${pad2(hour12)}:${pad2(minutes)} ${hours < 12 ? 'AM' : 'PM'}`
   );
 }

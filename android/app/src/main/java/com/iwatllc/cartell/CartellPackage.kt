@@ -13,6 +13,7 @@ class CartellPackage : ReactPackage {
           AutofillModule(reactContext),
           PackageInfoModule(reactContext),
           LocalAuthModule(reactContext),
+          GeolocatorModule(reactContext),
       )
 
   override fun createViewManagers(

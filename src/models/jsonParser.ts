@@ -49,6 +49,17 @@ export function persist<T extends AbstractModel>(
   return result.data;
 }
 
+/**
+ * Dart's `double.toString()`: as JavaScript's, except that a whole number keeps ".0" ("40.0",
+ * "-0.0"). Both switch to exponent form outside 1e-6 ≤ |x| < 1e21 in the same way.
+ */
+export function dartDoubleToString(value: number): string {
+  if (Number.isInteger(value) && Math.abs(value) < 1e21) {
+    return `${Object.is(value, -0) ? '-0' : String(value)}.0`;
+  }
+  return String(value);
+}
+
 /** Dart's `double.tryParse(value.toString())`, as the Device parser reads coordinates. */
 export function dartDoubleTryParse(value: unknown): number | null {
   const source = value === null || value === undefined ? 'null' : String(value);

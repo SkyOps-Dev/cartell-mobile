@@ -25,6 +25,12 @@ export const MaterialColors = {
   black54: 'rgba(0, 0, 0, 0.54)',
   grey: '#9E9E9E',
   red: '#F44336',
+  /** Colors.redAccent (A200). */
+  redAccent: '#FF5252',
+  /** Colors.green (shade 500). */
+  green: '#4CAF50',
+  /** Colors.greenAccent (A200). */
+  greenAccent: '#69F0AE',
   /** Colors.orange (shade 500). */
   orange: '#FF9800',
   /** Colors.deepOrange (shade 500). */

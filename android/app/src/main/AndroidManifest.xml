@@ -8,6 +8,12 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Coarse location, which Flutter's wifi_iot 0.3.19+2 merges into its manifest. geolocator asks
+         for every location permission the manifest declares, so Flutter's Detect Location (a
+         sensor's Edit Coordinates) asks for fine and coarse together; Android 12+ ignores a request
+         for fine alone. src/services/geolocator.ts asks for both. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- What Flutter's QR scanner (mobile_scanner 7.4.0) merges into its manifest: the camera, asked
          for when Add Hub opens the scanner, and a camera that is not required to install. -->
     <uses-permission android:name="android.permission.CAMERA" />

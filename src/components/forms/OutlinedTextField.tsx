@@ -30,6 +30,13 @@
 // The border notch is drawn by painting the floated label's background in `notchColor` (the
 // screen colour behind the field), which looks the same as Flutter's gap on a plain background.
 //
+// - maxLength (TextField.maxLength): input stops at that many characters, and the counter
+//   "<length>/<maxLength>" shows under the box at the end (bodySmall, onSurfaceVariant), 4 below
+//   it and 24 in from the right (contentPadding.end + inputGap), in the error text's row.
+//   Flutter counts characters (grapheme clusters) and React Native's limit UTF-16 units, so they
+//   differ only for emoji and other characters outside the basic plane.
+// - textAlign also places the hint, as Flutter's InputDecorator does.
+//
 // On focus the field asks the enclosing RevealingScrollView, if any, to bring it into view.
 // Inside an AutofillGroup it registers itself, so the group can clear it when it cancels (iOS).
 
@@ -295,7 +302,13 @@ export const OutlinedTextField = forwardRef<
             <Text
               numberOfLines={1}
               ellipsizeMode="tail"
-              style={[inputStyle, styles.hintText]}
+              style={[
+                inputStyle,
+                styles.hintText,
+                inputProps.textAlign
+                  ? { textAlign: inputProps.textAlign }
+                  : null,
+              ]}
             >
               {hintText}
             </Text>
@@ -369,16 +382,41 @@ export const OutlinedTextField = forwardRef<
           </Animated.View>
         )}
       </View>
-      {hasError && errorText !== '' && (
-        <Text
-          style={[
-            styles.error,
-            errorTextStyle,
-            { color: errorColor ?? ColorScheme.error },
-          ]}
-        >
-          {errorText}
-        </Text>
+      {inputProps.maxLength === undefined ? (
+        hasError &&
+        errorText !== '' && (
+          <Text
+            style={[
+              styles.error,
+              errorTextStyle,
+              { color: errorColor ?? ColorScheme.error },
+            ]}
+          >
+            {errorText}
+          </Text>
+        )
+      ) : (
+        <View style={styles.subtextRow}>
+          <View style={styles.subtextStart}>
+            {hasError && errorText !== '' && (
+              <Text
+                style={[
+                  errorTextStyle,
+                  { color: errorColor ?? ColorScheme.error },
+                ]}
+              >
+                {errorText}
+              </Text>
+            )}
+          </View>
+          <Text
+            numberOfLines={1}
+            style={[errorTextStyle, styles.counter]}
+            testID="text-field-counter"
+          >
+            {`${Array.from(currentText).length}/${inputProps.maxLength}`}
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -447,4 +485,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: CONTENT_START + INPUT_GAP,
   },
+  subtextRow: {
+    marginTop: 4,
+    marginLeft: CONTENT_START + INPUT_GAP,
+    marginRight: CONTENT_START + INPUT_GAP,
+    flexDirection: 'row',
+  },
+  // _kSubtextCounterPadding (16) between the error text and the counter.
+  subtextStart: { flex: 1, paddingRight: 16 },
+  counter: { color: ColorScheme.onSurfaceVariant },
 });

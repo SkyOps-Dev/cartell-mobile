@@ -13,6 +13,7 @@
 		A1CF0EDB0000000000000001 /* FeedbackModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000002 /* FeedbackModule.m */; };
 		A1CF0EDB0000000000000003 /* PackageInfoModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000004 /* PackageInfoModule.m */; };
 		A1CF0EDB0000000000000005 /* LocalAuthModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000006 /* LocalAuthModule.m */; };
+		A1CF0EDB0000000000000007 /* GeolocatorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000008 /* GeolocatorModule.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		D8F2F9021321444EBA7E4F97 /* FontAwesome7Free-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 47BCD39A863F4153AE1195B0 /* FontAwesome7Free-Regular.otf */; };
 		9FE65C2D70A044158407316C /* FontAwesome7Free-Solid.otf in Resources */ = {isa = PBXBuildFile; fileRef = AB3A1ACFC3734B46B26992B2 /* FontAwesome7Free-Solid.otf */; };
@@ -34,6 +35,7 @@
 		A1CF0EDB0000000000000002 /* FeedbackModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = FeedbackModule.m; path = Cartell/FeedbackModule.m; sourceTree = "<group>"; };
 		A1CF0EDB0000000000000004 /* PackageInfoModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PackageInfoModule.m; path = Cartell/PackageInfoModule.m; sourceTree = "<group>"; };
 		A1CF0EDB0000000000000006 /* LocalAuthModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = LocalAuthModule.m; path = Cartell/LocalAuthModule.m; sourceTree = "<group>"; };
+		A1CF0EDB0000000000000008 /* GeolocatorModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GeolocatorModule.m; path = Cartell/GeolocatorModule.m; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Cartell/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Cartell/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -66,6 +68,7 @@
 				A1CF0EDB0000000000000002 /* FeedbackModule.m */,
 				A1CF0EDB0000000000000004 /* PackageInfoModule.m */,
 				A1CF0EDB0000000000000006 /* LocalAuthModule.m */,
+				A1CF0EDB0000000000000008 /* GeolocatorModule.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
@@ -294,6 +297,7 @@
 				A1CF0EDB0000000000000001 /* FeedbackModule.m in Sources */,
 				A1CF0EDB0000000000000003 /* PackageInfoModule.m in Sources */,
 				A1CF0EDB0000000000000005 /* LocalAuthModule.m in Sources */,
+				A1CF0EDB0000000000000007 /* GeolocatorModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

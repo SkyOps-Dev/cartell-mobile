@@ -22,6 +22,14 @@ import {
   IsOnDevicesHomeScreenState,
   IsOnEditDeviceScreen,
   IsShowingADeviceState,
+  IsAddingASensorName,
+  IsEditingSensorCoordinatesState,
+  IsOnEditSensorScreenState,
+  IsOnSensorAboutScreenState,
+  IsOnSensorConnectScreen,
+  IsOnSensorsScreenState,
+  IsOnSpecificSensorScreenState,
+  IsRemovingCaseForAddSensor,
 } from '../state/devices/devicesBloc';
 import { DevicesBlocProvider } from '../state/devices/DevicesBlocContext';
 import { AddDevice } from './devices/addDevice/AddDevice';
@@ -31,6 +39,14 @@ import { DeviceMeta } from './devices/DeviceMeta';
 import { DeviceSettingsScreen } from './devices/DeviceSettingsScreen';
 import { DeviceView } from './devices/DeviceView';
 import { EditDevice } from './devices/EditDevice';
+import { AddSensor } from './sensors/addSensor/AddSensor';
+import { RemoveCaseForAddSensor } from './sensors/addSensor/RemoveCaseForAddSensor';
+import { SensorConnectScreen } from './sensors/addSensor/SensorConnectScreen';
+import { EditCoordinates } from './sensors/EditCoordinates';
+import { EditSensor } from './sensors/EditSensor';
+import { SensorMeta } from './sensors/SensorMeta';
+import { SensorsScreen } from './sensors/SensorsScreen';
+import { SensorView } from './sensors/SensorView';
 import { LoadScreen } from './welcome/LoadScreen';
 
 function screenFor(state: DevicesState): {
@@ -80,6 +96,63 @@ function screenFor(state: DevicesState): {
       element: (
         <DeviceSettingsScreen device={state.device} refresh={state.refresh} />
       ),
+    };
+  }
+  if (state instanceof IsOnSensorsScreenState) {
+    // Both of its states (then the hub's re-check) update the same list.
+    return {
+      key: 'SensorsScreen',
+      element: <SensorsScreen device={state.device} />,
+    };
+  }
+  if (state instanceof IsOnSpecificSensorScreenState) {
+    // Both of its states (checking, then ready) update the same page.
+    return {
+      key: 'SensorView',
+      element: (
+        <SensorView
+          device={state.device}
+          sensor={state.sensor}
+          isOnboardSensor={state.sensor.isOnboardSensor()}
+          refresh={state.refresh}
+        />
+      ),
+    };
+  }
+  if (state instanceof IsEditingSensorCoordinatesState) {
+    return {
+      key: 'EditCoordinates',
+      element: <EditCoordinates device={state.device} sensor={state.sensor} />,
+    };
+  }
+  if (state instanceof IsOnSensorAboutScreenState) {
+    // Both of its states update the same page; its RefreshState is not passed, as in Flutter.
+    return {
+      key: 'SensorMeta',
+      element: <SensorMeta device={state.device} sensor={state.sensor} />,
+    };
+  }
+  if (state instanceof IsOnEditSensorScreenState) {
+    return {
+      key: 'EditSensor',
+      element: <EditSensor device={state.device} sensor={state.sensor} />,
+    };
+  }
+  if (state instanceof IsAddingASensorName) {
+    return { key: 'AddSensor', element: <AddSensor device={state.device} /> };
+  }
+  if (state instanceof IsRemovingCaseForAddSensor) {
+    return {
+      key: 'RemoveCaseForAddSensor',
+      element: (
+        <RemoveCaseForAddSensor device={state.device} data={state.data} />
+      ),
+    };
+  }
+  if (state instanceof IsOnSensorConnectScreen) {
+    return {
+      key: 'SensorConnectScreen',
+      element: <SensorConnectScreen device={state.device} data={state.data} />,
     };
   }
   throw new Error(`Encountered Unknown State: ${state.constructor.name}`);

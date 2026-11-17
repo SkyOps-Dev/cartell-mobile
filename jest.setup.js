@@ -54,6 +54,23 @@ require('react-native').NativeModules.CartellLocalAuth = {
   authenticate: jest.fn(async () => 'failure'),
 };
 
+// Detect Location (src/services/geolocator.ts): by default location on, permission granted, and a
+// fix at a fixed point. Edit Coordinates tests replace these.
+require('react-native').NativeModules.CartellGeolocator = {
+  isLocationServiceEnabled: jest.fn(async () => true),
+  checkPermission: jest.fn(async () => 'whileInUse'),
+  requestPermission: jest.fn(async () => 'whileInUse'),
+};
+jest.mock('@react-native-community/geolocation', () => ({
+  __esModule: true,
+  default: {
+    setRNConfiguration: jest.fn(),
+    getCurrentPosition: jest.fn(success =>
+      success({ coords: { latitude: 40.7127753, longitude: -74.0059728 } }),
+    ),
+  },
+}));
+
 // react-native-vision-camera and its barcode scanner are Nitro native modules; tests drive the
 // stand-ins in __tests__/helpers/visionCameraMock.tsx.
 jest.mock('react-native-vision-camera', () => {

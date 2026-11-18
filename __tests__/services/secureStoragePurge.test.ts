@@ -32,12 +32,14 @@ describe('SecureStorage.purgeLegacyCredentials', () => {
     ]);
   });
 
-  test('leaves the session tokens alone', async () => {
+  test('leaves the session tokens and the push token alone', async () => {
     await SecureStorage.setAccessToken('a');
     await SecureStorage.setRefreshToken('r');
+    await SecureStorage.setFCMToken('f');
     await SecureStorage.purgeLegacyCredentials();
     expect(await SecureStorage.getAccessToken()).toBe('a');
     expect(await SecureStorage.getRefreshToken()).toBe('r');
+    expect(await SecureStorage.getFCMToken()).toBe('f');
   });
 
   test('is safe to run twice', async () => {

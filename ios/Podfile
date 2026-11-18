@@ -11,11 +11,12 @@ ios_floor = '15.5'
 platform :ios, ios_floor
 prepare_react_native_project!
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
+# The Firebase iOS SDK (@react-native-firebase 27.1.0: Firebase 13.1.1) must be built as
+# frameworks; React Native supports them linked statically, and RNFB's own pods follow. Flutter's
+# Podfile builds every pod as a framework too (use_frameworks!). Written, not yet built: no Mac
+# (PARITY_ISSUES).
+use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
 
 target 'Cartell' do
   config = use_native_modules!

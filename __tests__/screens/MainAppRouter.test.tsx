@@ -59,6 +59,7 @@ test('auto sign-in with no hubs lands on the Hubs screen, fetching the hubs thre
     'POST /auth/jwt/verify': { status: 200 },
     'GET /devices/': { status: 200, body: [] },
     'GET /auth/users/me/': { status: 200, body: user },
+    'POST /notifications/register_device/': { status: 201 },
   });
   await render(
     <GestureHandlerRootView>
@@ -75,13 +76,18 @@ test('auto sign-in with no hubs lands on the Hubs screen, fetching the hubs thre
   const calls = requests
     .map(r => `${r.method} ${r.path}`)
     .filter(call => call !== 'GET /maintenance-mode/');
-  // Sign-in's hub health pass, the list for the shell, then the Hubs screen's own fetch (the list
-  // was empty, so it shows the loading screen and asks again).
-  expect(calls.filter(call => call === 'GET /devices/')).toHaveLength(3);
-  expect(calls[calls.length - 1]).toBe('GET /devices/');
-  expect(calls.indexOf('GET /auth/users/me/')).toBeLessThan(
-    calls.lastIndexOf('GET /devices/'),
-  );
+  // Sign-in's push token and hub health pass, the list for the shell, then the Hubs screen's own
+  // fetch (the list was empty, so it shows the loading screen and asks again), and the token the
+  // Hubs screen sends on mounting (fullLogin).
+  expect(calls).toEqual([
+    'POST /auth/jwt/verify',
+    'POST /notifications/register_device/',
+    'GET /devices/',
+    'GET /auth/users/me/',
+    'GET /devices/',
+    'GET /devices/',
+    'POST /notifications/register_device/',
+  ]);
 });
 
 test('the side menu shows the signed-in user, and Log Out returns to Welcome', async () => {

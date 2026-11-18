@@ -21,6 +21,8 @@
   "dependencies": {
     "@noble/hashes": "2.4.0",
     "@react-native-community/geolocation": "3.4.0",
+    "@react-native-firebase/app": "27.1.0",
+    "@react-native-firebase/messaging": "27.1.0",
     "react": "19.2.3",
     "react-native": "0.87.1",
     "react-native-gesture-handler": "3.4.0",

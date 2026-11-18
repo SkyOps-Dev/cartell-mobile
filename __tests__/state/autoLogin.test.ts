@@ -74,6 +74,7 @@ const signedInServer = {
     status: 202,
     body: { msg: 'Message sent.' },
   },
+  'POST /notifications/register_device/': { status: 201 },
 };
 const calls = (requests: { method: string; path: string }[]) =>
   requests
@@ -159,9 +160,11 @@ describe('AutoLoginEvent: signing in', () => {
       [7, 'Gate'],
       [8, 'Barn'],
     ]);
-    // The hub list twice, with get_health for each connected hub (only Gate) in between.
+    // The push token (validateFCMToken always sends Firebase's token), then the hub list twice,
+    // with get_health for each connected hub (only Gate) in between.
     expect(calls(requests)).toEqual([
       'POST /auth/jwt/verify',
+      'POST /notifications/register_device/',
       'GET /devices/',
       'POST /devices/7/message/get_health/',
       'GET /auth/users/me/',
@@ -172,6 +175,8 @@ describe('AutoLoginEvent: signing in', () => {
       '/maintenance-mode/',
       '/maintenance-mode/',
       '/auth/jwt/verify',
+      '/maintenance-mode/',
+      '/notifications/register_device/',
       '/maintenance-mode/',
       '/maintenance-mode/',
       '/devices/',

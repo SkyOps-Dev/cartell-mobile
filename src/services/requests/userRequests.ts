@@ -1,6 +1,5 @@
-// Port of the account calls in frontend/lib/services/requests/user_requests.dart (spec 04 §5).
-// PORT-GAP: the push-token calls (postMessagingData, validateMessagingData,
-// deleteMessagingData).
+// Port of the account calls in frontend/lib/services/requests/user_requests.dart (spec 04 §5),
+// and its three push-token calls (spec 09 §6).
 //
 // Each call checks the session first (auth()) and reports its own code when that fails. Each
 // call site picks its server: nodeBaseUrlHttp() once that endpoint is on Node, baseUrlHttp() (Django)
@@ -54,6 +53,55 @@ export async function setProfile(): Promise<Profile> {
   }
   reportError(new NoAccountInformationFoundException('Error Code 9eae2:'));
   throw new NoAccountInformationFoundException('Failed to fetch profile');
+}
+
+// The push-token calls. Unlike the account calls, Flutter makes no session check first. On Node
+// since F10 (2026-11-18): Node serves all three as Django does.
+
+/** POST /notifications/register_device/ with {[type]: token, device_name, platform}. */
+export function postMessagingData({
+  token,
+  type,
+  deviceName,
+  platform,
+}: {
+  token: string;
+  type: string;
+  deviceName: string;
+  platform: string;
+}): Promise<HttpResponse> {
+  return new NetworkHelper(
+    `${nodeBaseUrlHttp()}/notifications/register_device/`,
+  ).postSecureData({
+    body: { [type]: token, device_name: deviceName, platform },
+  });
+}
+
+/** POST /notifications/register_device/validate/ with {token}. */
+export function validateMessagingData({
+  token,
+}: {
+  token: string;
+}): Promise<HttpResponse> {
+  return new NetworkHelper(
+    `${nodeBaseUrlHttp()}/notifications/register_device/validate/`,
+  ).postSecureData({ body: { token } });
+}
+
+/**
+ * DELETE /notifications/register_device/ with {[type]: token}. The list route has no DELETE, so
+ * the server answers 405 and the token stays registered (Django's, copied by Node).
+ */
+export function deleteMessagingData({
+  token,
+  type,
+}: {
+  token: string;
+  type: string;
+}): Promise<HttpResponse> {
+  return new NetworkHelper(
+    `${nodeBaseUrlHttp()}/notifications/register_device/`,
+  ).secureDelete({ body: { [type]: token } });
 }
 
 /** auth() (e6196) → GET /auth/users/me/ → 200: the user, else 15955. */

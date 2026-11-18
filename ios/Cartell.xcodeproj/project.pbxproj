@@ -15,6 +15,8 @@
 		A1CF0EDB0000000000000005 /* LocalAuthModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000006 /* LocalAuthModule.m */; };
 		A1CF0EDB0000000000000007 /* GeolocatorModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000008 /* GeolocatorModule.m */; };
 		A1CF0EDB0000000000000009 /* OrientationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB000000000000000A /* OrientationModule.m */; };
+		A1CF0EDB000000000000000D /* NotificationsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB000000000000000E /* NotificationsModule.m */; };
+		A1CF0EDB000000000000000F /* DeviceInfoModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000010 /* DeviceInfoModule.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		D8F2F9021321444EBA7E4F97 /* FontAwesome7Free-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 47BCD39A863F4153AE1195B0 /* FontAwesome7Free-Regular.otf */; };
 		9FE65C2D70A044158407316C /* FontAwesome7Free-Solid.otf in Resources */ = {isa = PBXBuildFile; fileRef = AB3A1ACFC3734B46B26992B2 /* FontAwesome7Free-Solid.otf */; };
@@ -23,11 +25,13 @@
 		B7C3A1F05E2D4C8A9F1E6D20 /* SourceSansPro-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0C4E9B2A7D1F4E6B8A3C5D71 /* SourceSansPro-Regular.ttf */; };
 		E2A4C6D8F0B1435A9C7E1F30 /* FontAwesome7Brands-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5D7B9F1A3C2E4B6D8F0A1C42 /* FontAwesome7Brands-Regular.otf */; };
 		C0B1E2D3F4A5468798A9BA01 /* CupertinoIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C0B1E2D3F4A5468798A9BA02 /* CupertinoIcons.ttf */; };
+		A1CF0EDB000000000000000B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB000000000000000C /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* Cartell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cartell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Cartell/Images.xcassets; sourceTree = "<group>"; };
+		A1CF0EDB000000000000000C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Cartell/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Cartell/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = Cartell/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-Cartell.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cartell.debug.xcconfig"; path = "Target Support Files/Pods-Cartell/Pods-Cartell.debug.xcconfig"; sourceTree = "<group>"; };
@@ -38,6 +42,8 @@
 		A1CF0EDB0000000000000006 /* LocalAuthModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = LocalAuthModule.m; path = Cartell/LocalAuthModule.m; sourceTree = "<group>"; };
 		A1CF0EDB0000000000000008 /* GeolocatorModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = GeolocatorModule.m; path = Cartell/GeolocatorModule.m; sourceTree = "<group>"; };
 		A1CF0EDB000000000000000A /* OrientationModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = OrientationModule.m; path = Cartell/OrientationModule.m; sourceTree = "<group>"; };
+		A1CF0EDB000000000000000E /* NotificationsModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NotificationsModule.m; path = Cartell/NotificationsModule.m; sourceTree = "<group>"; };
+		A1CF0EDB0000000000000010 /* DeviceInfoModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = DeviceInfoModule.m; path = Cartell/DeviceInfoModule.m; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Cartell/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Cartell/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -72,7 +78,10 @@
 				A1CF0EDB0000000000000006 /* LocalAuthModule.m */,
 				A1CF0EDB0000000000000008 /* GeolocatorModule.m */,
 				A1CF0EDB000000000000000A /* OrientationModule.m */,
+				A1CF0EDB000000000000000E /* NotificationsModule.m */,
+				A1CF0EDB0000000000000010 /* DeviceInfoModule.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				A1CF0EDB000000000000000C /* GoogleService-Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 			);
@@ -211,6 +220,7 @@
 				B7C3A1F05E2D4C8A9F1E6D20 /* SourceSansPro-Regular.ttf in Resources */,
 				E2A4C6D8F0B1435A9C7E1F30 /* FontAwesome7Brands-Regular.otf in Resources */,
 				C0B1E2D3F4A5468798A9BA01 /* CupertinoIcons.ttf in Resources */,
+				A1CF0EDB000000000000000B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,6 +312,8 @@
 				A1CF0EDB0000000000000005 /* LocalAuthModule.m in Sources */,
 				A1CF0EDB0000000000000007 /* GeolocatorModule.m in Sources */,
 				A1CF0EDB0000000000000009 /* OrientationModule.m in Sources */,
+				A1CF0EDB000000000000000D /* NotificationsModule.m in Sources */,
+				A1CF0EDB000000000000000F /* DeviceInfoModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

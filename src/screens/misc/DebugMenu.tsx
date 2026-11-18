@@ -171,8 +171,9 @@ function saveModifications(
   config.baseDomain = newBaseDomain;
   setEnvironmentName(newEnvironmentName);
   config.shouldUseTLS = newShouldUseTLS;
-  // PORT-GAP: SecureStorage.deleteFCMToken(). It runs after the switch, so it deletes the
-  // push token stored for the environment just switched to.
+  // After the switch, so it deletes the push token stored for the environment just switched to.
+  // Not awaited, as in Flutter.
+  SecureStorage.deleteFCMToken().catch(reportError);
 }
 
 function ModifyBaseUrl({ onDone }: { onDone: () => void }) {

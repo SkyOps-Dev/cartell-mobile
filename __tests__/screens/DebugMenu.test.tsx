@@ -18,6 +18,7 @@ import {
 import { DebugMenu } from '../../src/screens/misc/DebugMenu';
 import { WelcomeScreen } from '../../src/screens/welcome/WelcomeScreen';
 import { reportError } from '../../src/services/reportError';
+import { SecureStorage } from '../../src/services/secureStorage';
 
 jest.mock('../../src/services/reportError', () => ({ reportError: jest.fn() }));
 jest.mock('../../src/state/auth/AuthBlocContext', () => ({
@@ -139,6 +140,21 @@ describe('DebugMenu — Switch Environment', () => {
     expect(config.shouldUseTLS).toBe(true);
     expect(getEnvironmentName()).toBe('BETA');
     expect(screen.getByText('Environment Name: BETA')).toBeTruthy();
+  });
+
+  test('switching deletes the push token stored for the new environment, not the old one', async () => {
+    await SecureStorage.setFCMToken('test-token');
+    setEnvironmentName('BETA');
+    await SecureStorage.setFCMToken('beta-token');
+    setEnvironmentName('TEST');
+    await openSwitch();
+    await fireEvent.press(screen.getByText('Beta'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(await SecureStorage.getFCMToken()).toBeNull();
+    setEnvironmentName('TEST');
+    expect(await SecureStorage.getFCMToken()).toBe('test-token');
   });
 
   test('switching to Production still shows Change Environment (decided at startup, Q9)', async () => {

@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- The five permissions the Flutter app declares (frontend/android/app/src/main/AndroidManifest.xml).
          Libraries add the rest at merge time; spec 01 §2.2 lists the merged set to match. -->
@@ -18,6 +19,13 @@
          for when Add Hub opens the scanner, and a camera that is not required to install. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- What Flutter's notification plugins merge into its manifest: the Android 13+ notification
+         permission (firebase_messaging 15.2.10 and flutter_local_notifications 18.0.1) and vibration
+         (flutter_local_notifications). The Firebase libraries add the rest Flutter has (wake lock,
+         network state, cloud-messaging receive). Spec 09. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Flutter sets neither allowBackup nor supportsRtl, so both stay at the platform defaults.
          usesCleartextTraffic is true in debug builds only (spec 01 §3.4). -->
@@ -39,5 +47,25 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <!-- @react-native-firebase/messaging always declares a default notification channel (empty)
+           and a default notification colour (white). Flutter's merged manifest has neither, so
+           alerts the system draws (app closed or in the background) use Firebase's fallback
+           "Miscellaneous" channel and no colour (spec 09 §4). Removed so RN's are the same. -->
+      <meta-data
+        android:name="com.google.firebase.messaging.default_notification_channel_id"
+        tools:node="remove" />
+      <meta-data
+        android:name="com.google.firebase.messaging.default_notification_color"
+        tools:node="remove" />
+      <!-- RNFB also switches notification delegation off. Firebase's own default is on
+           (firebase-messaging 26.0.0 ProxyNotificationInitializer: on unless this meta-data says
+           otherwise), so on Android 10+ Google Play services draws background alerts for the app.
+           Flutter sets nothing, and its app on the RMX5070 has "Delegate: com.google.android.gms
+           enabled=true" (dumpsys notification, 2026-11-18). Removed so RN gets Firebase's default
+           too. RNFB's other four switches equal Firebase's defaults and stay. -->
+      <meta-data
+        android:name="firebase_messaging_notification_delegation_enabled"
+        tools:node="remove" />
     </application>
 </manifest>

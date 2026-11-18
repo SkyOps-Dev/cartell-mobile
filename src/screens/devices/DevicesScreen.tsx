@@ -29,7 +29,7 @@
 // when the app comes back (quirk Q51). Nevermind closes it. On iOS Leave does nothing.
 // Measured on the Flutter app (RMX5070, 2026-10-15): card x 90–990, top row 710.
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   BackHandler,
   Image,
@@ -52,7 +52,9 @@ import { ReusableCard } from '../../components/ReusableCard';
 import { FakeBoldText } from '../../components/text/FakeBoldText';
 import { TimedPullToRefresh } from '../../components/TimedPullToRefresh';
 import type { Device } from '../../models/device';
+import { fullLogin } from '../../services/authManager/checkCreds';
 import { devicePersistor } from '../../services/data/persistors';
+import { reportError } from '../../services/reportError';
 import {
   GoToAddAHubScreen,
   GoToSpecificDeviceEvent,
@@ -79,8 +81,16 @@ const hubImage = require('../../../assets/images/HUB.png');
 const HUB_IMAGE_ASPECT = 2429 / 2013;
 
 export function DevicesScreen({ devices }: { devices: Device[] }) {
-  // PORT-GAP: initState runs fullLogin() on every mount: NotificationApi.init(), then
-  // sendFCMToken().
+  // initState: fullLogin() on every mount, not awaited: NotificationApi.init(), then, if still
+  // mounted, sendFCMToken(). A failure goes to the error reporter, as Flutter's zone sends it to
+  // Sentry (quirk Q53: after sign-in it can be the permission request still running).
+  useEffect(() => {
+    let mounted = true;
+    fullLogin(() => mounted).catch(reportError);
+    return () => {
+      mounted = false;
+    };
+  }, []);
   useListenable(devicePersistor);
   const scale = useScalingFactor(15);
   const readDevicesBloc = useReadDevicesBloc();

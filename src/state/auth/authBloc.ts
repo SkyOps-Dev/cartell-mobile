@@ -10,8 +10,11 @@ import type { IconData } from '../../components/icons/iconData';
 import { Icons } from '../../components/icons/iconData';
 import type { RenderedMessage } from '../../components/popups/messages';
 import type { Device } from '../../models/device';
+import { deleteToken, getMessaging } from '@react-native-firebase/messaging';
+
 import {
   autoLoginMethodOnTheLoadScreen,
+  getFCMToken,
   successfulLoginStartup,
 } from '../../services/authManager/checkCreds';
 import { finishAutofillContext } from '../../services/autofill';
@@ -20,9 +23,14 @@ import {
   BiometricService,
 } from '../../services/biometricService';
 import { FailedToAutologinException } from '../../services/exceptions';
+import { NotificationApi } from '../../services/notifications';
+import { reportError } from '../../services/reportError';
 import { AuthRequestManager } from '../../services/requests/authRequests';
 import { fetchDevices } from '../../services/requests/deviceRequests';
-import { setUser } from '../../services/requests/userRequests';
+import {
+  deleteMessagingData,
+  setUser,
+} from '../../services/requests/userRequests';
 import type { Result } from '../../services/result';
 import { SecureStorage } from '../../services/secureStorage';
 import {
@@ -412,7 +420,9 @@ export class AttemptLoggingInEvent implements AuthEvent {
       // leaves it open, and the screen's AutofillGroup cancels it (PARITY_ISSUES P5).
       finishAutofillContext({ shouldSave: true });
       await successfulLoginStartup(data);
-      // PORT-GAP: NotificationApi.init() (not awaited), then await getFCMToken().
+      // Not awaited, as in Flutter; a failure goes to the error reporter (Flutter's zone → Sentry).
+      NotificationApi.init().catch(reportError);
+      await getFCMToken();
       await setUser();
       await offerBiometricUnlock(bloc);
       bloc.subBloc = new MainAppBloc(bloc);
@@ -581,11 +591,33 @@ export class AttemptLogOutEvent implements AuthEvent {
   }
 }
 
+// frontend/lib/utilities/constants.dart: log-out also makes Firebase forget the push token.
+const SHOULD_UNSUB_FROM_NOTIFICATIONS = true;
+
 async function logOut(bloc: AuthBloc): Promise<void> {
   // PORT-GAP: authLogger.i("Starting log out method").
-  // PORT-GAP: the push token. Read it (getFCMToken; a failed read counts as none); if
-  // there is one, deleteMessagingData(token, 'token'); then, as shouldUnsubFromNotifications is
-  // true, FirebaseMessaging.deleteToken(). A failure in any of it is only logged.
+  let fcmToken: string | null;
+  try {
+    fcmToken = await SecureStorage.getFCMToken();
+  } catch {
+    // PORT-GAP: authLogger.w("SecureStorage.getFCMToken failed (probably old debug-encrypted
+    // value): $e").
+    fcmToken = null;
+  }
+  try {
+    if (fcmToken != null) {
+      // PORT-GAP: authLogger.i("token not null, deleting message data").
+      // The server answers 405 (no DELETE on the list), so the token stays registered.
+      await deleteMessagingData({ token: fcmToken, type: 'token' });
+    }
+    if (SHOULD_UNSUB_FROM_NOTIFICATIONS) {
+      // PORT-GAP: authLogger.i("unsub true, calling firebase").
+      await deleteToken(getMessaging());
+    }
+  } catch {
+    // PORT-GAP: authLogger.w("Failed to delete messaging data. This is not vital so we can
+    // continue: $e").
+  }
 
   // Two guards, because the failures are not equivalent. The refresh token lasts 180 days with
   // rotation, so a log-out that leaves it behind signs the user straight back in on the next
@@ -606,7 +638,7 @@ async function logOut(bloc: AuthBloc): Promise<void> {
 
   // Best effort from here: nothing below can leave a usable session behind.
   try {
-    // PORT-GAP: SecureStorage.deleteFCMToken().
+    await SecureStorage.deleteFCMToken();
     await SecureStorage.purgeLegacyCredentials();
     // Otherwise the next account on this device inherits a gate it never opted into, and is never
     // offered the opt-in because the preference is no longer null.

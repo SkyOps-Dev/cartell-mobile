@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "902921870347",
+    "project_id": "cartell-6307a",
+    "storage_bucket": "cartell-6307a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902921870347:android:42b4e902fe2929acbe3b0e",
+        "android_client_info": {
+          "package_name": "com.iwatllc.cartell.rn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902921870347-jvi5gpsm8th7gjb74qj73a3djcr2soeu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKj5vphrsAhC-pOFH1c6XuBR29DEviwP8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902921870347-jvi5gpsm8th7gjb74qj73a3djcr2soeu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "902921870347-fu8lnueneuiij6ohq58ie8aih9o25dim.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.iwatllc.cartell",
+                "app_store_id": "1000"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

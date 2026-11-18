@@ -59,6 +59,28 @@ require('react-native').NativeModules.CartellOrientation = {
   allowAll: jest.fn(),
 };
 
+// The app's own alert (src/services/notifications.ts): permission granted, every alert accepted.
+require('react-native').NativeModules.CartellNotifications = {
+  initialize: jest.fn(async () => true),
+  show: jest.fn(async () => undefined),
+};
+
+// The iPhone's model name for the push token (src/utilities/deviceInfo.ts).
+require('react-native').NativeModules.CartellDeviceInfo = {
+  modelName: jest.fn(async () => 'iPhone 15'),
+};
+
+// Firebase Cloud Messaging (@react-native-firebase/messaging): a fixed token, no messages. Push
+// tests drive the listeners through the captured callbacks.
+jest.mock('@react-native-firebase/messaging', () => ({
+  getMessaging: jest.fn(() => ({})),
+  getToken: jest.fn(async () => 'test-fcm-token'),
+  deleteToken: jest.fn(async () => undefined),
+  onMessage: jest.fn(() => () => undefined),
+  onTokenRefresh: jest.fn(() => () => undefined),
+  setBackgroundMessageHandler: jest.fn(),
+}));
+
 // Detect Location (src/services/geolocator.ts): by default location on, permission granted, and a
 // fix at a fixed point. Edit Coordinates tests replace these.
 require('react-native').NativeModules.CartellGeolocator = {

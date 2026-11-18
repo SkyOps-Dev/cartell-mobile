@@ -2,6 +2,7 @@
 // frontend/test/services/legacy_credential_purge_wiring_test.dart ("logout, after the tokens and
 // before the state change"), checked by running the event instead of reading the source.
 
+import { deleteToken } from '@react-native-firebase/messaging';
 import * as Keychain from 'react-native-keychain';
 
 import type {
@@ -18,7 +19,7 @@ import {
   IsOnWelcomeScreenState,
 } from '../../src/state/auth/authBloc';
 import { MainAppBloc } from '../../src/state/mainApp/mainAppBloc';
-import { flush } from '../helpers/fakeServer';
+import { flush, installFakeServer } from '../helpers/fakeServer';
 
 const keychain = (
   Keychain as unknown as { __store: Map<string, { password: string }> }
@@ -157,5 +158,90 @@ describe('AttemptLogOutEvent', () => {
     await flush();
     expect(states).toHaveLength(1);
     expect(states[0]).toBeInstanceOf(IsOnWelcomeScreenState);
+  });
+});
+
+describe('AttemptLogOutEvent: the push token (spec 09 §6)', () => {
+  const firebaseDelete = deleteToken as jest.Mock;
+  beforeEach(() => firebaseDelete.mockClear());
+
+  test('asks the server to delete it (405), makes Firebase forget it, then deletes it after the session', async () => {
+    const { bloc, states, messages } = await signedInBloc();
+    await SecureStorage.setFCMToken('stored');
+    const { requests } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      'DELETE /notifications/register_device/': {
+        status: 405,
+        body: { detail: 'Method "DELETE" not allowed.' },
+      },
+    });
+    const order: string[] = [];
+    firebaseDelete.mockImplementationOnce(async () => {
+      order.push('firebase');
+    });
+    const refresh = SecureStorage.deleteRefreshToken;
+    jest
+      .spyOn(SecureStorage, 'deleteRefreshToken')
+      .mockImplementation(async () => {
+        order.push('session');
+        await refresh();
+      });
+    const fcm = SecureStorage.deleteFCMToken;
+    jest.spyOn(SecureStorage, 'deleteFCMToken').mockImplementation(async () => {
+      order.push('stored token');
+      await fcm();
+    });
+    await pressOkay(await askToLogOut(bloc, messages));
+    for (let i = 0; i < 5; i++) {
+      await flush();
+    }
+    const deleted = requests.find(r => r.method === 'DELETE')!;
+    expect(deleted.path).toBe('/notifications/register_device/');
+    expect(deleted.body).toBe('token=stored');
+    expect(order).toEqual(['firebase', 'session', 'stored token']);
+    expect(await SecureStorage.getFCMToken()).toBeNull();
+    expect(states[states.length - 1]).toBeInstanceOf(IsOnWelcomeScreenState);
+  });
+
+  test('no stored token: no request, but Firebase still forgets it', async () => {
+    const { bloc, messages } = await signedInBloc();
+    const { requests } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+    });
+    await pressOkay(await askToLogOut(bloc, messages));
+    expect(requests.filter(r => r.method === 'DELETE')).toEqual([]);
+    expect(firebaseDelete).toHaveBeenCalledTimes(1);
+  });
+
+  test('a failed read counts as none', async () => {
+    const { bloc, states, messages } = await signedInBloc();
+    jest
+      .spyOn(SecureStorage, 'getFCMToken')
+      .mockRejectedValue(new Error('old debug-encrypted value'));
+    const { requests } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+    });
+    await pressOkay(await askToLogOut(bloc, messages));
+    expect(requests.filter(r => r.method === 'DELETE')).toEqual([]);
+    expect(states[states.length - 1]).toBeInstanceOf(IsOnWelcomeScreenState);
+  });
+
+  test('a failed server delete skips Firebase too (one try, as in Flutter), and log-out goes on', async () => {
+    const { bloc, states, messages } = await signedInBloc();
+    await SecureStorage.setFCMToken('stored');
+    installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      'DELETE /notifications/register_device/': () => {
+        throw new TypeError('Network request failed');
+      },
+    });
+    await pressOkay(await askToLogOut(bloc, messages));
+    for (let i = 0; i < 5; i++) {
+      await flush();
+    }
+    expect(firebaseDelete).not.toHaveBeenCalled();
+    expect(await SecureStorage.getRefreshToken()).toBeNull();
+    expect(await SecureStorage.getFCMToken()).toBeNull();
+    expect(states[states.length - 1]).toBeInstanceOf(IsOnWelcomeScreenState);
   });
 });

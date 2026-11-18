@@ -71,6 +71,8 @@ export const AccountInformationSetFailedException = coded(
   'AccountInformationSetFailedException',
 );
 export const AccountFetchFailedException = coded('AccountFetchFailedException');
+/** Sending the push token failed (sendFCMToken, "Error Code 938dc:"). */
+export const SendTokenFailedException = coded('SendTokenFailedException');
 /** SettingsExceptions.dart. */
 export const FetchSettingsException = coded('FetchSettingsException');
 

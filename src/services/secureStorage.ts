@@ -3,7 +3,6 @@
 // environment name, so each server keeps its own sign-in.
 //
 // Only what the screens built so far use is here.
-// PORT-GAP: the FCM token (getFCMToken / setFCMToken).
 // PORT-GAP: reading and deleting the feedback flag (getShowFeedback / deleteShowFeedback).
 // PORT-GAP: the one-off migration that reads what the Flutter app stored (decision D4).
 
@@ -20,6 +19,7 @@ const keys = {
   credsSaved: () => key('false'),
   userFeedback: () => key('feedbackToken'),
   biometricsEnabled: () => key('biometricsEnabled'),
+  fcmToken: () => key('fcmToken'),
 };
 
 async function read(name: string): Promise<string | null> {
@@ -92,4 +92,13 @@ export const SecureStorage = {
   setBiometricsEnabled: (enabled: boolean) =>
     write(keys.biometricsEnabled(), String(enabled)),
   deleteBiometricsEnabled: () => remove(keys.biometricsEnabled()),
+
+  /**
+   * The push token Firebase gave this phone (spec 09 §6). A null write deletes it; an empty value
+   * reads as none. Log-out deletes it after the session; the purge of legacy keys keeps it.
+   */
+  setFCMToken: (fcmToken: string | null | undefined) =>
+    write(keys.fcmToken(), fcmToken),
+  getFCMToken: async () => emptyToNull(await read(keys.fcmToken())),
+  deleteFCMToken: () => remove(keys.fcmToken()),
 };

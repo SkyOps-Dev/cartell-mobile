@@ -1,6 +1,11 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+// Firebase's settings from google-services.json (frontend/android/app/build.gradle applies the
+// same plugin). Each flavor has its own file: "standard" uses Flutter's, unchanged
+// (app/google-services.json); "rn" uses app/src/rn/google-services.json, the same registered
+// Firebase app under the dev copy's package name (decision D3; FEATURES_FRONTEND F10, decision A).
+apply plugin: "com.google.gms.google-services"
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -130,6 +135,14 @@ dependencies {
     implementation("com.facebook.react:react-android")
     // The fingerprint / face prompt (LocalAuthModule.kt), at the version Flutter's local_auth_android 1.0.56 uses.
     implementation("androidx.biometric:biometric:1.1.0")
+    // Firebase Analytics, collecting automatically as Flutter's Android build does
+    // (frontend/android/app/build.gradle: firebase-bom 32.0.0 + firebase-analytics-ktx; decision
+    // D8: Android only, iOS none). The real app only: the "rn" dev copy shares the registered
+    // Firebase app, and would report into the client's analytics. The -ktx module left the BoM at
+    // 34.0.0; firebase-analytics is the same library. The BoM is the one
+    // @react-native-firebase 27.1.0 uses, so Firebase's libraries stay at one version.
+    standardImplementation(platform("com.google.firebase:firebase-bom:35.0.2"))
+    standardImplementation("com.google.firebase:firebase-analytics")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

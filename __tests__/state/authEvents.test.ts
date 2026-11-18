@@ -120,6 +120,7 @@ describe('AttemptLoggingInEvent: the login screen is not swapped out mid-attempt
         },
       },
       'GET /devices/': { status: 200, body: [] },
+      'POST /notifications/register_device/': { status: 201 },
     });
     const { bloc, states } = await recordBloc();
     bloc.add(new AttemptLoggingInEvent('a@b.com', 'pw'));
@@ -127,10 +128,14 @@ describe('AttemptLoggingInEvent: the login screen is not swapped out mid-attempt
       await flush();
     }
     expect(states[states.length - 1]).toBeInstanceOf(IsOnDevicesScreenState);
-    // A maintenance probe precedes every request; setUser verifies the session first.
+    // A maintenance probe precedes every request; setUser verifies the session first. The push
+    // token goes in between (getFCMToken: no stored token, so no validate; Firebase's token is new,
+    // so it is stored and sent).
     expect(requests.map(r => `${r.method} ${r.path}`)).toEqual([
       'GET /maintenance-mode/',
       'POST /auth/jwt/create',
+      'GET /maintenance-mode/',
+      'POST /notifications/register_device/',
       'GET /maintenance-mode/',
       'GET /maintenance-mode/',
       'POST /auth/jwt/verify',
@@ -147,6 +152,15 @@ describe('AttemptLoggingInEvent: the login screen is not swapped out mid-attempt
     );
     const me = requests.find(r => r.path === '/auth/users/me/')!;
     expect(me.headers.authorization).toBe('JWT A');
+    const token = requests.find(
+      r => r.path === '/notifications/register_device/',
+    )!;
+    // Jest's platform is iOS: the model from CartellDeviceInfo. A space is "+", as Dart's http
+    // form-encodes it.
+    expect(token.body).toBe(
+      'token=test-fcm-token&device_name=iPhone+15&platform=iOS',
+    );
+    expect(token.headers.authorization).toBe('JWT A');
   });
 
   describe('the autofill context is committed exactly once, on success only (PARITY_ISSUES P5)', () => {

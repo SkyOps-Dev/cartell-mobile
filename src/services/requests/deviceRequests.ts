@@ -1,13 +1,19 @@
 // Port of fetchDevices, setDevice, addDevice, deleteDevice, updateDeviceData, the hub-settings
 // switches, queryHubHealth, pairToIntegrator, triggerIntegrator, and for the sensor screens
-// pairToSounder, isDeviceConnectedRequest and setPairingModeRequest, from
+// pairToSounder, isDeviceConnectedRequest and setPairingModeRequest, and for the firmware screens
+// startFwUpdateAndGetFileSize, from
 // frontend/lib/services/requests/device_requests.dart (spec 04 §5). Flutter sends them to Django;
-// here they go to Node, which serves them since F05 (the hub messages since F07).
+// here they go to Node, which serves them since F05 (the hub messages since F07, the firmware start
+// since F12).
 
 import { nodeBaseUrlHttp } from '../../config/environment';
 import { Device, parseDevice } from '../../models/device';
 import type { Json } from '../../models/jsonParser';
-import { NoHubInformationAvailableException } from '../exceptions';
+import {
+  FirmwareUpdateRejectedException,
+  NoHubInformationAvailableException,
+  UpdateTokenFailedException,
+} from '../exceptions';
 import { reportError } from '../reportError';
 import { AuthRequestManager } from './authRequests';
 import { type HttpResponse, NetworkHelper } from './networkHelper';
@@ -299,5 +305,53 @@ export async function setOnboardSensor(
   }
   // PORT-GAP: log.i(response.statusCode).
   reportError(new NoHubInformationAvailableException('Error Code 41ef1:'));
+  throw new NoHubInformationAvailableException('Failed to load data');
+}
+
+/**
+ * startFwUpdateAndGetFileSize (Update now, Try again): auth() (a failure throws
+ * UpdateTokenFailedException, unreported) → POST /devices/{id}/message/update_firmware/ with the
+ * firmware's id (Node, since F12). Below 300: the new update's `fw_update_id`. Otherwise the body
+ * is decoded: a refusal in `non_field_errors` (e.g. an update already running) throws
+ * FirmwareUpdateRejectedException with the server's words joined by spaces; anything else reports
+ * 03337 and throws NoHubInformationAvailableException.
+ */
+export async function startFwUpdateAndGetFileSize({
+  deviceId,
+  firmwareId,
+}: {
+  deviceId: number;
+  firmwareId: number;
+}): Promise<number> {
+  const status = await new AuthRequestManager().auth();
+  if (status.failed) {
+    throw new UpdateTokenFailedException('Failed to start the firmware update');
+  }
+  const response = await new NetworkHelper(
+    `${nodeBaseUrlHttp()}/devices/${deviceId}/message/update_firmware/`,
+  ).postSecureData({ body: { firmware: String(firmwareId) } });
+  // PORT-GAP: log.i(response.body).
+  const decoded: unknown = JSON.parse(response.body);
+  if (response.statusCode < 300) {
+    const id = (decoded as Json).fw_update_id;
+    if (typeof id !== 'number') {
+      // Dart returns it from a Future<int>: anything else is a type error at the await.
+      throw new TypeError(`type '${typeof id}' is not a subtype of type 'int'`);
+    }
+    return id;
+  }
+  const nonFieldErrors =
+    decoded !== null && typeof decoded === 'object' && !Array.isArray(decoded)
+      ? (decoded as Json).non_field_errors
+      : null;
+  if (nonFieldErrors !== null && nonFieldErrors !== undefined) {
+    // PORT-GAP: log.i(nonFieldErrors).
+    throw new FirmwareUpdateRejectedException(
+      Array.isArray(nonFieldErrors)
+        ? nonFieldErrors.map(String).join(' ')
+        : String(nonFieldErrors),
+    );
+  }
+  reportError(new NoHubInformationAvailableException('Error Code 03337:'));
   throw new NoHubInformationAvailableException('Failed to load data');
 }

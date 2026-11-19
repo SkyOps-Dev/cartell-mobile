@@ -13,6 +13,13 @@
 // - Pushing the dialog route takes focus, so an open keyboard closes; when the dialog closes,
 //   focus returns to the field that had it (verify against the Flutter reference).
 //
+// Also a plain AlertDialog (showAlertDialog: title, content, actions, barrierDismissible: true),
+// Material 3's defaults (dialog.dart AlertDialog, _DialogDefaultsM3): radius 28, title in
+// headlineSmall padded 24/24/24/0, content in bodyMedium padded 24/16/24/24, actions at the end
+// padded 24/24/24 (left, right, bottom) with 8 between; the left, right and title-top paddings
+// shrink with the text scale (_scalePadding: from 1 at 1.0 to 1/3 at 2.0). Tapping the barrier
+// closes it.
+//
 // Popups render inside the app tree (PopupHost), under the EnvBanner, so the red server tag stays
 // above them as it does in Flutter. `popPopup()` is the equivalent of Navigator.pop(context) from
 // inside a dialog: custom onOkay / onCancel handlers must call it themselves, as in Flutter.
@@ -27,6 +34,7 @@ import {
   Text,
   TextInput,
   TextStyle,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -64,6 +72,14 @@ export type PopupOptions = {
   showCancel?: boolean;
 };
 
+/** showDialog(builder: AlertDialog(...)) with the default barrierDismissible: true. */
+export type AlertDialogOptions = {
+  title: string;
+  content: string;
+  actions: React.ReactNode;
+  backgroundColor: string;
+};
+
 type FocusedInput = Parameters<typeof TextInput.State.focusTextInput>[0];
 
 /**
@@ -81,6 +97,7 @@ type Entry = {
   id: number;
   options?: PopupOptions;
   general?: Required<GeneralDialogOptions>;
+  alert?: AlertDialogOptions;
   opacity: Animated.Value;
   closing: boolean;
   resolve: () => void;
@@ -119,7 +136,9 @@ const subscribe = (listener: () => void) => {
 const snapshot = () => entries;
 
 /** Pushes an entry; resolves when it has been closed. */
-function push(content: Pick<Entry, 'options' | 'general'>): Promise<void> {
+function push(
+  content: Pick<Entry, 'options' | 'general' | 'alert'>,
+): Promise<void> {
   return new Promise(resolve => {
     const restoreFocus = TextInput.State.currentlyFocusedInput() ?? undefined;
     if (restoreFocus) {
@@ -154,6 +173,11 @@ export function showGeneralDialog({
   transitionMs = GENERAL_TRANSITION_MS,
 }: GeneralDialogOptions): Promise<void> {
   return push({ general: { pageBuilder, barrierColor, transitionMs } });
+}
+
+/** Opens a plain AlertDialog (see the top of this file). Resolves when it has been closed. */
+export function showAlertDialog(options: AlertDialogOptions): Promise<void> {
+  return push({ alert: options });
 }
 
 /** showGenericErrorPopup: the catch-all "An error occurred." popup with one Okay. */
@@ -227,6 +251,9 @@ function PopupRoute({ entry }: { entry: Entry }) {
   if (entry.general) {
     return <GeneralDialogRoute entry={entry} general={entry.general} />;
   }
+  if (entry.alert) {
+    return <AlertDialogRoute entry={entry} alert={entry.alert} />;
+  }
   return (
     <Animated.View
       style={[StyleSheet.absoluteFill, { opacity: entry.opacity }]}
@@ -257,6 +284,69 @@ function PopupRoute({ entry }: { entry: Entry }) {
           >
             {entry.options && <PopupContent options={entry.options} />}
           </ScrollView>
+        </View>
+      </View>
+    </Animated.View>
+  );
+}
+
+/** A plain AlertDialog: the popup's route, but the barrier closes it when tapped. */
+function AlertDialogRoute({
+  entry,
+  alert,
+}: {
+  entry: Entry;
+  alert: AlertDialogOptions;
+}) {
+  const safe = useContext(SafeAreaInsetsContext);
+  const { fontScale } = useWindowDimensions();
+  // _scalePadding: lerp(1, 1/3, clamp(scale, 1, 2) − 1).
+  const scale = 1 + (1 / 3 - 1) * (Math.min(Math.max(fontScale, 1), 2) - 1);
+  return (
+    <Animated.View
+      style={[StyleSheet.absoluteFill, { opacity: entry.opacity }]}
+      pointerEvents={entry.closing ? 'none' : 'auto'}
+    >
+      <View
+        style={[StyleSheet.absoluteFill, styles.barrier]}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={popPopup}
+        testID="popup-barrier"
+      />
+      <View
+        style={[
+          styles.inset,
+          safe && {
+            paddingTop: safe.top + INSET_VERTICAL,
+            paddingBottom: safe.bottom + INSET_VERTICAL,
+            paddingLeft: safe.left + INSET_HORIZONTAL,
+            paddingRight: safe.right + INSET_HORIZONTAL,
+          },
+        ]}
+        pointerEvents="box-none"
+      >
+        <View
+          style={[styles.alert, { backgroundColor: alert.backgroundColor }]}
+          accessibilityViewIsModal
+        >
+          <View
+            style={{
+              paddingLeft: 24 * scale,
+              paddingRight: 24 * scale,
+              paddingTop: 24 * scale,
+            }}
+          >
+            <Text style={alertTitleStyle}>{alert.title}</Text>
+          </View>
+          <View
+            style={[
+              styles.alertContent,
+              { paddingLeft: 24 * scale, paddingRight: 24 * scale },
+            ]}
+          >
+            <Text style={alertContentStyle}>{alert.content}</Text>
+          </View>
+          <View style={styles.alertActions}>{alert.actions}</View>
         </View>
       </View>
     </Animated.View>
@@ -316,6 +406,9 @@ const messageStyle = toRN(
     height: 1.4,
   }),
 );
+// AlertDialog's DefaultTextStyles: headlineSmall and bodyMedium, in onSurface.
+const alertTitleStyle = toRN(merge(ambientTextStyle, M3.headlineSmall));
+const alertContentStyle = toRN(ambientTextStyle);
 // MaterialButton labels inherit labelLarge.
 const okayLabelStyle = toRN(
   merge(M3.labelLarge, {
@@ -441,6 +534,22 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   scroll: { flexGrow: 0 },
+  alert: {
+    borderRadius: 28,
+    minWidth: 280,
+    maxWidth: '100%',
+    maxHeight: '100%',
+  },
+  alertContent: { paddingTop: 16, paddingBottom: 24, flexShrink: 1 },
+  alertActions: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 24,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    flexWrap: 'wrap',
+    columnGap: 8,
+  },
   content: {
     paddingLeft: 24,
     paddingRight: 24,

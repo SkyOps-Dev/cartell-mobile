@@ -7,12 +7,13 @@
 // GoToSpecificDeviceEvent, GoToEditDeviceScreen, GoToAboutDeviceScreen, GoToDeviceSettingsEvent
 // and the error recovery. The sensor screens' states and events (sensors list, sensor page, its
 // rename, coordinates and About, and the three Add Sensor steps). The hub's and the sensor's
-// event history.
+// event history. The Firmware screen and an update's progress.
 // PORT-GAP: GoBackNDevicesStatesEvent, and the other states and events, which arrive with the
-// screens they show (firmware, pairing).
+// screens they show (pairing).
 
 import type { Device } from '../../models/device';
 import { Event } from '../../models/event';
+import type { Firmware, FirmwareUpdate } from '../../models/firmware';
 import type { Sensor } from '../../models/sensor';
 import type { AddSensorData } from '../../screens/sensors/addSensor/AddSensor';
 import { AuthRequestManager } from '../../services/requests/authRequests';
@@ -24,6 +25,11 @@ import {
   setDeviceEvents,
   setSensorEventData,
 } from '../../services/requests/eventRequests';
+import {
+  checkForRunningFirmwareUpdate,
+  getLatestESP32APPFirmware,
+  getLatestRFM6601APPFirmware,
+} from '../../services/requests/firmwareRequests';
 import { setSensor } from '../../services/requests/sensorRequests';
 import { AutoLoginEvent } from '../auth/authBloc';
 import {
@@ -229,6 +235,43 @@ export class IsOnEditSensorScreenState extends DevicesState {
 
   get props() {
     return [...super.props, this.device, this.sensor];
+  }
+}
+
+/** A hub's Firmware screen (FirmwareUpdates): the offers, or the update already running. */
+export class IsOnDeviceFirmwareUpdatesScreen extends DevicesState {
+  constructor(
+    readonly device: Device,
+    readonly espUpdate: Firmware | null = null,
+    readonly rfmUpdate: Firmware | null = null,
+    readonly currentRunning: FirmwareUpdate | null = null,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [
+      ...super.props,
+      this.device,
+      this.espUpdate,
+      this.rfmUpdate,
+      this.currentRunning,
+    ];
+  }
+}
+
+/** An update's progress (UpdateDeviceScreen); `resumeUpdateId` adopts one already running. */
+export class IsUpdatingDeviceFirmwareState extends DevicesState {
+  constructor(
+    readonly device: Device,
+    readonly firmware: Firmware,
+    readonly resumeUpdateId: number | null = null,
+  ) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.device, this.firmware, this.resumeUpdateId];
   }
 }
 
@@ -603,5 +646,76 @@ export class GoToSensorConnectScreen implements DevicesEvent {
 
   async handleEvent(_bloc: DevicesBloc, emit: Emitter<DevicesState>) {
     emit(new IsOnSensorConnectScreen(this.device, this.data));
+  }
+}
+
+/** Dart's `!` on a null value. */
+function nullCheck<T>(value: T | null | undefined): T {
+  if (value === null || value === undefined) {
+    throw new TypeError('Null check operator used on a null value');
+  }
+  return value;
+}
+
+/**
+ * frontend/lib/bloc/devices/events/go_to_device_firmware_updates_event.dart.
+ * The hub page's Firmware Updates (and ⋮ → Check for updates; back from an update): the loading
+ * screen, then the hub, the two latest firmwares and the running-update check, side by side. Like
+ * Dart's record `.wait`, all four finish before a failure is raised (to the error recovery). Quirks
+ * copied: an empty `latest-*` list throws, and so does a hub with no reported version.
+ */
+export class GoToDeviceFirmwareUpdatesEvent implements DevicesEvent {
+  constructor(readonly deviceId: number) {}
+
+  async handleEvent(_bloc: DevicesBloc, emit: Emitter<DevicesState>) {
+    emit(new IsLoadingDevicesScreenState());
+
+    const reads = [
+      setDevice(this.deviceId),
+      getLatestESP32APPFirmware(),
+      getLatestRFM6601APPFirmware(),
+      checkForRunningFirmwareUpdate(this.deviceId),
+    ] as const;
+    // Every read settles first; then the first failure (in this order) is raised.
+    await Promise.allSettled(reads);
+    const [device, latestESP, latestRFM, currentRunningUpdate] =
+      await Promise.all(reads);
+
+    const meta = device.device;
+    const espUpdate =
+      nullCheck(meta.esp32AppVersion) < nullCheck(latestESP.versionNumber)
+        ? latestESP
+        : null;
+    const rfmUpdate =
+      nullCheck(meta.rfm6601AppVersion) < nullCheck(latestRFM.versionNumber)
+        ? latestRFM
+        : null;
+    emit(
+      new IsOnDeviceFirmwareUpdatesScreen(
+        device,
+        espUpdate,
+        rfmUpdate,
+        currentRunningUpdate.length > 0 ? currentRunningUpdate[0] : null,
+      ),
+    );
+  }
+}
+
+/** frontend/lib/bloc/devices/events/go_to_update_device_firmware_screen.dart: at once. */
+export class GoToUpdateDeviceFirmwareScreen implements DevicesEvent {
+  constructor(
+    readonly device: Device,
+    readonly firmware: Firmware,
+    readonly resumeUpdateId: number | null = null,
+  ) {}
+
+  async handleEvent(_bloc: DevicesBloc, emit: Emitter<DevicesState>) {
+    emit(
+      new IsUpdatingDeviceFirmwareState(
+        this.device,
+        this.firmware,
+        this.resumeUpdateId,
+      ),
+    );
   }
 }

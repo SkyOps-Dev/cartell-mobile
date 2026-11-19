@@ -23,7 +23,8 @@
 // merges into it), so the page shows its new values when it redraws.
 //
 // The ⋮ menu: Rename Hub closes the menu, opens the rename page and fetches the hub again in the
-// background (its answer lands on a page that has gone); About closes the menu and opens About.
+// background (its answer lands on a page that has gone); About closes the menu and opens About;
+// Check for updates closes the menu and opens the Firmware screen.
 // Delete Hub opens "Delete Hub?" over the menu, which stays open behind it. Cancel closes the
 // dialog only. Delete sends the delete and waits (the dialog stays up, and Delete can be pressed
 // again); once it succeeds the dialog closes, then the menu, and the Hubs list shows, from the
@@ -35,9 +36,9 @@
 // whatever the answer.
 //
 // Built on Node, with Django closed (decided 2026-11-05): opening the page (with its health
-// request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings and
-// Sensors the hub's Sensors list; the other buttons and Check for updates open screens not built
-// yet, and do nothing.
+// request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings,
+// Sensors the hub's Sensors list, History the hub's history and Firmware Updates the Firmware
+// screen (on Node since F12); Connect HUB opens a screen not built yet, and does nothing.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -69,6 +70,7 @@ import {
 } from '../../services/requests/deviceRequests';
 import {
   GoToAboutDeviceScreen,
+  GoToDeviceFirmwareUpdatesEvent,
   GoToDeviceSettingsEvent,
   GoToDevicesHomeScreen,
   GoToEditDeviceScreen,
@@ -133,6 +135,11 @@ export function DeviceView({
     await refreshDevice();
   };
 
+  const pushCheckForUpdates = () => {
+    popMenu();
+    readDevicesBloc().add(new GoToDeviceFirmwareUpdatesEvent(device.id));
+  };
+
   const pushAbout = () => {
     popMenu();
     readDevicesBloc().add(new GoToAboutDeviceScreen(device));
@@ -179,6 +186,7 @@ export function DeviceView({
             updateDeviceData();
           }}
           onAbout={pushAbout}
+          onCheckForUpdates={pushCheckForUpdates}
           onDelete={deleteDeviceDialog}
         />
       }
@@ -260,7 +268,9 @@ export function DeviceView({
                   <ButtonCell>
                     <IconButtonRowEntry
                       onTap={() => {
-                        // PORT-GAP: GoToDeviceFirmwareUpdatesEvent(device.id).
+                        readDevicesBloc().add(
+                          new GoToDeviceFirmwareUpdatesEvent(device.id),
+                        );
                       }}
                       label="Firmware Updates"
                       iconData={FontAwesomeIcons.microchip}
@@ -307,10 +317,12 @@ export function DeviceView({
 function HubMenu({
   onRename,
   onAbout,
+  onCheckForUpdates,
   onDelete,
 }: {
   onRename: () => void;
   onAbout: () => void;
+  onCheckForUpdates: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -336,10 +348,7 @@ function HubMenu({
           <ListTile
             leadingIcon={FontAwesomeIcons.cloudArrowDown}
             title="Check for updates"
-            onTap={() => {
-              popMenu();
-              // PORT-GAP: GoToDeviceFirmwareUpdatesEvent(device.id).
-            }}
+            onTap={onCheckForUpdates}
           />
         </PopupMenuItem>,
         <PopupMenuItem key="delete">

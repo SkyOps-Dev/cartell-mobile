@@ -23,6 +23,7 @@ export const FontAwesomeIcons = {
   arrowLeftLong: { codePoint: 0xf177, fontFamily: FA_SOLID, advance: 1.125 },
   arrowRightFromBracket: { codePoint: 0xf08b, fontFamily: FA_SOLID },
   arrowRightToBracket: { codePoint: 0xf090, fontFamily: FA_SOLID },
+  arrowsRotate: { codePoint: 0xf021, fontFamily: FA_SOLID },
   batteryEmpty: { codePoint: 0xf244, fontFamily: FA_SOLID, advance: 1.25 },
   batteryFull: { codePoint: 0xf240, fontFamily: FA_SOLID, advance: 1.25 },
   carOn: { codePoint: 0xe4dd, fontFamily: FA_SOLID, advance: 0.875 },
@@ -40,7 +41,9 @@ export const FontAwesomeIcons = {
     advance: 1.125,
   },
   cloudArrowDown: { codePoint: 0xf0ed, fontFamily: FA_SOLID, advance: 1.125 },
+  cloudArrowUp: { codePoint: 0xf0ee, fontFamily: FA_SOLID, advance: 1.125 },
   doorOpen: { codePoint: 0xf52b, fontFamily: FA_SOLID, advance: 0.875 },
+  download: { codePoint: 0xf019, fontFamily: FA_SOLID, advance: 0.875 },
   ellipsisVertical: {
     codePoint: 0xf142,
     fontFamily: FA_SOLID,

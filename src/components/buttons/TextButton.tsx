@@ -5,7 +5,9 @@
 // padded to 48. The padding is layout space in Flutter (`_InputPadding`), so the button takes
 // 48 of height in its row. Call sites pass the label colour (amber in the auth screens); an
 // explicit colour wins even when disabled, as a Text style does in Flutter. Without one the label
-// is the theme primary, or onSurface at 0.38 when disabled.
+// is the theme primary, or onSurface at 0.38 when disabled. `foregroundColor` is
+// TextButton.styleFrom(foregroundColor:) (the firmware update's error dialog): the label in that
+// colour, and the pressed overlay that colour at 0.1 instead of primary's.
 
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
@@ -17,12 +19,18 @@ import { InkWell } from '../ink/InkWell';
 type Props = {
   label: string;
   color?: string;
+  foregroundColor?: string;
   onPressed?: (() => void) | null;
 };
 
-export function TextButton({ label, color, onPressed }: Props) {
+export function TextButton({
+  label,
+  color,
+  foregroundColor,
+  onPressed,
+}: Props) {
   const enabled = onPressed !== null && onPressed !== undefined;
-  const overlay = withOpacity(ColorScheme.primary, 0.1);
+  const overlay = withOpacity(foregroundColor ?? ColorScheme.primary, 0.1);
   return (
     <InkWell
       accessibilityRole="button"
@@ -39,6 +47,7 @@ export function TextButton({ label, color, onPressed }: Props) {
         style={textStyle(M3.labelLarge, {
           color:
             color ??
+            foregroundColor ??
             (enabled
               ? ColorScheme.primary
               : withOpacity(ColorScheme.onSurface, 0.38)),

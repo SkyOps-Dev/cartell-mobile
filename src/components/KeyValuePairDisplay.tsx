@@ -53,7 +53,9 @@ const stackedKey = {
 
 const styles = StyleSheet.create({
   padding: { paddingVertical: 15, paddingHorizontal: 20 },
+  // A Row takes the whole width it is given, also inside a centring Column (the firmware update).
   row: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

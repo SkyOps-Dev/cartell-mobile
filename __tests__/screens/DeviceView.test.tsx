@@ -40,6 +40,7 @@ import {
   GoToDevicesHomeScreen,
   GoToSensorsScreenEvent,
   GoToEditDeviceScreen,
+  GoToDeviceFirmwareUpdatesEvent,
   GoToSpecificDeviceHistoryEvent,
 } from '../../src/state/devices/devicesBloc';
 import { DevicesBlocProvider } from '../../src/state/devices/DevicesBlocContext';
@@ -286,16 +287,24 @@ test('a disconnected hub enables Connect HUB, which does nothing yet', async () 
   expect(devicesBloc.add).not.toHaveBeenCalled();
 });
 
-test('History opens the hub’s event history; Firmware Updates does nothing yet', async () => {
+test('History opens the hub’s event history', async () => {
   const json = freshHub({ device: { sensors: [sensor] } });
   await show(json);
-  await fireEvent.press(screen.getByText('Firmware Updates'));
-  expect(devicesBloc.add).not.toHaveBeenCalled();
   await fireEvent.press(screen.getByText('History'));
   expect(devicesBloc.add).toHaveBeenCalledTimes(1);
   const event = devicesBloc.add.mock.calls[0][0];
   expect(event).toBeInstanceOf(GoToSpecificDeviceHistoryEvent);
   expect(event.device.id).toBe(json.id);
+});
+
+test('Firmware Updates opens the Firmware screen, by the hub’s id', async () => {
+  const json = freshHub();
+  await show(json);
+  await fireEvent.press(screen.getByText('Firmware Updates'));
+  expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+  const event = devicesBloc.add.mock.calls[0][0];
+  expect(event).toBeInstanceOf(GoToDeviceFirmwareUpdatesEvent);
+  expect(event.deviceId).toBe(json.id);
 });
 
 test('Sensors opens the hub’s Sensors list', async () => {
@@ -428,13 +437,17 @@ describe('the ⋮ menu', () => {
     expect(event.device).toBe(device);
   });
 
-  test('Check for updates closes the menu and does nothing else yet', async () => {
-    await show(freshHub());
+  test('Check for updates closes the menu and opens the Firmware screen', async () => {
+    const json = freshHub();
+    await show(json);
     await openMenu();
     await fireEvent.press(screen.getByText('Check for updates'));
     await advance(400);
     expect(screen.queryByText('Delete Hub')).toBeNull();
-    expect(devicesBloc.add).not.toHaveBeenCalled();
+    expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+    const event = devicesBloc.add.mock.calls[0][0];
+    expect(event).toBeInstanceOf(GoToDeviceFirmwareUpdatesEvent);
+    expect(event.deviceId).toBe(json.id);
   });
 
   const DELETE_MESSAGE =

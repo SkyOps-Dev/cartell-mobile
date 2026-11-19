@@ -41,8 +41,20 @@ export const UnableToUpdateSensorEventsException = coded(
 );
 /** HubExceptions.dart: thrown by the event-history requests (event_requests.dart). */
 export const UnableToUpdateExceptions = coded('UnableToUpdateExceptions');
-/** AccountExceptions.dart: the event-history requests' failed auth(). */
+/** AccountExceptions.dart: the event-history and firmware requests' failed auth(). */
 export const UpdateTokenFailedException = coded('UpdateTokenFailedException');
+/** HubExceptions.dart: the firmware requests (firmware_requests.dart). */
+export const ESP32UnableToGetLatestFirmware = coded(
+  'ESP32UnableToGetLatestFirmware',
+);
+export const RFM6601UnableToGetLatestFirmware = coded(
+  'RFM6601UnableToGetLatestFirmware',
+);
+export const UnrecognizedFirmwareUpdate = coded('UnrecognizedFirmwareUpdate');
+/** HubExceptions.dart: the server refused to start an update, and said why (`cause`). */
+export const FirmwareUpdateRejectedException = coded(
+  'FirmwareUpdateRejectedException',
+);
 
 /**
  * Dart's `toString()` of an exception, as a screen shows it (`e.toString()`): the app's exception

@@ -18,6 +18,7 @@ import {
   IsLoadingDevicesScreenState,
   IsOnAddHubSuccessScreen,
   IsOnAboutDeviceScreenState,
+  IsOnDeviceFirmwareUpdatesScreen,
   IsOnDeviceSettingsScreen,
   IsOnDevicesHomeScreenState,
   IsOnEditDeviceScreen,
@@ -32,6 +33,7 @@ import {
   IsOnSpecificSensorHistoryScreenState,
   IsOnSpecificSensorScreenState,
   IsRemovingCaseForAddSensor,
+  IsUpdatingDeviceFirmwareState,
 } from '../state/devices/devicesBloc';
 import { DevicesBlocProvider } from '../state/devices/DevicesBlocContext';
 import { AddDevice } from './devices/addDevice/AddDevice';
@@ -41,6 +43,8 @@ import { DeviceMeta } from './devices/DeviceMeta';
 import { DeviceSettingsScreen } from './devices/DeviceSettingsScreen';
 import { DeviceView } from './devices/DeviceView';
 import { EditDevice } from './devices/EditDevice';
+import { FirmwareUpdates } from './devices/firmwareUpdate/FirmwareUpdates';
+import { UpdateDeviceScreen } from './devices/firmwareUpdate/UpdateDeviceScreen';
 import { DeviceHistory } from './events/DeviceHistory';
 import { SensorHistory } from './events/SensorHistory';
 import { AddSensor } from './sensors/addSensor/AddSensor';
@@ -85,6 +89,19 @@ function screenFor(state: DevicesState): {
   }
   if (state instanceof IsOnEditDeviceScreen) {
     return { key: 'EditDevice', element: <EditDevice device={state.device} /> };
+  }
+  if (state instanceof IsOnDeviceFirmwareUpdatesScreen) {
+    return {
+      key: 'FirmwareUpdates',
+      element: (
+        <FirmwareUpdates
+          device={state.device}
+          espUpdate={state.espUpdate}
+          rfmUpdate={state.rfmUpdate}
+          currentUpdate={state.currentRunning}
+        />
+      ),
+    };
   }
   if (state instanceof IsOnAboutDeviceScreenState) {
     // Both of its states (checking, then ready) update the same page.
@@ -167,6 +184,18 @@ function screenFor(state: DevicesState): {
     return {
       key: 'EditSensor',
       element: <EditSensor device={state.device} sensor={state.sensor} />,
+    };
+  }
+  if (state instanceof IsUpdatingDeviceFirmwareState) {
+    return {
+      key: 'UpdateDeviceScreen',
+      element: (
+        <UpdateDeviceScreen
+          device={state.device}
+          firmware={state.firmware}
+          resumeUpdateId={state.resumeUpdateId}
+        />
+      ),
     };
   }
   if (state instanceof IsAddingASensorName) {

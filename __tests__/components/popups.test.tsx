@@ -4,10 +4,12 @@ import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
+import { TextButton } from '../../src/components/buttons/TextButton';
 import {
   PopupHost,
   popPopup,
   PopupOptions,
+  showAlertDialog,
   showPopupMessage,
 } from '../../src/components/popups/popups';
 
@@ -122,5 +124,69 @@ describe('dialog layout (measured against Flutter on the RMX5070, 2026-10-14)', 
       .map(line => StyleSheet.flatten(line.props.style).height);
     // Title: 20 × 1.43 (the dialog's bodyMedium height); message: 14 × 1.4.
     expect(heights).toEqual([20 * 1.43, 14 * 1.4]);
+  });
+});
+
+describe('showAlertDialog (a plain AlertDialog: the firmware update’s errors)', () => {
+  beforeAll(() => jest.useFakeTimers());
+  afterAll(() => jest.useRealTimers());
+  afterEach(async () => {
+    await act(async () => {
+      popPopup();
+      jest.runOnlyPendingTimers();
+    });
+  });
+
+  async function openAlert(onOk = jest.fn()) {
+    await render(
+      <PopupHost>
+        <Text>screen</Text>
+      </PopupHost>,
+    );
+    await act(async () => {
+      showAlertDialog({
+        title: 'Lost contact',
+        content: 'We lost contact with the hub.',
+        backgroundColor: '#25282A',
+        actions: (
+          <TextButton label="OK" foregroundColor="#FFB500" onPressed={onOk} />
+        ),
+      });
+      jest.runOnlyPendingTimers();
+    });
+    return onOk;
+  }
+
+  test('title in headlineSmall, content in bodyMedium, both onSurface', async () => {
+    await openAlert();
+    expect(
+      StyleSheet.flatten(screen.getByText('Lost contact').props.style),
+    ).toMatchObject({ fontSize: 24, fontWeight: '400', color: '#E6E0E9' });
+    expect(
+      StyleSheet.flatten(
+        screen.getByText('We lost contact with the hub.').props.style,
+      ),
+    ).toMatchObject({ fontSize: 14, color: '#E6E0E9' });
+  });
+
+  test('the action’s label takes its foreground colour', async () => {
+    await openAlert();
+    expect(
+      StyleSheet.flatten(screen.getByText('OK').props.style),
+    ).toMatchObject({ color: '#FFB500' });
+  });
+
+  test('tapping the barrier closes it; the action runs its own handler', async () => {
+    const onOk = await openAlert();
+    await fireEvent(screen.getByTestId('popup-barrier'), 'responderRelease');
+    await act(async () => {
+      jest.runOnlyPendingTimers();
+    });
+    expect(screen.queryByText('Lost contact')).toBeNull();
+    expect(onOk).not.toHaveBeenCalled();
+
+    await openAlert(onOk);
+    await fireEvent.press(screen.getByText('OK'));
+    expect(onOk).toHaveBeenCalledTimes(1);
   });
 });

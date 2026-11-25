@@ -2,7 +2,10 @@
 // and local time without, six fraction digits truncated, fields rolling over, and FormatException.
 
 import { FormatException } from '../../src/services/exceptions';
-import { parseDartDateTime } from '../../src/utilities/dartDateTime';
+import {
+  DartDateTime,
+  parseDartDateTime,
+} from '../../src/utilities/dartDateTime';
 
 const utc = (iso: string, micros = 0) => Date.parse(iso) * 1000 + micros;
 
@@ -44,4 +47,22 @@ test.each([
   '١٢٣٤-10-21',
 ])('%j throws FormatException', text => {
   expect(() => parseDartDateTime(text)).toThrow(FormatException);
+});
+
+describe('DartDateTime.toString', () => {
+  test('UTC: date, time, six fraction digits, then Z', () => {
+    expect(
+      new DartDateTime(
+        Date.UTC(2026, 10, 23, 9, 5, 7, 123) * 1000 + 456,
+        true,
+      ).toString(),
+    ).toBe('2026-11-23 09:05:07.123456Z');
+  });
+
+  test('local time has no Z', () => {
+    const date = new Date(2026, 0, 2, 3, 4, 5, 6);
+    expect(new DartDateTime(date.getTime() * 1000, false).toString()).toBe(
+      '2026-01-02 03:04:05.006000',
+    );
+  });
 });

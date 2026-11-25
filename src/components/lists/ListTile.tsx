@@ -1,11 +1,13 @@
 // Port of Material 3's ListTile (material/list_tile.dart, Flutter 3.41.9) as the app uses it: a
-// leading icon, a one-line title, an onTap (spec 07 §3.1).
+// leading icon (or none), a one-line title, a trailing widget (the pairing network list's signal
+// glyph), an onTap (spec 07 §3.1).
 // - Height: max(56, title height + 2 × 8) (_defaultTileHeight for one line; minVerticalPadding 8).
 //   The title is centred vertically; the leading widget too (titleAlignment threeLine on a
 //   two-line-or-less tile = centre).
 // - Horizontal: contentPadding (start 16, end 24 by default; 0 inside a popup menu item), the
 //   leading box at least 24 wide (minLeadingWidth), then a 16 gap (horizontalTitleGap), then the
-//   title over the rest.
+//   title over the rest. Without a leading widget the title starts at the content padding. A
+//   trailing widget sits at the end, the title stopping max(its width + 16, 32) short of it.
 // - Colours: title onSurface (#E6E0E9), icons onSurfaceVariant (#CAC4D0); measured in the Flutter
 //   drawer (RMX5070, 2026-10-15). The tile is transparent.
 // - Title style: bodyLarge in onSurface by default; a ListTileTheme can replace it (a popup menu
@@ -57,7 +59,7 @@ export function ListTileTheme({
 }
 
 type Props = {
-  leadingIcon: IconData;
+  leadingIcon?: IconData;
   leadingIconSize?: number;
   /** The leading Icon's own `color:`; the tile's icon colour otherwise. */
   leadingIconColor?: string;
@@ -65,6 +67,8 @@ type Props = {
   /** Merged over the tile's title style, as the title Text's own `style:`. */
   titleStyle?: Partial<M3Style>;
   onTap?: () => void;
+  /** Icons in it take the tile's icon colour (kListTileIconColor) unless they set their own. */
+  trailing?: React.ReactNode;
 };
 
 export function ListTile({
@@ -74,6 +78,7 @@ export function ListTile({
   title,
   titleStyle = {},
   onTap,
+  trailing,
 }: Props) {
   const theme = React.useContext(ListTileThemeContext);
   const contentPadding = theme.contentPadding ?? { start: 16, end: 24 };
@@ -100,19 +105,24 @@ export function ListTile({
         },
       ]}
     >
-      <View
-        style={[
-          styles.leading,
-          { minWidth: MIN_LEADING_WIDTH, marginRight: HORIZONTAL_TITLE_GAP },
-        ]}
-      >
-        <Icon
-          icon={leadingIcon}
-          size={leadingIconSize}
-          color={leadingIconColor}
-        />
-      </View>
+      {leadingIcon !== undefined && (
+        <View
+          style={[
+            styles.leading,
+            { minWidth: MIN_LEADING_WIDTH, marginRight: HORIZONTAL_TITLE_GAP },
+          ]}
+        >
+          <Icon
+            icon={leadingIcon}
+            size={leadingIconSize}
+            color={leadingIconColor}
+          />
+        </View>
+      )}
       <Text style={[styles.title, toRN(resolved)]}>{title}</Text>
+      {trailing !== undefined && (
+        <View style={styles.trailing}>{trailing}</View>
+      )}
     </InkWell>
   );
 }
@@ -124,6 +134,7 @@ const styles = StyleSheet.create({
     paddingVertical: MIN_VERTICAL_PADDING,
   },
   leading: { alignItems: 'flex-start' },
+  trailing: { marginLeft: HORIZONTAL_TITLE_GAP },
   // Grows over the rest of the row, but keeps its natural width as its basis so a shrink-wrapped
   // parent (the popup menu measuring its IntrinsicWidth) sees the text's own width.
   title: { flexGrow: 1, flexShrink: 1, includeFontPadding: false },

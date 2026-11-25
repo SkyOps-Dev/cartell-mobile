@@ -4,6 +4,7 @@
 
 import * as Keychain from 'react-native-keychain';
 
+import { baseUrlHttp } from '../../src/config/environment';
 import { AuthRequestManager } from '../../src/services/requests/authRequests';
 import { Result } from '../../src/services/result';
 import { SecureStorage } from '../../src/services/secureStorage';
@@ -17,8 +18,10 @@ import {
   GoToDeviceSettingsEvent,
   GoToDevicesHomeScreen,
   GoToEditDeviceScreen,
+  GoToConnectHubBloc,
   GoToSpecificDeviceEvent,
   IsAddingAHubState,
+  IsConnectingHubState,
   IsLoadingDevicesScreenState,
   IsOnAboutDeviceScreenState,
   IsOnAddHubSuccessScreen,
@@ -365,4 +368,42 @@ test('Add Hub (poppable, and a second one is the same state), then the hub-added
   expect(bloc.state).toBeInstanceOf(IsOnAddHubSuccessScreen);
   expect((bloc.state as IsOnAddHubSuccessScreen).device).toBe(device);
   expect(bloc.state.isPoppable).toBe(false);
+});
+
+describe('GoToConnectHubBloc (go_to_connect_hub_bloc.dart)', () => {
+  test('fetch-first: the loading screen, the hub fetched from Django, then the wizard', async () => {
+    const { fetchMock } = installFakeServer({
+      'GET /maintenance-mode/': { status: 200 },
+      'POST /auth/jwt/verify': { status: 200 },
+      'GET /devices/': { status: 200, body: [hub] },
+      [`POST /devices/${hub.id}/message/get_health/`]: { status: 202 },
+      [`GET /devices/${hub.id}/`]: {
+        status: 200,
+        body: { ...hub, name: 'Front Gate' },
+      },
+    });
+    const bloc = new DevicesBloc(mainAppBloc, [parseDevice(hub)]);
+    await settle();
+    const states = record(bloc);
+    bloc.add(new GoToConnectHubBloc(parseDevice(hub)));
+    await settle();
+
+    expect(states.map(s => s.constructor.name)).toEqual([
+      'IsOnDevicesHomeScreenState',
+      'IsLoadingDevicesScreenState',
+      'IsConnectingHubState',
+    ]);
+    const shown = states[2] as IsConnectingHubState;
+    expect(shown.device.name).toBe('Front Gate');
+    expect(shown.isPoppable).toBe(true);
+    // The wizard is on Django for now: both requests go to baseUrlHttp(). (The test env has no
+    // Node address, so this cannot tell the two apart; the call site passes baseUrlHttp().)
+    const hubCalls = fetchMock.mock.calls
+      .map(([url]) => url as string)
+      .filter(url => url.includes(`/devices/${hub.id}/`));
+    expect(hubCalls).toEqual([
+      `${baseUrlHttp()}/devices/${hub.id}/message/get_health/`,
+      `${baseUrlHttp()}/devices/${hub.id}/`,
+    ]);
+  });
 });

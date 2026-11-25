@@ -15,6 +15,7 @@ import {
   DevicesBloc,
   DevicesState,
   IsAddingAHubState,
+  IsConnectingHubState,
   IsLoadingDevicesScreenState,
   IsOnAddHubSuccessScreen,
   IsOnAboutDeviceScreenState,
@@ -38,6 +39,7 @@ import {
 import { DevicesBlocProvider } from '../state/devices/DevicesBlocContext';
 import { AddDevice } from './devices/addDevice/AddDevice';
 import { SuccessfullyAddedDeviceScreen } from './devices/addDevice/SuccessfullyAddedDeviceScreen';
+import { HubConnectWidget } from './devices/connectHubToWifi/HubConnectWidget';
 import { DevicesScreen } from './devices/DevicesScreen';
 import { DeviceMeta } from './devices/DeviceMeta';
 import { DeviceSettingsScreen } from './devices/DeviceSettingsScreen';
@@ -85,6 +87,12 @@ function screenFor(state: DevicesState): {
     return {
       key: 'DeviceView',
       element: <DeviceView device={state.device} refresh={state.refresh} />,
+    };
+  }
+  if (state instanceof IsConnectingHubState) {
+    return {
+      key: 'HubConnectWidget',
+      element: <HubConnectWidget device={state.device} />,
     };
   }
   if (state instanceof IsOnEditDeviceScreen) {

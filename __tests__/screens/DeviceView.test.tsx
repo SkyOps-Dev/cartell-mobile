@@ -40,6 +40,7 @@ import {
   GoToDevicesHomeScreen,
   GoToSensorsScreenEvent,
   GoToEditDeviceScreen,
+  GoToConnectHubBloc,
   GoToDeviceFirmwareUpdatesEvent,
   GoToSpecificDeviceHistoryEvent,
 } from '../../src/state/devices/devicesBloc';
@@ -280,11 +281,15 @@ test.each([202, 400])(
   },
 );
 
-test('a disconnected hub enables Connect HUB, which does nothing yet', async () => {
-  await show(freshHub());
+test('a disconnected hub enables Connect HUB, which opens the Wi-Fi pairing wizard', async () => {
+  const json = freshHub();
+  await show(json);
   expect(glyphColour(RSS)).toBe(kCartellBlue);
   await fireEvent.press(screen.getByText('Connect HUB'));
-  expect(devicesBloc.add).not.toHaveBeenCalled();
+  expect(devicesBloc.add).toHaveBeenCalledTimes(1);
+  const event = devicesBloc.add.mock.calls[0][0];
+  expect(event).toBeInstanceOf(GoToConnectHubBloc);
+  expect(event.device.id).toBe(json.id);
 });
 
 test('History opens the hub’s event history', async () => {

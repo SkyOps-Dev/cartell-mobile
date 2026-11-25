@@ -32,10 +32,14 @@ export function transformCubic(curve: CubicCurve, t: number): number {
     3 * p1 * (1 - m) * (1 - m) * m + 3 * p2 * (1 - m) * m * m + m * m * m;
   let start = 0;
   let end = 1;
+  // A safety limit, not part of curves.dart: bisection to 0.001 takes about 10–20 rounds, so it
+  // never changes a result. Without it, the release build froze its JavaScript thread here
+  // when the QR scanner page opened (2026-11-23; the debug build never did).
+  let rounds = 0;
   for (;;) {
     const midpoint = (start + end) / 2;
     const estimate = evaluate(a, c, midpoint);
-    if (Math.abs(t - estimate) < 0.001) {
+    if (Math.abs(t - estimate) < 0.001 || ++rounds > 200) {
       return evaluate(b, d, midpoint);
     }
     if (estimate < t) {

@@ -98,6 +98,27 @@ jest.mock('@react-native-community/geolocation', () => ({
   },
 }));
 
+// Hub pairing's Wi-Fi hop (src/services/wifiIot.ts): Wi-Fi on, every join, bind and leave
+// succeeding, and the phone on a Wi-Fi network. Pairing tests replace these.
+require('react-native').NativeModules.CartellWifiIot = {
+  isEnabled: jest.fn(async () => true),
+  setEnabled: jest.fn(async () => null),
+  connect: jest.fn(async () => true),
+  forceWifiUsage: jest.fn(async () => true),
+  isConnected: jest.fn(async () => true),
+  disconnect: jest.fn(async () => true),
+};
+// The Wi-Fi name (src/services/networkInfo.ts, read before every server request): unknown, as on
+// a phone without location permission.
+require('react-native').NativeModules.CartellNetworkInfo = {
+  getWifiName: jest.fn(async () => null),
+};
+// The hub pairing socket: in-memory sockets driven through __tests__/helpers/udpMock.ts.
+jest.mock('react-native-udp', () => ({
+  __esModule: true,
+  default: require('./__tests__/helpers/udpMock').default,
+}));
+
 // react-native-vision-camera and its barcode scanner are Nitro native modules; tests drive the
 // stand-ins in __tests__/helpers/visionCameraMock.tsx.
 jest.mock('react-native-vision-camera', () => {

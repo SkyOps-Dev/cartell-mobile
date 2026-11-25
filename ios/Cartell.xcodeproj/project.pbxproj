@@ -17,6 +17,8 @@
 		A1CF0EDB0000000000000009 /* OrientationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB000000000000000A /* OrientationModule.m */; };
 		A1CF0EDB000000000000000D /* NotificationsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB000000000000000E /* NotificationsModule.m */; };
 		A1CF0EDB000000000000000F /* DeviceInfoModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000010 /* DeviceInfoModule.m */; };
+		A1CF0EDB0000000000000011 /* WifiIotModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000012 /* WifiIotModule.m */; };
+		A1CF0EDB0000000000000013 /* NetworkInfoModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1CF0EDB0000000000000014 /* NetworkInfoModule.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		D8F2F9021321444EBA7E4F97 /* FontAwesome7Free-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 47BCD39A863F4153AE1195B0 /* FontAwesome7Free-Regular.otf */; };
 		9FE65C2D70A044158407316C /* FontAwesome7Free-Solid.otf in Resources */ = {isa = PBXBuildFile; fileRef = AB3A1ACFC3734B46B26992B2 /* FontAwesome7Free-Solid.otf */; };
@@ -44,6 +46,8 @@
 		A1CF0EDB000000000000000A /* OrientationModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = OrientationModule.m; path = Cartell/OrientationModule.m; sourceTree = "<group>"; };
 		A1CF0EDB000000000000000E /* NotificationsModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NotificationsModule.m; path = Cartell/NotificationsModule.m; sourceTree = "<group>"; };
 		A1CF0EDB0000000000000010 /* DeviceInfoModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = DeviceInfoModule.m; path = Cartell/DeviceInfoModule.m; sourceTree = "<group>"; };
+		A1CF0EDB0000000000000012 /* WifiIotModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WifiIotModule.m; path = Cartell/WifiIotModule.m; sourceTree = "<group>"; };
+		A1CF0EDB0000000000000014 /* NetworkInfoModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NetworkInfoModule.m; path = Cartell/NetworkInfoModule.m; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Cartell/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Cartell/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -80,6 +84,8 @@
 				A1CF0EDB000000000000000A /* OrientationModule.m */,
 				A1CF0EDB000000000000000E /* NotificationsModule.m */,
 				A1CF0EDB0000000000000010 /* DeviceInfoModule.m */,
+				A1CF0EDB0000000000000012 /* WifiIotModule.m */,
+				A1CF0EDB0000000000000014 /* NetworkInfoModule.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				A1CF0EDB000000000000000C /* GoogleService-Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -314,6 +320,8 @@
 				A1CF0EDB0000000000000009 /* OrientationModule.m in Sources */,
 				A1CF0EDB000000000000000D /* NotificationsModule.m in Sources */,
 				A1CF0EDB000000000000000F /* DeviceInfoModule.m in Sources */,
+				A1CF0EDB0000000000000011 /* WifiIotModule.m in Sources */,
+				A1CF0EDB0000000000000013 /* NetworkInfoModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

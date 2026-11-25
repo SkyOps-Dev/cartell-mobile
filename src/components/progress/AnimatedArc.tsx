@@ -13,7 +13,7 @@ import Animated, {
   useFrameCallback,
   useSharedValue,
 } from 'react-native-reanimated';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -41,17 +41,31 @@ type Props = {
   strokeWidth: number;
   color: string;
   arcAt: ArcAt;
+  /**
+   * A full circle under the arc (CircularProgressIndicator's backgroundColor, the pairing
+   * wizard's reconnect ring). With a track, arc and track follow Flutter's painter exactly as the
+   * determinate ring does: the stroke centred on the box's edge (radius size / 2). The bare
+   * spinners keep the radius above until PARITY P46 is measured.
+   */
+  trackColor?: string;
 };
 
-export function AnimatedArc({ size, strokeWidth, color, arcAt }: Props) {
+export function AnimatedArc({
+  size,
+  strokeWidth,
+  color,
+  arcAt,
+  trackColor,
+}: Props) {
   const elapsed = useSharedValue(0);
   useFrameCallback(frame => {
     elapsed.value = frame.timeSinceFirstFrame;
   });
 
+  const onEdge = trackColor !== undefined;
   const canvas = size + strokeWidth * 2;
   const centre = canvas / 2;
-  const radius = (size - strokeWidth) / 2;
+  const radius = onEdge ? size / 2 : (size - strokeWidth) / 2;
   const animatedProps = useAnimatedProps(() => {
     const { start, sweep } = arcAt(elapsed.value);
     return { d: arcPath(centre, radius, start, sweep) };
@@ -64,6 +78,16 @@ export function AnimatedArc({ size, strokeWidth, color, arcAt }: Props) {
       accessibilityRole="progressbar"
     >
       <Svg width={canvas} height={canvas} style={{ margin: -strokeWidth }}>
+        {onEdge && (
+          <Circle
+            cx={centre}
+            cy={centre}
+            r={radius}
+            stroke={trackColor}
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+        )}
         <AnimatedPath
           animatedProps={animatedProps}
           stroke={color}

@@ -38,6 +38,7 @@ import { AuthBlocProvider } from '../../src/state/auth/AuthBlocContext';
 import {
   DevicesBloc,
   GoToAddHubSuccessScreen,
+  GoToConnectHubBloc,
   GoToDevicesHomeScreen,
   GoToSpecificDeviceEvent,
 } from '../../src/state/devices/devicesBloc';
@@ -411,7 +412,7 @@ describe('Add Hub', () => {
     expect(events()[0]).toBeInstanceOf(GoToDevicesHomeScreen);
   });
 
-  test('a failed profile fetch shows nothing; Submit then posts to location "null"', async () => {
+  test('a failed profile fetch pushes the pairing failure page, a grey error box (Q14); Submit then posts to location "null"', async () => {
     const { requests } = installFakeServer({
       'GET /maintenance-mode/': { status: 200 },
       'POST /auth/jwt/verify': { status: 200 },
@@ -419,6 +420,10 @@ describe('Add Hub', () => {
     });
     await show(<AddDevice />);
     expect(screen.getByText('Enter Hub Information')).toBeTruthy();
+    await settle();
+    // FailureWidget outside the wizard: its scaffold finds no step and throws as it is built.
+    expect(screen.getByTestId('error-widget')).toBeTruthy();
+    expect(screen.queryByText('Begin Pairing Again')).toBeNull();
     await enterManually('Gate', 'aabbccddeeff');
     await fireEvent.press(screen.getByText('Submit'));
     await settle();
@@ -445,11 +450,18 @@ describe('Hub Added to Account!', () => {
     expect(screen.getByText('Pair to Wi-Fi Later')).toBeTruthy();
   });
 
-  test('Pair to Wi-Fi Later and Back open the new hub; Proceed does nothing yet', async () => {
+  test('Proceed opens the Wi-Fi pairing wizard for the new hub', async () => {
     const device = parseDevice(hubJson({ id: 92 }));
     await show(<SuccessfullyAddedDeviceScreen device={device} />);
     await fireEvent.press(screen.getByText('Proceed and Pair To Wi-Fi'));
-    expect(events()).toEqual([]);
+    expect(events()).toHaveLength(1);
+    expect(events()[0]).toBeInstanceOf(GoToConnectHubBloc);
+    expect(events()[0].device).toBe(device);
+  });
+
+  test('Pair to Wi-Fi Later and Back open the new hub', async () => {
+    const device = parseDevice(hubJson({ id: 92 }));
+    await show(<SuccessfullyAddedDeviceScreen device={device} />);
     await fireEvent.press(screen.getByText('Pair to Wi-Fi Later'));
     await pressBack();
     expect(events()).toHaveLength(2);

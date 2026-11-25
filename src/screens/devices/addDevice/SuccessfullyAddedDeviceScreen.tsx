@@ -6,7 +6,8 @@
 // 65, "Hub Added to Account!" (20, white, bold), 20, FA circleCheck (150, amber), 20, "Your hub is
 // now added to your account." (16), 20, "Next, we will pair the hub to your Wi-Fi. Are you ready
 // to proceed?" (16; both 14 in from each side, centred), 20, then two RoundedButtons 20 in from
-// each side with 10 between: "Proceed and Pair To Wi-Fi" (amber, black title, FA check) and
+// each side with 10 between: "Proceed and Pair To Wi-Fi" (amber, black title, FA check) → the
+// Wi-Fi pairing wizard for the new hub, and
 // "Pair to Wi-Fi Later" (blue, black title) → the new hub's page.
 
 import React from 'react';
@@ -19,7 +20,10 @@ import { PopScope } from '../../../components/layout/PopScope';
 import { SafeArea } from '../../../components/layout/SafeArea';
 import { Scaffold } from '../../../components/layout/Scaffold';
 import type { Device } from '../../../models/device';
-import { GoToSpecificDeviceEvent } from '../../../state/devices/devicesBloc';
+import {
+  GoToConnectHubBloc,
+  GoToSpecificDeviceEvent,
+} from '../../../state/devices/devicesBloc';
 import { useReadDevicesBloc } from '../../../state/devices/DevicesBlocContext';
 import {
   kCartellBlack,
@@ -68,9 +72,7 @@ export function SuccessfullyAddedDeviceScreen({ device }: { device: Device }) {
               <View style={styles.buttonPadding}>
                 <RoundedButton
                   onPressed={() => {
-                    // PORT-GAP: context.read<DevicesBloc>().add(GoToConnectHubBloc(device: device))
-                    // opens Wi-Fi pairing (connect_hub_to_wifi/), which is not built yet, so
-                    // nothing happens.
+                    readDevicesBloc().add(new GoToConnectHubBloc(device));
                   }}
                   title="Proceed and Pair To Wi-Fi"
                   buttonTitleColor={MaterialColors.black}

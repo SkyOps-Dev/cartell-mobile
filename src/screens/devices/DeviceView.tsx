@@ -38,7 +38,8 @@
 // Built on Node, with Django closed (decided 2026-11-05): opening the page (with its health
 // request), the pull, rename, delete and Open Gate go to Node. Hub Settings opens Hub settings,
 // Sensors the hub's Sensors list, History the hub's history and Firmware Updates the Firmware
-// screen (on Node since F12); Connect HUB opens a screen not built yet, and does nothing.
+// screen (on Node since F12); Connect HUB (only while the hub is offline) the Wi-Fi pairing
+// wizard (on Django for now).
 
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -70,6 +71,7 @@ import {
 } from '../../services/requests/deviceRequests';
 import {
   GoToAboutDeviceScreen,
+  GoToConnectHubBloc,
   GoToDeviceFirmwareUpdatesEvent,
   GoToDeviceSettingsEvent,
   GoToDevicesHomeScreen,
@@ -280,7 +282,7 @@ export function DeviceView({
                     <IconButtonRowEntry
                       isEnabled={!device.device.isConnected}
                       onTap={() => {
-                        // PORT-GAP: GoToConnectHubBloc(device) (Wi-Fi pairing, its own step).
+                        readDevicesBloc().add(new GoToConnectHubBloc(device));
                       }}
                       label="Connect HUB"
                       iconData={FontAwesomeIcons.rss}

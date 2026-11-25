@@ -10,6 +10,12 @@
 // the top, so in a grid cell the button is as tall as the cell, and only as wide as its widest
 // child. Where the cell is shorter than the content (a 360-wide phone: 122.9 against 124) the label
 // runs past the bottom by a pixel or so, as in Flutter.
+// "All the height it is given" is flexGrow + flexShrink, not height: '100%'. Where nothing above
+// sets a height (a sensor's ThreeButtonRow, inside the page's scroll view), Flutter's Column gets
+// an unbounded height and is only as tall as its children; Yoga instead resolved the 100% against
+// the scroll view itself, so each button was a screen tall and pushed "Receive Sensor
+// Notifications" and "Last Updated" off the bottom (seen on a phone, 2026-11-25). Grow + shrink
+// fills a cell of fixed height exactly, shorter content included, and is content-high otherwise.
 
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -71,7 +77,8 @@ const labelText = {
 
 const styles = StyleSheet.create({
   entry: {
-    height: '100%',
+    flexGrow: 1,
+    flexShrink: 1,
     paddingHorizontal: 5,
     paddingVertical: 20,
     alignItems: 'center',

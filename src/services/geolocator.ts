@@ -5,10 +5,15 @@
 // - checkPermission / requestPermission: on Android through PermissionsAndroid, for both location
 //   permissions the manifest declares (fine and coarse, as geolocator asks for every one declared);
 //   on iOS through CartellGeolocator (requestWhenInUseAuthorization), as geolocator maps it.
-// - getCurrentPosition (high accuracy, no time limit, a fresh fix): @react-native-community/
-//   geolocation, which uses Google Play's fused location when Play services are there (else
-//   Android's LocationManager), as geolocator does. Its own permission requests are switched off:
-//   the steps above make them.
+// - getCurrentPosition (high accuracy, no time limit, geolocator's request settings):
+//   @react-native-community/geolocation, on Google Play's fused location when Play services are
+//   there (else Android's LocationManager), as geolocator does (GeolocationManager.
+//   createLocationClient). That needs locationProvider "playServices": the library's "auto" sends
+//   nothing on Android, so it stays on LocationManager, which with high accuracy waits for GPS
+//   alone and was seconds slower than Flutter. Its own permission requests are switched off: the
+//   steps above make them.
+//   One difference, in the library: when fused location reports "not available" while location
+//   is on (weak signal indoors), it fails at once ("Can't Get Location"); geolocator keeps waiting.
 
 import Geolocation from '@react-native-community/geolocation';
 import { NativeModules, PermissionsAndroid, Platform } from 'react-native';
@@ -89,8 +94,12 @@ export async function requestPermission(): Promise<LocationPermission> {
 let configured = false;
 
 /**
- * Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: high)): one fresh
- * fix, waiting as long as it takes. Rejects with the library's error when no fix can be had.
+ * Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: high)): one fix,
+ * waiting as long as it takes. Rejects with the library's error when no fix can be had.
+ * The request matches geolocator_android's (FusedLocationClient.buildLocationRequest with its
+ * LocationOptions defaults): 5 s interval and minimum interval, 0 m distance filter, and a fix up
+ * to one interval old accepted (Play services' implicit max update age), so a recent fix answers
+ * at once. Requiring a brand-new fix (maximumAge 0) made it wait for the hardware, often for long.
  */
 export function getCurrentPosition(): Promise<{
   latitude: number;
@@ -100,7 +109,7 @@ export function getCurrentPosition(): Promise<{
     Geolocation.setRNConfiguration({
       skipPermissionRequests: true,
       authorizationLevel: 'whenInUse',
-      locationProvider: 'auto',
+      locationProvider: 'playServices',
     });
     configured = true;
   }
@@ -112,7 +121,13 @@ export function getCurrentPosition(): Promise<{
           longitude: position.coords.longitude,
         }),
       error => reject(error),
-      { enableHighAccuracy: true, maximumAge: 0 },
+      {
+        enableHighAccuracy: true,
+        interval: 5000,
+        fastestInterval: 5000,
+        distanceFilter: 0,
+        maximumAge: 5000,
+      },
     );
   });
 }

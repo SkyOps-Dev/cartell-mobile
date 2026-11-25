@@ -56,6 +56,20 @@ npm run android                  # the real id (com.iwatllc.cartell) — replace
 `android:rn` installs next to the Flutter app, so both can be compared on one phone. It exists
 only for development and is never shipped.
 
+### A standalone APK (no Metro)
+
+```bash
+npm run env:test                 # test | beta | live — release builds refuse plain http, so not dev
+cd android && ./gradlew assembleRnRelease      # Windows: .\gradlew.bat assembleRnRelease
+adb install -r app/build/outputs/apk/rn/release/app-rn-release.apk
+npm run env:dev                  # back to dev afterwards
+```
+
+It installs as its own app, **Cartell RN Release** (`com.iwatllc.cartell.rn.release`), next to
+the dev build and the Flutter app, so neither replaces the other. It has its own login and
+permissions. The id is set in `android/app/build.gradle` (`androidComponents`); its Firebase file
+is `android/app/src/rn/release/google-services.json`. The environment is baked in at build time.
+
 For the dev server, start the backend as you do for Flutter (`runserver 0.0.0.0:8000`). Debug
 builds allow plain `http`; release builds do not (see `docs/spec/01-platform-shell.md` §3.4).
 

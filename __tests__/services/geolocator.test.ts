@@ -69,7 +69,7 @@ test('isLocationServiceEnabled comes from CartellGeolocator', async () => {
   expect(await isLocationServiceEnabled()).toBe(false);
 });
 
-test('getCurrentPosition asks for a fresh, high-accuracy fix with no permission request', async () => {
+test("getCurrentPosition asks for a high-accuracy fix with geolocator's request settings and no permission request", async () => {
   const Geolocation = jest.requireMock(
     '@react-native-community/geolocation',
   ).default;
@@ -80,10 +80,13 @@ test('getCurrentPosition asks for a fresh, high-accuracy fix with no permission 
   expect(Geolocation.setRNConfiguration).toHaveBeenCalledWith({
     skipPermissionRequests: true,
     authorizationLevel: 'whenInUse',
-    locationProvider: 'auto',
+    locationProvider: 'playServices',
   });
   expect(Geolocation.getCurrentPosition.mock.calls[0][2]).toEqual({
     enableHighAccuracy: true,
-    maximumAge: 0,
+    interval: 5000,
+    fastestInterval: 5000,
+    distanceFilter: 0,
+    maximumAge: 5000,
   });
 });

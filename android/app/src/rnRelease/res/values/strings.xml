@@ -1,0 +1,4 @@
+<resources>
+    <!-- The "rn" copy's standalone release APK (see androidComponents in app/build.gradle). -->
+    <string name="app_name">Cartell RN Release</string>
+</resources>

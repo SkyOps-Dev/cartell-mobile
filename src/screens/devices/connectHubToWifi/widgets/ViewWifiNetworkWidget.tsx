@@ -101,6 +101,7 @@ export function ViewWifiNetworkWidget({
               loadingPrompt: 'Find QR WiFi Password',
               returnPrompt: 'Use WiFi Password',
               // Setting the controller's text does not run onChanged, so no length check.
+              // The whole QR text, unparsed: a Wi-Fi QR's "WIFI:…;P:" and ";;" come along (Q58).
               returnBarcode: barcode => setPassword(barcode),
             });
           }}

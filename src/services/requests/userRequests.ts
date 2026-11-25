@@ -1,11 +1,10 @@
 // Port of the account calls in frontend/lib/services/requests/user_requests.dart (spec 04 §5),
 // and its three push-token calls (spec 09 §6).
 //
-// Each call checks the session first (auth()) and reports its own code when that fails. Each
-// call site picks its server: nodeBaseUrlHttp() once that endpoint is on Node, baseUrlHttp() (Django)
-// until then.
+// Each call checks the session first (auth()) and reports its own code when that fails. Every
+// call here is on Node (nodeBaseUrlHttp()); Delete Account was the last to move (F15).
 
-import { baseUrlHttp, nodeBaseUrlHttp } from '../../config/environment';
+import { nodeBaseUrlHttp } from '../../config/environment';
 import { parseProfile, Profile } from '../../models/profile';
 import { parseUser, User } from '../../models/user';
 import { persistUser } from '../data/userPersistor';
@@ -228,7 +227,8 @@ export async function deleteAccount({
     'Failed to set user',
   );
   const response = await new NetworkHelper(
-    `${baseUrlHttp()}/auth/users/me/`,
+    // On the Node backend since 2026-11-25 (F15).
+    `${nodeBaseUrlHttp()}/auth/users/me/`,
   ).secureDelete({ body: { current_password: password } });
 
   await SecureStorage.purgeLegacyCredentials();

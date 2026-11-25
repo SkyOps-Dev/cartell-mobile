@@ -20,6 +20,10 @@
 //   validMacAddress: true. Neither state's canSubmit is read by the page.
 // Not ported: AddDeviceLoadingState and AddDeviceWarnAboutEditingState, which nothing emits.
 
+import React from 'react';
+
+import { ErrorWidgetBoundary } from '../../../components/ErrorWidget';
+import { pushPage } from '../../../components/layout/PageRoute';
 import { popPopup, showPopupMessage } from '../../../components/popups/popups';
 import { showToastPopup } from '../../../components/popups/toasts';
 import { scanQrCode } from '../../../components/forms/QrScanner';
@@ -37,6 +41,7 @@ import {
   GoToAddHubSuccessScreen,
 } from '../../../state/devices/devicesBloc';
 import { kCartellDarkGray } from '../../../theme/colors';
+import { FailureWidget } from '../connectHubToWifi/widgets/FailureWidget';
 import { ValueNotifier } from '../../../utilities/valueNotifier';
 
 // --- states ------------------------------------------------------------------------------
@@ -242,10 +247,22 @@ export class AddDeviceInitEvent implements BaseAddDeviceEvent {
 export class AddDeviceErrorEvent implements BaseAddDeviceEvent {
   constructor(readonly message: string, readonly code: string) {}
 
+  /**
+   * Navigator.push of the Wi-Fi pairing failure page, FailureWidget(message, code). Outside the
+   * wizard nothing provides its step number, so its scaffold throws as it is built and a release
+   * Flutter build shows its grey error box on that page instead (quirk Q14), as here.
+   */
   async handle() {
-    // PORT-GAP: Navigator.push of FailureWidget(message, code): the Wi-Fi pairing failure page
-    // (connect_hub_to_wifi/failure_widget.dart), with "Return to Devices", "Begin Pairing Again"
-    // and "Error: <code>".
+    pushPage(() =>
+      React.createElement(
+        ErrorWidgetBoundary,
+        null,
+        React.createElement(FailureWidget, {
+          message: this.message,
+          code: this.code,
+        }),
+      ),
+    );
   }
 }
 

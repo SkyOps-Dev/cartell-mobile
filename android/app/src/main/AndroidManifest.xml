@@ -27,6 +27,19 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- What Flutter's wifi_iot 0.3.19+2 merges into its manifest besides coarse location (above)
+         and the permissions declared at the top: WRITE_SETTINGS and the Wi-Fi hardware feature.
+         RN's port of it is WifiIotModule.kt (hub pairing). Network state comes with Firebase. -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-feature android:name="android.hardware.wifi" />
+
+    <!-- react-native-udp 4.1.7 (the hub pairing socket) declares the multicast permission for its
+         multicast calls, which the app never makes. Flutter's merged manifest has no such
+         permission, so it is removed. -->
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"
+        tools:node="remove" />
+
     <!-- Flutter sets neither allowBackup nor supportsRtl, so both stay at the platform defaults.
          usesCleartextTraffic is true in debug builds only (spec 01 §3.4). -->
     <application

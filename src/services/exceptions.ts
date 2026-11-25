@@ -41,6 +41,16 @@ export const UnableToUpdateSensorEventsException = coded(
 );
 /** HubExceptions.dart: thrown by the event-history requests (event_requests.dart). */
 export const UnableToUpdateExceptions = coded('UnableToUpdateExceptions');
+
+/**
+ * frontend/lib/utilities/Exceptions/HubExceptions.dart's GenericPairToWifiException: a hub Wi-Fi
+ * pairing failure, with its code and the message shown.
+ */
+export class GenericPairToWifiException extends CodedException {
+  constructor(cause: string, readonly errorMessage: string) {
+    super('GenericPairToWifiException', cause);
+  }
+}
 /** AccountExceptions.dart: the event-history and firmware requests' failed auth(). */
 export const UpdateTokenFailedException = coded('UpdateTokenFailedException');
 /** HubExceptions.dart: the firmware requests (firmware_requests.dart). */
@@ -139,3 +149,25 @@ export const IdDoesNotMatchForSomeReasonException = coded(
 export const TypeDoesNotMatchForSomeReasonException = coded(
   'TypeDoesNotMatchForSomeReasonException',
 );
+
+/** dart:io's SocketException(message): a hub UDP send or bind that failed. */
+export class SocketException extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SocketException';
+  }
+  toString() {
+    return `SocketException: ${this.message}`;
+  }
+}
+
+/** Dart's ArgumentError(message) (dart:core), as Encryption.encryptDataBytes throws it. */
+export class ArgumentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ArgumentError';
+  }
+  toString() {
+    return `Invalid argument(s): ${this.message}`;
+  }
+}

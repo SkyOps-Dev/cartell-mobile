@@ -1,14 +1,23 @@
 // Port of fetchDevices, setDevice, addDevice, deleteDevice, updateDeviceData, the hub-settings
 // switches, queryHubHealth, pairToIntegrator, triggerIntegrator, and for the sensor screens
 // pairToSounder, isDeviceConnectedRequest and setPairingModeRequest, and for the firmware screens
-// startFwUpdateAndGetFileSize, from
+// startFwUpdateAndGetFileSize, and for hub Wi-Fi pairing probeHubRegistration, from
 // frontend/lib/services/requests/device_requests.dart (spec 04 §5). Flutter sends them to Django;
 // here they go to Node, which serves them since F05 (the hub messages since F07, the firmware start
-// since F12).
+// since F12). probeHubRegistration still goes to Django: the pairing wizard is built against Django
+// first and moved to Node as a step of its own.
 
-import { nodeBaseUrlHttp } from '../../config/environment';
+import { baseUrlHttp, nodeBaseUrlHttp } from '../../config/environment';
 import { Device, parseDevice } from '../../models/device';
 import type { Json } from '../../models/jsonParser';
+import {
+  classifyProbeFailure,
+  HubCheckUnavailable,
+  HubCheckUnavailableReason,
+  HubNotYetRegistered,
+  HubRegistered,
+  HubRegistrationCheck,
+} from '../../screens/devices/connectHubToWifi/hubRegistrationCheck';
 import {
   FirmwareUpdateRejectedException,
   NoHubInformationAvailableException,
@@ -17,6 +26,35 @@ import {
 import { reportError } from '../reportError';
 import { AuthRequestManager } from './authRequests';
 import { type HttpResponse, NetworkHelper } from './networkHelper';
+
+/**
+ * Has the hub registered a live connection yet? GET /devices/{id}/ (no auth() first: the requester
+ * already refreshes and retries once on a 401, and throws AuthExpiredException if that fails) →
+ * a non-2xx is `server`; otherwise the body through the Device parser (merged into the cached
+ * hub) → is_connected. Anything thrown becomes HubCheckUnavailable with its reason; nothing is
+ * reported per check (the poll reports one summary when it ends).
+ */
+export async function probeHubRegistration(
+  device: Device,
+): Promise<HubRegistrationCheck> {
+  try {
+    const response = await new NetworkHelper(
+      `${baseUrlHttp()}/devices/${device.id}/`,
+    ).getSecureData();
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      // PORT-GAP: log.w('Registration probe got HTTP ${res.statusCode}').
+      return new HubCheckUnavailable(HubCheckUnavailableReason.server);
+    }
+    const parsed = parseDevice(JSON.parse(response.body) as Json);
+    return parsed.device.isConnected
+      ? new HubRegistered()
+      : new HubNotYetRegistered();
+  } catch (error) {
+    // PORT-GAP: Sentry.addBreadcrumb(category 'pairing', 'registration probe unavailable',
+    // data {reason, errorType}, level info).
+    return new HubCheckUnavailable(classifyProbeFailure(error));
+  }
+}
 
 /** auth() → GET /devices/ → 200: the hubs, each through the Device parser; else befba. */
 export async function fetchDevices(): Promise<Device[]> {
@@ -42,13 +80,16 @@ export async function fetchDevices(): Promise<Device[]> {
  * server asks the hub, over its live connection, to report in. A status of 300 or more (a hub that
  * is not connected answers 400) is reported (70a42) and otherwise ignored.
  */
-export async function queryHubHealth(deviceId: number): Promise<void> {
+export async function queryHubHealth(
+  deviceId: number,
+  server: string = nodeBaseUrlHttp(),
+): Promise<void> {
   const status = await new AuthRequestManager().auth();
   if (status.failed) {
     throw new Error('An error occurred, please try again.');
   }
   const response = await new NetworkHelper(
-    `${nodeBaseUrlHttp()}/devices/${deviceId}/message/get_health/`,
+    `${server}/devices/${deviceId}/message/get_health/`,
   ).postSecureData({ body: {} });
   if (response.statusCode < 300) {
     // PORT-GAP: log.i(response.body); log.i('successful query').
@@ -145,17 +186,21 @@ export async function setPairingModeRequest(
 /**
  * One hub, fresh: auth() → the health request → GET /devices/{id}/ (Node, which serves it since
  * F05) → 200: the hub through the Device parser, merged into the cached one. A failed auth() is
- * reported as a54db and any other status as e412a; both throw.
+ * reported as a54db and any other status as e412a; both throw. `server` is Node by default; the
+ * pairing wizard's entry passes Django's address, as the whole wizard is on Django for now.
  */
-export async function setDevice(deviceId: number): Promise<Device> {
+export async function setDevice(
+  deviceId: number,
+  server: string = nodeBaseUrlHttp(),
+): Promise<Device> {
   const status = await new AuthRequestManager().auth();
   if (status.failed) {
     reportError(new NoHubInformationAvailableException('Error Code a54db:'));
     throw new NoHubInformationAvailableException('Failed to load data');
   }
-  await queryHubHealth(deviceId);
+  await queryHubHealth(deviceId, server);
   const response = await new NetworkHelper(
-    `${nodeBaseUrlHttp()}/devices/${deviceId}/`,
+    `${server}/devices/${deviceId}/`,
   ).getSecureData();
   if (response.statusCode === 200) {
     // PORT-GAP: log.i(response.body).

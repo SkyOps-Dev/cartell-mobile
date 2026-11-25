@@ -20,6 +20,7 @@ const CUPERTINO = 'CupertinoIcons';
 /** FontAwesomeIcons.x (IconDataSolid / IconDataRegular / IconDataBrands, as each is declared). */
 export const FontAwesomeIcons = {
   amazon: { codePoint: 0xf270, fontFamily: FA_BRANDS, advance: 0.875 },
+  arrowLeft: { codePoint: 0xf060, fontFamily: FA_SOLID },
   arrowLeftLong: { codePoint: 0xf177, fontFamily: FA_SOLID, advance: 1.125 },
   arrowRightFromBracket: { codePoint: 0xf08b, fontFamily: FA_SOLID },
   arrowRightToBracket: { codePoint: 0xf090, fontFamily: FA_SOLID },
@@ -76,6 +77,8 @@ export const FontAwesomeIcons = {
   phone: { codePoint: 0xf095, fontFamily: FA_SOLID },
   plus: { codePoint: 0x2b, fontFamily: FA_SOLID, advance: 0.875 },
   question: { codePoint: 0x3f, fontFamily: FA_SOLID, advance: 0.625 },
+  rotate: { codePoint: 0xf2f1, fontFamily: FA_SOLID },
+  rotateRight: { codePoint: 0xf2f9, fontFamily: FA_SOLID },
   rss: { codePoint: 0xf09e, fontFamily: FA_SOLID, advance: 0.875 },
   satelliteDish: { codePoint: 0xf7c0, fontFamily: FA_SOLID },
   towerBroadcast: {
@@ -99,10 +102,15 @@ export const Icons = {
   arrow_back_ios_new_rounded: { codePoint: 0xf570, fontFamily: MATERIAL },
   check_circle: { codePoint: 0xe159, fontFamily: MATERIAL },
   check_circle_outline: { codePoint: 0xe15a, fontFamily: MATERIAL },
+  circle: { codePoint: 0xe163, fontFamily: MATERIAL },
+  circle_outlined: { codePoint: 0xef53, fontFamily: MATERIAL },
   close: { codePoint: 0xe16a, fontFamily: MATERIAL },
+  electrical_services: { codePoint: 0xe228, fontFamily: MATERIAL },
   email_outlined: { codePoint: 0xf018, fontFamily: MATERIAL },
   error: { codePoint: 0xe237, fontFamily: MATERIAL },
   error_outline: { codePoint: 0xe238, fontFamily: MATERIAL },
+  help_outline: { codePoint: 0xe30b, fontFamily: MATERIAL },
+  lightbulb_outline: { codePoint: 0xe37c, fontFamily: MATERIAL },
   lock_outline: { codePoint: 0xe3b1, fontFamily: MATERIAL },
   menu: { codePoint: 0xe3dc, fontFamily: MATERIAL },
   person_outline: { codePoint: 0xe497, fontFamily: MATERIAL },
@@ -111,8 +119,18 @@ export const Icons = {
   radio_button_checked: { codePoint: 0xe503, fontFamily: MATERIAL },
   radio_button_off: { codePoint: 0xe504, fontFamily: MATERIAL },
   router: { codePoint: 0xe542, fontFamily: MATERIAL },
+  schedule: { codePoint: 0xe556, fontFamily: MATERIAL },
   sensors: { codePoint: 0xe576, fontFamily: MATERIAL },
+  sync: { codePoint: 0xe62f, fontFamily: MATERIAL },
+  travel_explore: { codePoint: 0xe67c, fontFamily: MATERIAL },
+  visibility: { codePoint: 0xe6bd, fontFamily: MATERIAL },
+  visibility_off: { codePoint: 0xe6be, fontFamily: MATERIAL },
   warning_amber_rounded: { codePoint: 0xf02a0, fontFamily: MATERIAL },
+  wifi: { codePoint: 0xe6e7, fontFamily: MATERIAL },
+  wifi_1_bar: { codePoint: 0xf07d8, fontFamily: MATERIAL },
+  wifi_2_bar: { codePoint: 0xf07d9, fontFamily: MATERIAL },
+  wifi_find: { codePoint: 0xf05a8, fontFamily: MATERIAL },
+  wifi_off: { codePoint: 0xe6eb, fontFamily: MATERIAL },
 } satisfies Record<string, IconData>;
 
 /** CupertinoIcons.x: the cupertino_icons 1.0.9 font (Flutter 3.41.9 cupertino/icons.dart). */

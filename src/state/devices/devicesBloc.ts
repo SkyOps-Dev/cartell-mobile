@@ -8,9 +8,10 @@
 // and the error recovery. The sensor screens' states and events (sensors list, sensor page, its
 // rename, coordinates and About, and the three Add Sensor steps). The hub's and the sensor's
 // event history. The Firmware screen and an update's progress.
-// PORT-GAP: GoBackNDevicesStatesEvent, and the other states and events, which arrive with the
-// screens they show (pairing).
+// The pairing wizard's state and GoToConnectHubBloc.
+// PORT-GAP: GoBackNDevicesStatesEvent (bloc/devices/events/go_back_n_states_event.dart).
 
+import { baseUrlHttp } from '../../config/environment';
 import type { Device } from '../../models/device';
 import { Event } from '../../models/event';
 import type { Firmware, FirmwareUpdate } from '../../models/firmware';
@@ -96,6 +97,17 @@ export class IsShowingADeviceState extends DevicesState {
 
   get props() {
     return [...super.props, this.device, this.refresh];
+  }
+}
+
+/** The hub Wi-Fi pairing wizard (HubConnectWidget), for this hub. Poppable. */
+export class IsConnectingHubState extends DevicesState {
+  constructor(readonly device: Device) {
+    super();
+  }
+
+  get props() {
+    return [...super.props, this.device];
   }
 }
 
@@ -423,6 +435,22 @@ export class GoToSpecificDeviceEvent implements DevicesEvent {
       refresh => new IsShowingADeviceState(this.device, refresh),
       () => setDevice(this.device.id),
     );
+  }
+}
+
+/**
+ * Into the pairing wizard (frontend/lib/bloc/devices/events/go_to_connect_hub_bloc.dart):
+ * deliberately fetch-first, unlike every
+ * other navigation. The loading screen, then the hub fetched fresh (setDevice: the health request,
+ * then the hub), then the wizard. On Django for now, as the whole wizard is.
+ */
+export class GoToConnectHubBloc implements DevicesEvent {
+  constructor(readonly device: Device) {}
+
+  async handleEvent(_bloc: DevicesBloc, emit: Emitter<DevicesState>) {
+    emit(new IsLoadingDevicesScreenState());
+    const refreshedDevice = await setDevice(this.device.id, baseUrlHttp());
+    emit(new IsConnectingHubState(refreshedDevice));
   }
 }
 

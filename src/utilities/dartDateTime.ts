@@ -20,6 +20,32 @@ export class DartDateTime {
   toDate(): Date {
     return new Date(Math.floor(this.microsecondsSinceEpoch / 1000));
   }
+
+  /** DateTime.toString: "2026-11-23 10:15:30.123456", with a trailing Z when UTC. */
+  toString(): string {
+    const date = this.toDate();
+    const utc = this.isUtc;
+    const pad = (value: number, width = 2) =>
+      String(value).padStart(width, '0');
+    const year = utc ? date.getUTCFullYear() : date.getFullYear();
+    const month = utc ? date.getUTCMonth() + 1 : date.getMonth() + 1;
+    const day = utc ? date.getUTCDate() : date.getDate();
+    const hour = utc ? date.getUTCHours() : date.getHours();
+    const minute = utc ? date.getUTCMinutes() : date.getMinutes();
+    const second = utc ? date.getUTCSeconds() : date.getSeconds();
+    const micros =
+      ((this.microsecondsSinceEpoch % 1_000_000) + 1_000_000) % 1_000_000;
+    const yearText =
+      year < 0
+        ? `-${pad(-year, 4)}`
+        : year >= 10000
+        ? `+${year}`
+        : pad(year, 4);
+    return (
+      `${yearText}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:` +
+      `${pad(second)}.${pad(micros, 6)}${utc ? 'Z' : ''}`
+    );
+  }
 }
 
 // DateTime._parseFormat.

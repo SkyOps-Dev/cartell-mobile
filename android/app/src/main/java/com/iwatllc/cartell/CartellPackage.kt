@@ -16,6 +16,8 @@ class CartellPackage : ReactPackage {
           GeolocatorModule(reactContext),
           OrientationModule(reactContext),
           NotificationsModule(reactContext),
+          WifiIotModule(reactContext),
+          NetworkInfoModule(reactContext),
       )
 
   override fun createViewManagers(

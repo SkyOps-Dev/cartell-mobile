@@ -130,6 +130,18 @@ android {
     }
 }
 
+// The "rn" copy's release APK gets its own id (com.iwatllc.cartell.rn.release, label "Cartell RN
+// Release"), so a standalone release install sits next to the Metro-served dev build instead of
+// replacing it. Set per variant here because a release applicationIdSuffix would also rename the
+// real app's release (standardRelease). Its label is in src/rnRelease/res/; its Firebase file is
+// src/rn/release/google-services.json, not src/rnRelease/: google-services 4.5.0 tries the deepest
+// folder first and src/rnRelease/ ties with src/rn/, which wins (verified 2026-11-25).
+androidComponents {
+    onVariants(selector().withFlavor(new kotlin.Pair("app", "rn")).withBuildType("release")) { variant ->
+        variant.applicationId.set("com.iwatllc.cartell.rn.release")
+    }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")

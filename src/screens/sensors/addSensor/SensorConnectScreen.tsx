@@ -312,5 +312,5 @@ const styles = StyleSheet.create({
   gap15: { height: 15 },
   gap45: { height: 45 },
   gap20: { height: 20 },
-  cancelPadding: { paddingHorizontal: 20 },
+  cancelPadding: { paddingHorizontal: 20, alignSelf: 'stretch' },
 });

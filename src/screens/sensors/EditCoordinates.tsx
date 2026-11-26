@@ -222,7 +222,6 @@ export function EditCoordinates({
                     />
                     <View style={styles.gap25} />
                     <RoundedButton
-                      stretch
                       onPressed={() => {
                         getLocation().catch(reportError);
                       }}
@@ -233,7 +232,6 @@ export function EditCoordinates({
                       iconColor={kCartellBlack}
                     />
                     <RoundedButton
-                      stretch
                       onPressed={() => {
                         updateCoordinates().catch(reportError);
                       }}

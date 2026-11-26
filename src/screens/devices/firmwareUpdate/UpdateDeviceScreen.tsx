@@ -341,7 +341,7 @@ export function UpdateDeviceScreen({
               </View>
               <View style={styles.gap25} />
               {hasFailed && (
-                <View style={styles.padH20}>
+                <View style={styles.buttonPadH20}>
                   <RoundedButton
                     buttonColor={kCartellYellow}
                     buttonTitleColor={MaterialColors.black}
@@ -466,6 +466,7 @@ const styles = StyleSheet.create({
   centre: { alignItems: 'center', justifyContent: 'center' },
   liveRegion: { alignItems: 'center' },
   padH20: { paddingHorizontal: 20 },
+  buttonPadH20: { paddingHorizontal: 20, alignSelf: 'stretch' },
   divider: { alignSelf: 'stretch', paddingHorizontal: 20 },
   reference: { paddingTop: 15 },
   gap10: { height: 10 },

@@ -105,7 +105,6 @@ function Init({
       </View>
       <View style={styles.infoGap} />
       <RoundedButton
-        stretch
         title="Test Connection"
         buttonTitleColor={kCartellBlack}
         buttonColor={kCartellYellow}
@@ -121,7 +120,6 @@ function Init({
       />
       {__DEV__ && (
         <RoundedButton
-          stretch
           title="Verify Sentry Setup"
           buttonTitleColor={kCartellBlack}
           buttonColor={kCartellYellow}
@@ -134,7 +132,6 @@ function Init({
       )}
       {__DEV__ && (
         <RoundedButton
-          stretch
           onPressed={() => {
             SecureStorage.setShowFeedback(true);
           }}
@@ -145,7 +142,6 @@ function Init({
       )}
       {isTestBuild && (
         <RoundedButton
-          stretch
           buttonColor={kCartellYellow}
           buttonTitleColor={kCartellBlack}
           title="Change Environment"
@@ -153,7 +149,6 @@ function Init({
         />
       )}
       <RoundedButton
-        stretch
         title="Close"
         buttonTitleColor={kCartellBlack}
         buttonColor={kCartellBlue}
@@ -217,7 +212,6 @@ function ModifyBaseUrl({ onDone }: { onDone: () => void }) {
       {option('Production', 'cartellap.com', 'LIVE', true)}
       <View style={styles.gap12} />
       <RoundedButton
-        stretch
         title="Back"
         buttonTitleColor={kCartellBlack}
         buttonColor={kCartellBlue}

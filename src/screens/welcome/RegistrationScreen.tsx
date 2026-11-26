@@ -264,7 +264,6 @@ export function RegistrationScreen({
                 />
                 <View style={styles.gap32} />
                 <RoundedButton
-                  stretch
                   onPressed={
                     isSubmitting
                       ? null

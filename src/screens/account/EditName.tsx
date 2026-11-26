@@ -102,7 +102,6 @@ export function EditName({ user }: { user: User }) {
                     onChangeText={setLastName}
                   />
                   <RoundedButton
-                    stretch
                     padding={styles.buttonPadding}
                     onPressed={() => {
                       // Not awaited (Q6); a failure was an uncaught error in Flutter.

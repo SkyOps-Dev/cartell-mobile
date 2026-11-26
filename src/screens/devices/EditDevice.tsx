@@ -98,7 +98,6 @@ export function EditDevice({ device }: { device: Device }) {
                 />
                 <View style={styles.gap25} />
                 <RoundedButton
-                  stretch
                   padding={styles.buttonPadding}
                   onPressed={() => {
                     updateDevice().catch(reportError);

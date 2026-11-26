@@ -84,3 +84,46 @@ describe('RoundedButton semantics', () => {
     expect(button.props.accessibilityState).toEqual({ disabled: true });
   });
 });
+
+describe('RoundedButton width', () => {
+  /** alignSelf of the pill and of every ancestor up to the root. */
+  function alignSelves(button: Node): Array<string | undefined> {
+    const out: Array<string | undefined> = [];
+    let node: Node | null = button.parent;
+    while (node) {
+      const style = StyleSheet.flatten(node.props.style as never) as
+        | { alignSelf?: string; backgroundColor?: string }
+        | undefined;
+      if (style?.backgroundColor || out.length > 0) {
+        out.push(style?.alignSelf);
+      }
+      node = node.parent;
+    }
+    return out;
+  }
+
+  // Flutter's button is as wide as its Row, which takes all the width it is given
+  // (button.dart:414, Center(widthFactor: 1.0)): it fills a centred column, not just a stretched one.
+  test('fills its parent, the pill and its padding both stretched', async () => {
+    await render(<RoundedButton onPressed={() => {}} title="Yes" />);
+    const [pill, padding] = alignSelves(
+      screen.getByRole('button', { name: 'Yes' }),
+    );
+    expect(pill).toBe('stretch');
+    expect(padding).toBe('stretch');
+  });
+
+  test('a caller padding replaces the vertical 8 but still fills', async () => {
+    await render(
+      <RoundedButton
+        onPressed={() => {}}
+        title="Yes"
+        padding={{ paddingBottom: 25 }}
+      />,
+    );
+    const [, padding] = alignSelves(
+      screen.getByRole('button', { name: 'Yes' }),
+    );
+    expect(padding).toBe('stretch');
+  });
+});

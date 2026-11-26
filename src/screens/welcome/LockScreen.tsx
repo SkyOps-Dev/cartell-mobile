@@ -69,7 +69,6 @@ export function LockScreen({ message }: { message: string | null }) {
             )}
             <View style={styles.gap40} />
             <RoundedButton
-              stretch
               title="Unlock"
               icon={FontAwesomeIcons.fingerprint}
               buttonColor={kCartellBlue}

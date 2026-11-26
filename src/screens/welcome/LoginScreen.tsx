@@ -206,7 +206,6 @@ export function LoginScreen({
                 </View>
                 <View style={styles.gap24} />
                 <RoundedButton
-                  stretch
                   buttonTitleColor={kCartellBlack}
                   title="Log In"
                   buttonColor={kCartellBlue}

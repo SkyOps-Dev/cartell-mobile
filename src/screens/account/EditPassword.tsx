@@ -268,7 +268,6 @@ export function EditPassword({ setPassword = updateUserPassword }: Props) {
                     )}
                     <View style={styles.gap16} />
                     <RoundedButton
-                      stretch
                       onPressed={
                         isSubmitting
                           ? null

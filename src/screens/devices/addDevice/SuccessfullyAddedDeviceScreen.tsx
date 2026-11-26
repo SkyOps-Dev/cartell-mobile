@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   expanded: { flex: 1, alignSelf: 'stretch' },
   column: { alignItems: 'center' },
   textPadding: { paddingHorizontal: 14 },
-  buttonPadding: { paddingHorizontal: 20 },
+  buttonPadding: { paddingHorizontal: 20, alignSelf: 'stretch' },
   gap10: { height: 10 },
   gap20: { height: 20 },
   gap65: { height: 65 },

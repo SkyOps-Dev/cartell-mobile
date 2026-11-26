@@ -114,7 +114,6 @@ export function EditSensor({ device, sensor, save = updateSensorData }: Props) {
                 />
                 <View style={styles.gap25} />
                 <RoundedButton
-                  stretch
                   padding={styles.buttonPadding}
                   onPressed={() => {
                     updateSensor().catch(reportError);

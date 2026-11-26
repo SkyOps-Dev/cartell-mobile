@@ -4,7 +4,12 @@
 // onPressed is null) → MaterialButton(minWidth 200, height 45) → Padding(5) →
 // Row(centred)[icon, 20, Flexible(title), trailing icon (padding h15)].
 // The title uses MaterialButton's labelLarge (14, w500, 0.1, ×1.43) in buttonTitleColor.
-// Inside a parent that stretches (the auth screens), pass `stretch`.
+//
+// Width: always the parent's full width. RawMaterialButton centres its child with
+// Center(widthFactor: 1.0) (button.dart:414), so the button is as wide as its Row, and the Row
+// (mainAxisSize.max) takes all the width it is given. minWidth 200 never shows: every call site
+// sits in a Column wider than that. Measured on step 3 of pairing (RMX5070, 2026-11-26): the pills
+// span the content width, 20 in from each screen edge.
 
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
@@ -28,8 +33,6 @@ type Props = {
   onPressed?: (() => void) | null;
   /** Replaces the default vertical 8 padding. */
   padding?: ViewStyle;
-  /** True when the parent Column uses crossAxisAlignment.stretch. */
-  stretch?: boolean;
 };
 
 export function RoundedButton({
@@ -43,15 +46,14 @@ export function RoundedButton({
   trailingIconColor,
   onPressed,
   padding,
-  stretch = false,
 }: Props) {
   const enabled = onPressed !== null && onPressed !== undefined;
   return (
-    <View style={padding ?? styles.defaultPadding}>
+    <View style={[styles.fill, padding ?? styles.defaultPadding]}>
       <MaterialPill
         color={enabled ? buttonColor ?? 'transparent' : kCartellLightGray}
         elevation={5}
-        minWidth={stretch ? 'stretch' : 200}
+        minWidth="stretch"
         height={45}
         onPress={enabled ? onPressed : undefined}
         accessibilityLabel={title}
@@ -83,6 +85,7 @@ export function RoundedButton({
 }
 
 const styles = StyleSheet.create({
+  fill: { alignSelf: 'stretch' },
   defaultPadding: { paddingVertical: 8 },
   content: {
     padding: 5,

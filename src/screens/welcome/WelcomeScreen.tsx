@@ -96,7 +96,6 @@ export function WelcomeScreen() {
           </View>
           <View style={{ height: screenHeight / 15 }} />
           <RoundedButton
-            stretch
             title="Log In"
             buttonColor={kCartellBlue}
             buttonTitleColor={kCartellBlack}
@@ -105,7 +104,6 @@ export function WelcomeScreen() {
             onPressed={() => bloc.add(new GoToLoginScreenEvent())}
           />
           <RoundedButton
-            stretch
             title="Register"
             buttonTitleColor={kCartellBlack}
             buttonColor={kCartellYellow}

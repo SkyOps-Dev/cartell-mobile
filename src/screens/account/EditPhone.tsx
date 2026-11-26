@@ -109,7 +109,6 @@ export function EditPhone(_props: { user: User }) {
           />
           <View style={styles.gap25} />
           <RoundedButton
-            stretch
             onPressed={() => {
               // Not awaited (Q6); a failure was an uncaught error in Flutter.
               updateUserData({ body: { phone_no: phoneNumber } }).catch(

@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   },
   flexible: { flexShrink: 1 },
   gap10: { width: 10 },
-  sounderPadding: { paddingHorizontal: 25 },
+  sounderPadding: { paddingHorizontal: 25, alignSelf: 'stretch' },
   lastUpdatedPadding: {
     paddingHorizontal: 10,
     paddingVertical: 20,

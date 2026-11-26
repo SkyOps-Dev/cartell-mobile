@@ -56,6 +56,8 @@ export const ColorScheme = {
   onSurfaceVariant: '#CAC4D0',
   outline: '#938F99',
   outlineVariant: '#49454F',
+  /** The same as primary (theme_data.dart:3485). The tint of a raised Material 3 surface. */
+  surfaceTint: '#D0BCFF',
 } as const;
 
 /**
@@ -79,6 +81,53 @@ export function withOpacity(hex: string, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 /* eslint-enable no-bitwise */
+
+/** ElevationOverlay._surfaceTintElevationOpacities (elevation_overlay.dart:171): [elevation, opacity]. */
+const SURFACE_TINT_OPACITIES: ReadonlyArray<readonly [number, number]> = [
+  [0, 0],
+  [1, 0.05],
+  [3, 0.08],
+  [6, 0.11],
+  [8, 0.12],
+  [12, 0.14],
+];
+
+/** ElevationOverlay._surfaceTintOpacityForElevation: the table, interpolated, clamped at both ends. */
+function surfaceTintOpacityForElevation(elevation: number): number {
+  const first = SURFACE_TINT_OPACITIES[0];
+  const last = SURFACE_TINT_OPACITIES[SURFACE_TINT_OPACITIES.length - 1];
+  if (elevation <= first[0]) return first[1];
+  if (elevation >= last[0]) return last[1];
+  const upper = SURFACE_TINT_OPACITIES.findIndex(([e]) => e >= elevation);
+  const [upperElevation, upperOpacity] = SURFACE_TINT_OPACITIES[upper];
+  if (upperElevation === elevation) return upperOpacity;
+  const [lowerElevation, lowerOpacity] = SURFACE_TINT_OPACITIES[upper - 1];
+  const t = (elevation - lowerElevation) / (upperElevation - lowerElevation);
+  return lowerOpacity + (upperOpacity - lowerOpacity) * t;
+}
+
+/**
+ * ElevationOverlay.applySurfaceTint for an opaque `hex` (#RRGGBB): `tint` at the elevation's opacity
+ * laid over it, as #RRGGBB. The opacity goes through Color.withOpacity first, which rounds it to a
+ * whole alpha (0.08 → 20/255). Measured on the Flutter app bar (RMX5070, 2026-11-26): #25282A
+ * tinted with #D0BCFF at elevation 3 is #32343B.
+ */
+export function applySurfaceTint(
+  hex: string,
+  tint: string,
+  elevation: number,
+): string {
+  const alpha =
+    Math.round(255 * surfaceTintOpacityForElevation(elevation)) / 255;
+  let out = '#';
+  for (const offset of [1, 3, 5]) {
+    const back = parseInt(hex.slice(offset, offset + 2), 16);
+    const front = parseInt(tint.slice(offset, offset + 2), 16);
+    const blended = Math.round(alpha * front + (1 - alpha) * back);
+    out += blended.toString(16).padStart(2, '0').toUpperCase();
+  }
+  return out;
+}
 
 /**
  * ThemeData.estimateBrightnessForColor for `hex` (#RRGGBB): 'dark' asks for light content on

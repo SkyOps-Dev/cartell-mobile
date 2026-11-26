@@ -32,7 +32,7 @@
 //   Return (blue) → the Sensors list.
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { RoundedButton } from '../../../components/buttons/RoundedButton';
 import { Icon } from '../../../components/icons/Icon';
@@ -41,6 +41,7 @@ import { AppScaffold } from '../../../components/layout/AppScaffold';
 import { PopScope } from '../../../components/layout/PopScope';
 import { SafeArea } from '../../../components/layout/SafeArea';
 import { SpinKitPulse } from '../../../components/progress/SpinKitPulse';
+import { ScaffoldScrollView } from '../../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../../models/device';
 import type { Sensor } from '../../../models/sensor';
 import { ImmediateTimer } from '../../../services/immediateTimer';
@@ -193,7 +194,7 @@ export function SensorConnectScreen({
     <AppScaffold
       body={
         <PopScope canPop onPopInvoked={toSensors}>
-          <ScrollView
+          <ScaffoldScrollView
             style={styles.expanded}
             contentContainerStyle={styles.centre}
           >
@@ -272,7 +273,7 @@ export function SensorConnectScreen({
                 )}
               </View>
             </SafeArea>
-          </ScrollView>
+          </ScaffoldScrollView>
         </PopScope>
       }
     />

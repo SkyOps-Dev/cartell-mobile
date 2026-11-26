@@ -15,7 +15,7 @@
 // A failure shows nothing and stays here (Q27).
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -25,6 +25,7 @@ import { FontAwesomeIcons } from '../../components/icons/iconData';
 import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import type { Sensor } from '../../models/sensor';
 import { reportError } from '../../services/reportError';
@@ -83,7 +84,7 @@ export function EditSensor({ device, sensor, save = updateSensorData }: Props) {
       body={
         <PopScope canPop onPopInvoked={backToSensor}>
           <SafeArea style={styles.expanded}>
-            <ScrollView>
+            <ScaffoldScrollView>
               <View style={styles.backRow}>
                 <IconButton
                   icon={FontAwesomeIcons.arrowLeftLong}
@@ -125,7 +126,7 @@ export function EditSensor({ device, sensor, save = updateSensorData }: Props) {
                   iconColor={kCartellBlack}
                 />
               </View>
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

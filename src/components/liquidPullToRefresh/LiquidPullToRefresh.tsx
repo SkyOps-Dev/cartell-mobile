@@ -36,6 +36,10 @@
 // With showChildOpacityTransition the child fades as the band grows; without it, it slides down by
 // position × height × 1.5, which keeps it just below the band. Only the scroll view itself is
 // ported (the package wraps any child with a Scrollable); show() is not, since no screen calls it.
+//
+// Its scroll updates also reach the Scaffold's app bar in Flutter (they bubble up past the
+// package), so each one sets the Scaffold's scrolled-under flag (scrolledUnder.ts) from the scroll
+// handler this view already runs. The flag notifies only on a change.
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -73,6 +77,7 @@ import {
   transformElasticOut,
   transformInterval,
 } from '../../theme/curves';
+import { isScrolledUnder, useSetScrolledUnder } from '../layout/scrolledUnder';
 import { curveHillPath } from './clipper';
 import { CircularProgress, CircularProgressFrame } from './CircularProgress';
 
@@ -159,6 +164,7 @@ export function LiquidPullToRefresh({
   overScrollMode,
   ...scrollViewProps
 }: LiquidPullToRefreshProps) {
+  const setScrolledUnder = useSetScrolledUnder();
   // The controllers.
   const spring = useSharedValue(0);
   const progressing = useSharedValue(0);
@@ -349,6 +355,7 @@ export function LiquidPullToRefresh({
     const y = event.nativeEvent.contentOffset.y;
     const scrollDelta = y - scrollY.current;
     scrollY.current = y;
+    setScrolledUnder(isScrolledUnder(y));
     if (pulling()) {
       if (y > 0) {
         dismiss('canceled');

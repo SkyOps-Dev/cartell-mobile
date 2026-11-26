@@ -14,7 +14,7 @@
 // never shown (quirk Q6). Empty names are not checked (the error flags are hard-coded off).
 
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -24,6 +24,7 @@ import { FontAwesomeIcons } from '../../components/icons/iconData';
 import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { User } from '../../models/user';
 import { reportError } from '../../services/reportError';
 import { updateUserData } from '../../services/requests/userRequests';
@@ -64,7 +65,7 @@ export function EditName({ user }: { user: User }) {
         <PopScope canPop={false} onPopInvoked={goBack}>
           <SafeArea style={styles.expanded}>
             <View style={styles.expanded} onLayout={onLayout}>
-              <ScrollView contentContainerStyle={styles.column}>
+              <ScaffoldScrollView contentContainerStyle={styles.column}>
                 <View style={styles.backPadding}>
                   <IconButton
                     icon={FontAwesomeIcons.arrowLeftLong}
@@ -117,7 +118,7 @@ export function EditName({ user }: { user: User }) {
                     iconColor={kCartellBlack}
                   />
                 </View>
-              </ScrollView>
+              </ScaffoldScrollView>
             </View>
           </SafeArea>
         </PopScope>

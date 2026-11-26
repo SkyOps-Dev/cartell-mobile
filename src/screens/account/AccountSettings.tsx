@@ -31,7 +31,7 @@
 // popup just stays open.
 
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { ConditionalViewWidget } from '../../components/ConditionalViewWidget';
@@ -51,6 +51,7 @@ import {
 } from '../../components/popups/PopupMenu';
 import { popPopup, showPopupMessage } from '../../components/popups/popups';
 import { ReusableListing } from '../../components/ReusableListing';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Profile } from '../../models/profile';
 import type { User } from '../../models/user';
 import { BiometricService } from '../../services/biometricService';
@@ -217,7 +218,7 @@ export function AccountSettings({ user, profile }: Props) {
       body={
         <PopScope canPop onPopInvoked={goToHubs}>
           <SafeArea style={styles.expanded}>
-            <ScrollView contentContainerStyle={styles.column}>
+            <ScaffoldScrollView contentContainerStyle={styles.column}>
               <View style={styles.topRow}>
                 <IconButton
                   icon={FontAwesomeIcons.arrowLeftLong}
@@ -383,7 +384,7 @@ export function AccountSettings({ user, profile }: Props) {
                   {amberDivider(5)}
                 </View>
               </View>
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

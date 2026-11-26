@@ -2,6 +2,14 @@
 // title in a 56 dp toolbar below the status bar, on one solid colour that fills the status bar
 // too. Elevation 0, so no shadow.
 //
+// Scrolled under: while content in its Scaffold is scrolled up under it (scrolledUnder.ts), the
+// bar is raised to elevation 3 (_AppBarDefaultsM3.scrolledUnderElevation). Its shadow colour is
+// transparent, so the only change is the colour: the theme's surface tint (#D0BCFF) at 8% over
+// it, status bar area included (#25282A becomes #32343B). It switches in one frame: with no shape
+// the Material takes AnimatedPhysicalModel's fast path, which does not animate the colour
+// (material.dart:511-528). The status bar icons stay as they were: Flutter picks them from the
+// untinted colour.
+//
 // Layout is NavigationToolbar's (widgets/navigation_toolbar.dart):
 // - leading: a 56-wide box at the start, full toolbar height, its IconButton centred
 //   (_kLeadingWidth). Scaffolds with a drawer get the DrawerButton here (DrawerButton.tsx).
@@ -26,13 +34,25 @@ import React, { useEffect, useState } from 'react';
 import { Image, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { estimateBrightnessForColor } from '../../theme/colors';
+import {
+  applySurfaceTint,
+  ColorScheme,
+  estimateBrightnessForColor,
+} from '../../theme/colors';
+import {
+  useValueListenable,
+  ValueNotifier,
+} from '../../utilities/valueNotifier';
 import { DrawerButton } from '../buttons/DrawerButton';
 import { useScaffold } from './Scaffold';
 
 const TOOLBAR_HEIGHT = 56; // kToolbarHeight
 const LEADING_WIDTH = 56; // _kLeadingWidth
 const MIDDLE_SPACING = 16; // NavigationToolbar.kMiddleSpacing
+const SCROLLED_UNDER_ELEVATION = 3; // _AppBarDefaultsM3.scrolledUnderElevation
+
+/** Outside a Scaffold nothing can scroll under the bar. */
+const neverScrolledUnder = new ValueNotifier(false);
 
 type Props = {
   title: React.ReactNode;
@@ -52,6 +72,16 @@ export function AppBar({
 }: Props) {
   const { top } = useSafeAreaInsets();
   const scaffold = useScaffold();
+  const scrolledUnder = useValueListenable(
+    scaffold?.scrolledUnder ?? neverScrolledUnder,
+  );
+  const color = scrolledUnder
+    ? applySurfaceTint(
+        backgroundColor,
+        ColorScheme.surfaceTint,
+        SCROLLED_UNDER_ELEVATION,
+      )
+    : backgroundColor;
   const leading =
     leadingProp ?? (scaffold?.hasDrawer ? <DrawerButton /> : undefined);
   const [actionsWidth, setActionsWidth] = useState(0);
@@ -73,7 +103,7 @@ export function AppBar({
     );
   }, [backgroundColor]);
   return (
-    <View style={{ backgroundColor, paddingTop: top }}>
+    <View style={{ backgroundColor: color, paddingTop: top }}>
       <View style={styles.toolbar}>
         {leading !== undefined && <View style={styles.leading}>{leading}</View>}
         <View style={[styles.middle, symmetric]}>{title}</View>

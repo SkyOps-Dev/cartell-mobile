@@ -27,6 +27,7 @@ import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { Divider } from '../../components/lists/Divider';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import { GoToSpecificDeviceEvent } from '../../state/devices/devicesBloc';
 import { useReadDevicesBloc } from '../../state/devices/DevicesBlocContext';
@@ -66,7 +67,7 @@ export function DeviceMeta({ device, refresh = RefreshState.ready }: Props) {
         <PopScope canPop onPopInvoked={backToHub}>
           <SafeArea style={styles.expanded}>
             <View style={styles.expanded} onLayout={onLayout}>
-              <ScrollView>
+              <ScaffoldScrollView>
                 <View style={styles.backRow}>
                   <IconButton
                     icon={FontAwesomeIcons.arrowLeftLong}
@@ -110,7 +111,7 @@ export function DeviceMeta({ device, refresh = RefreshState.ready }: Props) {
                     </ScrollView>
                   </View>
                 </View>
-              </ScrollView>
+              </ScaffoldScrollView>
             </View>
           </SafeArea>
         </PopScope>

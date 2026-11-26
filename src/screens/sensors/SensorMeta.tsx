@@ -15,7 +15,7 @@
 // models, and the page shows them when it next redraws.
 
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { FontAwesomeIcons } from '../../components/icons/iconData';
@@ -24,6 +24,7 @@ import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { sensorImage } from '../../components/sensors/SensorCard';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import type { Sensor } from '../../models/sensor';
 import { GoToSpecificSensorScreenEvent } from '../../state/devices/devicesBloc';
@@ -56,7 +57,7 @@ export function SensorMeta({
       body={
         <PopScope canPop onPopInvoked={backToSensor}>
           <SafeArea style={styles.expanded}>
-            <ScrollView>
+            <ScaffoldScrollView>
               <View style={styles.backRow}>
                 <IconButton
                   icon={FontAwesomeIcons.arrowLeftLong}
@@ -88,7 +89,7 @@ export function SensorMeta({
                 }
                 fontSize={16}
               />
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

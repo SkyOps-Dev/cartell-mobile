@@ -34,7 +34,7 @@
 // which also tells a connected hub about an onboard change at once (since F07).
 
 import React, { useEffect, useReducer, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { ElevatedButton } from '../../components/buttons/ElevatedButton';
 import { IconButton } from '../../components/buttons/IconButton';
@@ -47,6 +47,7 @@ import { SafeArea } from '../../components/layout/SafeArea';
 import { Divider } from '../../components/lists/Divider';
 import type { Device } from '../../models/device';
 import { showSuccess } from '../../components/popups/toasts';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import { reportError } from '../../services/reportError';
 import {
   pairToIntegrator,
@@ -117,7 +118,7 @@ export function DeviceSettingsScreen({
       body={
         <PopScope canPop onPopInvoked={backToHub}>
           <SafeArea style={styles.expanded}>
-            <ScrollView persistentScrollbar testID="hub-settings">
+            <ScaffoldScrollView persistentScrollbar testID="hub-settings">
               <View style={styles.backRow}>
                 <IconButton
                   icon={FontAwesomeIcons.arrowLeftLong}
@@ -261,7 +262,7 @@ export function DeviceSettingsScreen({
                 />
               </SwitchRow>
               <RowDivider />
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

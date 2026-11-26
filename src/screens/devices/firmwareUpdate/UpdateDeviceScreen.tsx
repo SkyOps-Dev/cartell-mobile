@@ -17,7 +17,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -44,6 +43,7 @@ import { SafeArea } from '../../../components/layout/SafeArea';
 import { Divider } from '../../../components/lists/Divider';
 import { popPopup, showAlertDialog } from '../../../components/popups/popups';
 import { CircularProgressIndicator } from '../../../components/progress/CircularProgressIndicator';
+import { ScaffoldScrollView } from '../../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../../models/device';
 import type { Firmware } from '../../../models/firmware';
 import {
@@ -312,7 +312,7 @@ export function UpdateDeviceScreen({
               leave();
             }}
           >
-            <ScrollView
+            <ScaffoldScrollView
               style={styles.expanded}
               contentContainerStyle={styles.column}
             >
@@ -379,7 +379,7 @@ export function UpdateDeviceScreen({
                   <Text style={reference}>{`Reference: ${status.code}`}</Text>
                 </View>
               )}
-            </ScrollView>
+            </ScaffoldScrollView>
           </PopScope>
         </SafeArea>
       }

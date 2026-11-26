@@ -12,13 +12,7 @@
 //   "Update this hub?" popup, greyed while the hub is offline), or "Firmware is up to date"; 25.
 
 import React from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { RoundedButton } from '../../../components/buttons/RoundedButton';
 import { IconButton } from '../../../components/buttons/IconButton';
@@ -31,6 +25,7 @@ import { AppScaffold } from '../../../components/layout/AppScaffold';
 import { PopScope } from '../../../components/layout/PopScope';
 import { SafeArea } from '../../../components/layout/SafeArea';
 import { popPopup, showPopupMessage } from '../../../components/popups/popups';
+import { ScaffoldScrollView } from '../../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../../models/device';
 import type { Firmware, FirmwareUpdate } from '../../../models/firmware';
 import {
@@ -217,7 +212,7 @@ export function FirmwareUpdates({
           }}
         >
           <SafeArea style={styles.expanded}>
-            <ScrollView
+            <ScaffoldScrollView
               style={styles.expanded}
               contentContainerStyle={styles.column}
             >
@@ -263,7 +258,7 @@ export function FirmwareUpdates({
               <View style={styles.gap10} />
               {offers}
               <View style={styles.gap25} />
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

@@ -20,7 +20,7 @@
 // page. A failed save shows nothing (Q27). "DMS format" is what the screen says; it reads decimals.
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -31,6 +31,7 @@ import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { showPopupMessage } from '../../components/popups/popups';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import {
   dartDoubleToString,
@@ -182,7 +183,7 @@ export function EditCoordinates({
         <PopScope canPop onPopInvoked={backToSensor}>
           <SafeArea style={styles.expanded}>
             <View style={styles.expanded} onLayout={onLayout}>
-              <ScrollView>
+              <ScaffoldScrollView>
                 <View style={styles.column}>
                   <View style={styles.backRow}>
                     <IconButton
@@ -244,7 +245,7 @@ export function EditCoordinates({
                     />
                   </View>
                 </View>
-              </ScrollView>
+              </ScaffoldScrollView>
             </View>
           </SafeArea>
         </PopScope>

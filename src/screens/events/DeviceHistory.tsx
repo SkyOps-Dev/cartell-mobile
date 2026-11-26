@@ -14,7 +14,7 @@
 // Pull to refresh: the list cleared, the spinner, then page one.
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { Icon } from '../../components/icons/Icon';
@@ -24,6 +24,7 @@ import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { Divider } from '../../components/lists/Divider';
 import { CircularProgressIndicator } from '../../components/progress/CircularProgressIndicator';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import type { Event, Results } from '../../models/event';
 import { dartExceptionText } from '../../services/exceptions';
@@ -128,7 +129,7 @@ export function DeviceHistory({
   } else if (errorMessage !== null) {
     content = (
       <View style={[styles.expanded, styles.errorPadding]}>
-        <ScrollView
+        <ScaffoldScrollView
           style={styles.expanded}
           contentContainerStyle={styles.errorContent}
         >
@@ -139,7 +140,7 @@ export function DeviceHistory({
           />
           <View style={styles.gap15} />
           <Text style={body}>{errorMessage}</Text>
-        </ScrollView>
+        </ScaffoldScrollView>
       </View>
     );
   } else {

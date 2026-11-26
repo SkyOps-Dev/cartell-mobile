@@ -19,7 +19,6 @@
 import React from 'react';
 import {
   Image,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -43,6 +42,7 @@ import { FontAwesomeIcons, IconData } from './icons/iconData';
 import { Drawer } from './layout/Drawer';
 import { UserAccountsDrawerHeader } from './layout/DrawerHeader';
 import { useScaffold } from './layout/Scaffold';
+import { ScaffoldScrollView } from './layout/ScaffoldScrollView';
 import { Divider } from './lists/Divider';
 import { ListTile } from './lists/ListTile';
 
@@ -93,7 +93,7 @@ export function NavBar() {
 
   return (
     <Drawer backgroundColor={kCartellDarkGray}>
-      <ScrollView>
+      <ScaffoldScrollView>
         <UserAccountsDrawerHeader
           backgroundColor={kCartellDarkGray}
           picture={
@@ -134,7 +134,7 @@ export function NavBar() {
           dismissDrawerIfOpen();
           authBloc.add(new AttemptLogOutEvent());
         })}
-      </ScrollView>
+      </ScaffoldScrollView>
     </Drawer>
   );
 }

@@ -1,9 +1,12 @@
 // Flutter's `Center(child: SingleChildScrollView(child: …))`: the scroll view is as tall as its
 // content and centred in the space it is given, shrinking and scrolling only when the content does
-// not fit. Platform scroll physics never move content that fits, so iOS does not bounce it.
+// not fit. Platform scroll physics never move content that fits, so iOS does not bounce it. When it
+// does scroll, the Scaffold's app bar sees it (ScaffoldScrollView).
 
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { ScaffoldScrollView } from './ScaffoldScrollView';
 
 export function CenteredSingleChildScrollView({
   children,
@@ -12,9 +15,9 @@ export function CenteredSingleChildScrollView({
 }) {
   return (
     <View style={styles.center}>
-      <ScrollView style={styles.scroll} alwaysBounceVertical={false}>
+      <ScaffoldScrollView style={styles.scroll} alwaysBounceVertical={false}>
         {children}
-      </ScrollView>
+      </ScaffoldScrollView>
     </View>
   );
 }

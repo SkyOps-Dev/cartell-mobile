@@ -15,7 +15,7 @@
 // Submit sends the number exactly as typed and goes back at once, without waiting (quirk Q6).
 
 import React, { useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -27,6 +27,7 @@ import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
 import { CircularProgressIndicator } from '../../components/progress/CircularProgressIndicator';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { User } from '../../models/user';
 import {
   AccountInformationSetFailedException,
@@ -81,7 +82,7 @@ export function EditPhone(_props: { user: User }) {
   let content: React.ReactNode;
   if (snapshot.data !== null) {
     content = (
-      <ScrollView contentContainerStyle={styles.column}>
+      <ScaffoldScrollView contentContainerStyle={styles.column}>
         <View style={styles.backPadding}>
           <IconButton
             icon={FontAwesomeIcons.arrowLeftLong}
@@ -123,18 +124,18 @@ export function EditPhone(_props: { user: User }) {
             icon={FontAwesomeIcons.circleCheck}
           />
         </View>
-      </ScrollView>
+      </ScaffoldScrollView>
     );
   } else if (snapshot.hasError) {
     reportError(new NoAccountInformationFoundException('Error Code 855df:'));
     content = (
       <View style={styles.errorPadding}>
-        <ScrollView
+        <ScaffoldScrollView
           style={styles.errorScroll}
           contentContainerStyle={styles.errorCenter}
         >
           <FriendlyErrorView error={snapshot.error} />
-        </ScrollView>
+        </ScaffoldScrollView>
       </View>
     );
   } else {

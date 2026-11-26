@@ -11,6 +11,9 @@
 // Both run on the UI thread (Reanimated), measuring the field, the content and the viewport as
 // laid out in that frame. Fields find this view through ScrollRevealContext (OutlinedTextField
 // calls it on focus).
+//
+// Like ScaffoldScrollView, it tells the Scaffold's app bar when content scrolls under it
+// (scrolledUnder.ts).
 
 import React, { createContext, useCallback, useState } from 'react';
 import { Platform, ScrollViewProps, StyleSheet } from 'react-native';
@@ -27,6 +30,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnUI } from 'react-native-worklets';
 
+import { useScrolledUnderReaction } from './scrolledUnder';
 import { useViewInsets } from './viewInsets';
 
 export type RevealRequest = {
@@ -90,6 +94,7 @@ export function RevealingScrollView({
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const contentRef = useAnimatedRef<Animated.View>();
   const offset = useScrollViewOffset(scrollRef);
+  useScrolledUnderReaction(offset);
   const noKeyboard = useSharedValue(0);
   const keyboard = useViewInsets()?.bottom ?? noKeyboard;
   const [focused, setFocused] = useState<RevealRequest | null>(null);

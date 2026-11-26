@@ -16,7 +16,7 @@
 // stays here (it was an uncaught error in Flutter); the button can be pressed again meanwhile.
 
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -26,6 +26,7 @@ import { FontAwesomeIcons } from '../../components/icons/iconData';
 import { AppScaffold } from '../../components/layout/AppScaffold';
 import { PopScope } from '../../components/layout/PopScope';
 import { SafeArea } from '../../components/layout/SafeArea';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../models/device';
 import { reportError } from '../../services/reportError';
 import { updateDeviceData } from '../../services/requests/deviceRequests';
@@ -67,7 +68,7 @@ export function EditDevice({ device }: { device: Device }) {
       body={
         <PopScope canPop onPopInvoked={backToHub}>
           <SafeArea style={styles.expanded}>
-            <ScrollView>
+            <ScaffoldScrollView>
               <View style={styles.backRow}>
                 <IconButton
                   icon={FontAwesomeIcons.arrowLeftLong}
@@ -109,7 +110,7 @@ export function EditDevice({ device }: { device: Device }) {
                   iconColor={kCartellBlack}
                 />
               </View>
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

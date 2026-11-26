@@ -13,7 +13,7 @@
 // before the fetch lands hands on an empty list that fills in later (Q10).
 
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../../components/buttons/IconButton';
 import { RoundedButton } from '../../../components/buttons/RoundedButton';
@@ -23,6 +23,7 @@ import { FontAwesomeIcons } from '../../../components/icons/iconData';
 import { AppScaffold } from '../../../components/layout/AppScaffold';
 import { PopScope } from '../../../components/layout/PopScope';
 import { SafeArea } from '../../../components/layout/SafeArea';
+import { ScaffoldScrollView } from '../../../components/layout/ScaffoldScrollView';
 import type { Device } from '../../../models/device';
 import type { Sensor } from '../../../models/sensor';
 import { reportError } from '../../../services/reportError';
@@ -77,7 +78,7 @@ export function AddSensor({ device }: { device: Device }) {
       body={
         <PopScope canPop onPopInvoked={backToSensors}>
           <SafeArea style={styles.expanded}>
-            <ScrollView>
+            <ScaffoldScrollView>
               <View style={styles.column}>
                 <View style={styles.backRow}>
                   <IconButton
@@ -127,7 +128,7 @@ export function AddSensor({ device }: { device: Device }) {
                   <View style={styles.gap25} />
                 </View>
               </View>
-            </ScrollView>
+            </ScaffoldScrollView>
           </SafeArea>
         </PopScope>
       }

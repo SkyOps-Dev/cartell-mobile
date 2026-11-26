@@ -14,13 +14,19 @@
 // (Drawer.tsx). openDrawer / closeDrawer reach it through useScaffold(), Flutter's
 // Scaffold.maybeOf(context). closeDrawer is guarded by hasDrawer && isDrawerOpen, so it does
 // nothing where there is no drawer (the NavBar as a tablet rail) or it is already closing.
+//
+// Scrolled under: Flutter's Scaffold puts a ScrollNotificationObserver around its body and its
+// drawer, and the app bar listens to it to know whether content has scrolled under it. Here the
+// Scaffold holds that flag (`scrolledUnder`), set by the scroll views inside (scrolledUnder.ts) and
+// read by the AppBar.
 
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { kScaffoldBackground } from '../../theme/colors';
+import { ValueNotifier } from '../../utilities/valueNotifier';
 import { DrawerController, DrawerControllerHandle } from './Drawer';
 import { TopPaddingConsumedContext } from './SafeArea';
 import { useViewInsetsSource, ViewInsetsContext } from './viewInsets';
@@ -33,6 +39,8 @@ type ScaffoldState = {
   hasDrawer: boolean;
   openDrawer(): void;
   closeDrawer(): void;
+  /** Whether content in the body or drawer has scrolled under the app bar. */
+  scrolledUnder: ValueNotifier<boolean>;
 };
 
 const ScaffoldContext = React.createContext<ScaffoldState | null>(null);
@@ -79,9 +87,10 @@ export function Scaffold({
       drawerRef.current?.close();
     }
   }, [hasDrawer]);
+  const [scrolledUnder] = useState(() => new ValueNotifier(false));
   const scaffoldState = useMemo(
-    () => ({ hasDrawer, openDrawer, closeDrawer }),
-    [hasDrawer, openDrawer, closeDrawer],
+    () => ({ hasDrawer, openDrawer, closeDrawer, scrolledUnder }),
+    [hasDrawer, openDrawer, closeDrawer, scrolledUnder],
   );
 
   const fab =

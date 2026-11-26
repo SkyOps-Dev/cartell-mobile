@@ -27,7 +27,7 @@
 // password manager offers to fill or save them, as it does for the Flutter app.
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { IconButton } from '../../components/buttons/IconButton';
 import { RoundedButton } from '../../components/buttons/RoundedButton';
@@ -43,6 +43,7 @@ import {
   showPopupMessage,
 } from '../../components/popups/popups';
 import { ModalProgressHUD } from '../../components/progress/ModalProgressHUD';
+import { ScaffoldScrollView } from '../../components/layout/ScaffoldScrollView';
 import type { User } from '../../models/user';
 import { AccountInformationSetFailedException } from '../../services/exceptions';
 import { reportError } from '../../services/reportError';
@@ -185,7 +186,7 @@ export function EditPassword({ setPassword = updateUserPassword }: Props) {
               inAsyncCall={isSubmitting}
               style={styles.expanded}
             >
-              <ScrollView>
+              <ScaffoldScrollView>
                 <View style={styles.backPadding}>
                   <IconButton
                     icon={FontAwesomeIcons.arrowLeftLong}
@@ -283,7 +284,7 @@ export function EditPassword({ setPassword = updateUserPassword }: Props) {
                     />
                   </View>
                 </View>
-              </ScrollView>
+              </ScaffoldScrollView>
             </ModalProgressHUD>
           </SafeArea>
         </PopScope>
